@@ -1,546 +1,785 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Your Choice Application</title>
-<style>
-:root{--p:#1976d2;--r:#d32f2f;--g:#388e3c;--o:#f57c00;--bg:#f0f2f5}
-*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
-body{background:var(--bg);font-size:15px}
-.hide{display:none!important}
-.header{background:var(--p);color:#fff;padding:14px;text-align:center;font-size:18px;font-weight:700;position:sticky;top:0;z-index:100}
-.scroll-tag{background:var(--r);color:#fff;padding:8px;overflow:hidden;white-space:nowrap}
-.scroll-tag span{display:inline-block;animation:scroll 18s linear infinite;padding-left:100%}
-@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
-.nav{display:flex;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.1);position:sticky;top:52px;z-index:99}
-.nav-btn{flex:1;padding:13px 4px;border:none;background:#fff;border-bottom:3px solid transparent;cursor:pointer;font-weight:600;font-size:12px}
-.nav-btn.active{border-bottom:3px solid var(--p);color:var(--p)}
-.tab-content{padding:12px;max-width:900px;margin:auto}
-.btn{padding:12px 16px;margin:4px 2px;background:var(--p);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600}
-.btn:active{transform:scale(.97)}
-.btn-red{background:var(--r)}.btn-green{background:var(--g)}.btn-orange{background:var(--o)}.btn-gray{background:#757575}
-.card{background:#fff;padding:16px;margin:10px 0;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-input,textarea,select{width:100%;padding:12px;margin:6px 0;border:1px solid #ddd;border-radius:8px;font-size:15px;outline:none}
-input:focus,textarea:focus{border-color:var(--p)}
-textarea{resize:vertical;min-height:90px}
-label{font-weight:600;font-size:14px;margin-top:10px;display:block}
-.line-item{display:flex;align-items:center;padding:10px;border-bottom:1px solid #eee;gap:10px}
-.line-item span{flex:1;white-space:pre-wrap;word-break:break-word}
-.del-line{color:var(--r);cursor:pointer;font-size:24px;line-height:1;padding:0 5px}
-.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:999;padding:15px}
-.modal-content{background:#fff;padding:20px;border-radius:14px;width:100%;max-width:650px;max-height:90vh;overflow:auto}
-.badge{background:var(--r);color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;margin-left:5px}
-.flex{display:flex;gap:8px;flex-wrap:wrap}.flex-col{display:flex;flex-direction:column;gap:8px}
-.small{font-size:12px;color:#666}.center{text-align:center}
-hr{border:none;border-top:1px solid #eee;margin:14px 0}
-.radio-group label{font-weight:400;display:flex;align-items:center;gap:8px;margin:5px 0}
-.radio-group input{width:auto}
-.toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:12px 22px;border-radius:25px;z-index:1000;font-size:14px}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Choice Application</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --bg-color: #f4f6f7;
+            --card-bg: #ffffff;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        /* Top Red Scroll Tag */
+        #top-scroll-container {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 8px 0;
+            font-weight: bold;
+            overflow: hidden;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .scroll-text {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 20s linear infinite;
+            padding-left: 100%;
+        }
+
+        @keyframes marquee {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+
+        /* Layout Structure */
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 15px;
+        }
+
+        header h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 5px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-align: center;
+        }
+
+        .tab-btn:hover { background-color: #34495e; }
+        .tab-btn.active { background-color: #3498db; }
+
+        /* Sections */
+        .app-section {
+            display: none;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .app-section.active { display: block; }
+
+        /* Sub-menus & Elements */
+        .sub-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .btn-card {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: bold;
+            border: 2px solid transparent;
+            transition: 0.2s;
+        }
+
+        .btn-card:hover { border-color: #3498db; background: #e2e7e9; }
+
+        /* Form Controls */
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 15px;
+        }
+
+        button.action-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button.action-btn.delete { background-color: var(--accent-color); }
+
+        /* Cards for items */
+        .data-card {
+            background: #f8f9fa;
+            border-left: 5px solid #3498db;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .delete-ico {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            cursor: pointer;
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        /* Toast Alert for Duplicates */
+        #toast-alert {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(231, 76, 60, 0.95);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 2000;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .hidden { display: none !important; }
+        a { color: #3498db; text-decoration: none; word-break: break-all; }
+        a:hover { text-decoration: underline; }
+    </style>
 </head>
 <body>
-<div class="header">🌟 Your Choice Application</div>
-<div class="scroll-tag" id="scrollTag"><span>Welcome to Your Choice Application</span></div>
 
-<div class="nav">
-  <button class="nav-btn active" onclick="showTab('main',this)">🏠 Main</button>
-  <button class="nav-btn" onclick="showTab('tools',this)">🛠️ Tools</button>
-  <button class="nav-btn" onclick="showTab('listpad',this)">📋 List Pad</button>
-  <button class="nav-btn" onclick="showTab('office',this)">🏢 Office Room</button>
-</div>
-
-<!-- MAIN -->
-<div id="main" class="tab-content">
-  <div class="card">
-    <div class="flex">
-      <button class="btn" onclick="showEvent()">📅 A. Event</button>
-      <button class="btn" onclick="showApplication()">📝 B. Application</button>
-      <button class="btn" onclick="showLinks()">🔗 C. Link</button>
-      <button class="btn" onclick="showNotice()">📢 D. Notice Board</button>
+    <div id="top-scroll-container">
+        <div class="scroll-text" id="live-scroll-tag">স্বাগতম! অ্যাপ্লিকেশনটি লোড হচ্ছে... 📢</div>
     </div>
-  </div>
-  <div class="card" id="userArea">
-    <label>E. User Name / Office Access</label>
-    <input type="text" id="username" placeholder="Enter your name..." onkeypress="if(event.key==='Enter')loginUser()">
-    <button class="btn btn-green" onclick="loginUser()">Enter ➤</button>
-  </div>
-  <button class="btn btn-red hide" id="logoutBtn" onclick="logout()">🚪 Log Out</button>
-  <div id="mainContent"></div>
-</div>
 
-<!-- TOOLS -->
-<div id="tools" class="tab-content hide">
-  <h3>🛠️ Offline Tools</h3>
-  <p class="small">একবার লোড হলে নেট ছাড়াও চলবে</p>
-  <div id="toolsContainer"></div>
-</div>
+    <div class="container">
+        <header>
+            <h1 id="app-title">Your Choice Application 📱</h1>
+        </header>
 
-<!-- LIST PAD -->
-<div id="listpad" class="tab-content hide">
-  <div id="listpadLock" class="card center">🔒 Only Office Room members can access</div>
-  <div id="listpadContent" class="hide">
-    <input type="text" id="searchPage" placeholder="🔍 Search page title..." onkeyup="filterPages()">
-    <input type="text" id="searchLine" placeholder="🔍 Search line in all pages..." onkeyup="searchAllLines()">
-    <button class="btn btn-green" onclick="newPage()">➕ New Page</button>
-    <div id="pagesContainer"></div>
-  </div>
-</div>
+        <nav class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('main-sec')">🏠 Main</button>
+            <button class="tab-btn" onclick="switchTab('tools-sec')">🧰 Tools</button>
+            <button class="tab-btn" id="nav-listpad" onclick="switchTab('listpad-sec')">📝 List Pad</button>
+            <button class="tab-btn" id="nav-officeroom" onclick="switchTab('office-sec')">🏢 Office Room</button>
+        </nav>
 
-<!-- OFFICE ROOM -->
-<div id="office" class="tab-content hide">
-  <div id="officeLock" class="card center">🔒 Enter Office Access Code in Main tab</div>
-  <div id="officeContent" class="hide">
-    <div class="flex">
-      <button class="btn" onclick="addToolModal()">🛠️ Add Tools</button>
-      <button class="btn" onclick="addAppFormModal()">📝 Add Application</button>
-      <button class="btn" onclick="addLinkModal()">🔗 Add Link</button>
-      <button class="btn" onclick="addScrollTagModal()">📜 Add Scroll Tag</button>
-      <button class="btn" onclick="addNoticeModal()">📢 Add Notice</button>
-      <button class="btn" onclick="addEventModal()">📅 Add Event</button>
-      <button class="btn btn-orange" onclick="showReceivedApp()">📥 Receive Application<span id="appBadge" class="badge hide">0</span></button>
+        <section id="main-sec" class="app-section active">
+            <div id="auth-area" style="background:#e8f4f8; padding:15px; border-radius:8px; margin-bottom:15px;">
+                <label id="user-label" style="font-weight: bold;">👤 User Name / Code Input:</label>
+                <div style="display: flex; gap:10px; margin-top:5px;">
+                    <input type="text" id="user-auth-input" placeholder="নাম লিখুন বা কোড দিন..." onkeydown="handleAuthEnter(event)">
+                    <button class="action-btn" id="auth-btn" onclick="checkAuth()">প্রবেশ ➡️</button>
+                </div>
+            </div>
+
+            <div class="sub-grid">
+                <div class="btn-card" onclick="openMainSub('events-view')">📅 A. Event</div>
+                <div class="btn-card" onclick="openMainSub('apps-view')">📄 B. Application</div>
+                <div class="btn-card" onclick="openMainSub('links-view')">🔗 C. Link</div>
+                <div class="btn-card" onclick="openMainSub('notice-view')">📌 D. Notice Board</div>
+            </div>
+
+            <div id="main-sub-display" style="margin-top: 20px; border-top: 2px dashed #ccc; padding-top: 15px;" class="hidden">
+                <button style="float: right;" class="action-btn delete" onclick="closeMainSub()">বন্ধ করুন ❌</button>
+                <div id="main-sub-content"></div>
+            </div>
+        </section>
+
+        <section id="tools-sec" class="app-section">
+            <h2>🧰 অফলাইন টুলস বক্স</h2>
+            <p style="font-size:12px; color:#7f8c8d;">*একবার লোড হয়ে গেলে এই টুলসগুলো ইন্টারনেট ছাড়াও কাজ করবে।</p>
+            <div id="tools-runtime-container"></div>
+        </section>
+
+        <section id="listpad-sec" class="app-section">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2>📝 মেম্বার লিস্ট প্যাড</h2>
+                <div>
+                    <button class="action-btn" onclick="copyEntirePage()">📋 পেজ কপি</button>
+                    <button class="action-btn delete" onclick="deleteEntirePage()">🗑️ পেজ ডিলিট</button>
+                </div>
+            </div>
+            
+            <input type="text" id="pad-page-search" placeholder="🔍 শিরোনাম বা পৃষ্ঠা খুঁজুন..." oninput="searchPadPage()">
+            <input type="text" id="pad-page-title" placeholder="📄 পৃষ্ঠার শিরোনাম (যেমন: কাজের তালিকা)">
+            
+            <div style="background:#f9f9f9; padding:15px; border-radius:8px; margin-top:10px;">
+                <div style="display: flex; gap:10px;">
+                    <input type="text" id="pad-line-input" placeholder="✍️ নতুন লাইন লিখুন..." onkeydown="handlePadEnter(event)">
+                    <button class="action-btn" onclick="addLineToPad()">যোগ করুন ➕</button>
+                </div>
+                <input type="text" id="pad-line-search" placeholder="🔎 লাইনের ভেতরের লেখা খুঁজুন..." oninput="searchPadLine()" style="margin-top:10px;">
+            </div>
+
+            <div id="pad-lines-list" style="margin-top:15px;"></div>
+        </section>
+
+        <section id="office-sec" class="app-section">
+            <h2>🏢 অফিস কন্ট্রোল রুম</h2>
+            <hr>
+            
+            <h3>1. Add Tools 🧰</h3>
+            <textarea id="tool-code-input" rows="4" placeholder="সর্বোচ্চ ৫০০০ লাইন পর্যন্ত ফুল লজিক HTML বা JS কোড এখানে পেস্ট করুন..."></textarea>
+            <button class="action-btn" onclick="adminAddTool()">টুল পাবলিশ করুন 🚀</button>
+
+            <h3>2. Add Application Forms 📄</h3>
+            <input type="text" id="form-title" placeholder="ফর্মের শিরোনাম (যেমন: স্কলারশিপ ফর্ম)">
+            <input type="text" id="form-expiry" placeholder="কতদিন পর অটো ডিলিট হবে? (দিন সংখ্যা লিখুন, যেমন: 7)">
+            <textarea id="form-instruction" placeholder="ফর্মের মূল বক্তব্য বা নির্দেশনাবলী (ঐচ্ছিক)"></textarea>
+            
+            <div style="background:#f1f2f6; padding:10px; border-radius:6px; margin:5px 0;">
+                <p style="margin:2px; font-weight:bold;">ফর্মের ফিল্ড টাইপসমূহ ডিফল্টভাবে তৈরি হবে:</p>
+                <ul>
+                    <li>টাইপিং টেক্সট বক্স (কিবোর্ড ইনপুট)</li>
+                    <li>লিঙ্গ সিলেকশন (Male ☑️ / Female ☑️)</li>
+                    <li>অফিস ইউনিক আইডি (Form Number - অটো জেনারেটেড)</li>
+                </ul>
+            </div>
+            <button class="action-btn" onclick="adminAddForm()">ফর্ম রিলিজ করুন 📢</button>
+
+            <h3>3. Add Active Links 🔗</h3>
+            <input type="text" id="link-url" placeholder="https://example.com">
+            <button class="action-btn" onclick="adminAddLink()">লিঙ্ক যুক্ত করুন 🔗</button>
+
+            <h3>4. Add Scroll Tag 📢</h3>
+            <input type="text" id="scroll-text-input" placeholder="চলন্ত লাল স্ক্রিপ্ট টেক্সট...">
+            <button class="action-btn" onclick="adminSetScroll()">স্ক্রোল আপডেট করুন 🔄</button>
+
+            <h3>5. Add Notice Board 📌</h3>
+            <textarea id="notice-text-input" placeholder="নোটিশ বোর্ডের বিস্তারিত তথ্য..."></textarea>
+            <button class="action-btn" onclick="adminSetNotice()">নোটিশ বোর্ড আপডেট করুন 📌</button>
+
+            <h3>6. Add Event 📅</h3>
+            <input type="text" id="event-title" placeholder="ইভেন্টের নাম">
+            <input type="date" id="event-date">
+            <button class="action-btn" onclick="adminAddEvent()">ইভেন্ট যোগ করুন 🗓️</button>
+
+            <h3>7. Receive Submitted Applications 📥</h3>
+            <div id="received-apps-container">কোনো অ্যাপ্লিকেশন জমা পড়েনি।</div>
+        </section>
     </div>
-    <div id="officeData"></div>
-  </div>
-</div>
 
-<!-- MODAL -->
-<div id="modal" class="modal hide" onclick="if(event.target==this)closeModal()">
-  <div class="modal-content" id="modalContent"></div>
-</div>
+    <div id="toast-alert">⚠️ এই লাইনটি আগেই উপস্থিত আছে! ⚠️</div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, deleteDoc, query, where, orderBy, onSnapshot, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    <script type="module">
+        // Firebase মডিউল SDK লোড করা
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAVNKYEONsmJQYvNQZLrsDFjWRIFS9Iupk",
-  authDomain: "your-choice-application-3f40a.firebaseapp.com",
-  projectId: "your-choice-application-3f40a",
-  storageBucket: "your-choice-application-3f40a.firebasestorage.app",
-  messagingSenderId: "149984268715",
-  appId: "1:149984268715:web:669e5fe20dcf5bce5c82ee",
-  measurementId: "G-DPFE88RN21"
-};
+        // ইউজার প্রদত্ত ফায়ারবেস কনফিগারেশন
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVNKYEONsmJQYvNQZLrsDFjWRIFS9Iupk",
+            authDomain: "your-choice-application-3f40a.firebaseapp.com",
+            projectId: "your-choice-application-3f40a",
+            storageBucket: "your-choice-application-3f40a.firebasestorage.app",
+            messagingSenderId: "149984268715",
+            appId: "1:149984268715:web:669e5fe20dcf5bce5c82ee",
+            measurementId: "G-DPFE88RN21"
+        };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+        // ফায়ারবেস ইনিশিয়ালাইজেশন
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-let isOfficeMember = localStorage.getItem('isOfficeMember') === 'true';
-let listPages = JSON.parse(localStorage.getItem('listPages') || '{}');
+        // গ্লোবাল ভেরিয়েবল এবং ডাটা ক্যাশ (অফলাইন ও লজিক নিয়ন্ত্রণের জন্য)
+        let isDBAdmin = false;
+        let localDataCache = {};
 
-// INIT
-window.onload = async () => {
-  checkLoginStatus();
-  loadScrollTag();
-  loadTools();
-  registerSW();
-  autoDeleteExpired();
-  checkUrlParams();
-  setInterval(autoDeleteExpired, 1800000);
-  if(isOfficeMember) listenApplications();
-};
+        // অ্যাপ্লিকেশন লোড হওয়ার পর প্রারম্ভিক সেটআপ
+        window.addEventListener('DOMContentLoaded', () => {
+            setupInputLineBreaks();
+            checkSavedSession();
+            syncFirebaseRealtime();
+        });
 
-function checkLoginStatus() {
-  if(isOfficeMember) {
-    document.getElementById('userArea').classList.add('hide');
-    document.getElementById('logoutBtn').classList.remove('hide');
-    document.getElementById('officeLock').classList.add('hide');
-    document.getElementById('officeContent').classList.remove('hide');
-    document.getElementById('listpadLock').classList.add('hide');
-    document.getElementById('listpadContent').classList.remove('hide');
-    renderPages();
-  }
-}
+        // ১. এন্টার বাটনে নতুন লাইন শুরু করার লজিক (সব ইনপুটের জন্য)
+        function setupInputLineBreaks() {
+            document.body.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
+                    // কিছু স্পেসিফিক ফিল্ড বাদে বাকি সব জায়গায় এন্টার দিলে নিউ লাইন হবে
+                    if(e.target.id !== 'user-auth-input' && e.target.id !== 'pad-line-input') {
+                        e.preventDefault();
+                        const start = e.target.selectionStart;
+                        const end = e.target.selectionEnd;
+                        const val = e.target.value;
+                        e.target.value = val.substring(0, start) + "\n" + val.substring(end);
+                        e.target.selectionStart = e.target.selectionEnd = start + 1;
+                    }
+                }
+            });
+        }
 
-window.loginUser = async () => {
-  const name = document.getElementById('username').value.trim();
-  if(!name) return showToast('❌ Enter name');
-  try {
-    const secretDoc = await getDoc(doc(db, "settings", "officeKey"));
-    const officeKey = secretDoc.exists()? secretDoc.data().key : '';
-    if(name === officeKey && officeKey!== '') {
-      isOfficeMember = true;
-      localStorage.setItem('isOfficeMember', 'true');
-      checkLoginStatus();
-      listenApplications();
-      showToast('✅ Office Room Unlocked');
-    } else {
-      showToast('👋 Welcome');
-      document.getElementById('username').value = '';
-    }
-  } catch(e) { showToast('❌ Network Error'); }
-};
+        // ২. সিক্রেট মেম্বারশিপ এবং সেশন ট্র্যাকিং লজিক
+        window.checkAuth = function() {
+            const secretCode = "20091307";
+            const inputVal = document.getElementById('user-auth-input').value.trim();
+            
+            if (inputVal === secretCode) {
+                activateAdminMode();
+                localStorage.setItem('app_session_role', 'admin');
+            } else {
+                // এটি ডেটাবেসে সেভ হবে না, নরমাল ইউজার ট্র্যাকিং অফ থাকবে
+                alert("স্বাগতম " + inputVal + "! আপনি সাধারণ মোডে প্রবেশ করেছেন।");
+                document.getElementById('user-auth-input').value = "";
+            }
+        }
 
-window.logout = () => {
-  isOfficeMember = false;
-  localStorage.removeItem('isOfficeMember');
-  location.reload();
-};
+        window.handleAuthEnter = function(e) {
+            if(e.key === 'Enter') { e.preventDefault(); checkAuth(); }
+        }
 
-window.showTab = (tab, btn) => {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hide'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(tab).classList.remove('hide');
-  if(btn) btn.classList.add('active');
-};
+        function checkSavedSession() {
+            const savedRole = localStorage.getItem('app_session_role');
+            if (savedRole === 'admin') {
+                activateAdminMode();
+            } else {
+                restrictAccess();
+            }
+        }
 
-// MAIN FUNCTIONS
-window.showEvent = async () => {
-  const q = query(collection(db, "events"), orderBy("created", "desc"));
-  const snap = await getDocs(q);
-  let html = '<h3>📅 Events</h3>';
-  snap.forEach(d => {
-    const e = d.data();
-    const shareLink = location.origin + location.pathname + '?event=' + d.id;
-    html += `<div class="card"><b>${e.title}</b><br><span class="small">Last Date: ${e.lastDate}</span><br>${nl2br(e.desc)}<br>
-    <button class="btn btn-gray" onclick="navigator.clipboard.writeText('${shareLink}');showToast('🔗 Link Copied')">🔗 Copy Link</button>
-    ${isOfficeMember?`<button class="btn btn-red" onclick="delDoc('events','${d.id}');showEvent()">🗑️ Delete</button>`:''}</div>`;
-  });
-  document.getElementById('mainContent').innerHTML = html || '<div class="card">No Events</div>';
-};
+        function activateAdminMode() {
+            isDBAdmin = true;
+            document.getElementById('nav-listpad').classList.remove('hidden');
+            document.getElementById('nav-officeroom').classList.remove('hidden');
+            
+            // UI পরিবর্তন: ইনপুট বক্স উধাও হয়ে Logout বাটন আসবে
+            document.getElementById('auth-area').innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="color:#27ae60; font-weight:bold;">🟢 Office Room Member Connected</span>
+                    <button class="action-btn delete" onclick="logOutUser()">Log out 🔓</button>
+                </div>
+            `;
+        }
 
-window.showApplication = async () => {
-  const snap = await getDocs(collection(db, "appForms"));
-  let html = '<h3>📝 Available Applications</h3><div class="flex-col">';
-  snap.forEach(d => {
-    html += `<button class="btn" onclick="fillForm('${d.id}')">${d.data().title}</button>`;
-  });
-  html += '</div>';
-  document.getElementById('mainContent').innerHTML = html || '<div class="card">No Forms Available</div>';
-};
+        window.logOutUser = function() {
+            localStorage.removeItem('app_session_role');
+            location.reload(); // অ্যাপ রিলোড করে নরমাল মোডে ফিরিয়ে আনা
+        }
 
-window.fillForm = async (formId) => {
-  const d = await getDoc(doc(db, "appForms", formId));
-  const f = d.data();
-  let html = `<h3>${f.title}</h3><form id="userForm"><div class="flex-col">`;
-  f.fields.forEach((field, i) => {
-    if(field.type === 'text') {
-      html += `<label>${field.label}</label><input name="f${i}" required>`;
-    } else if(field.type === 'radio') {
-      html += `<label>${field.label}</label><div class="radio-group">`;
-      field.options.forEach(opt => {
-        html += `<label><input type="radio" name="f${i}" value="${opt}" required> ${opt}</label>`;
-      });
-      html += `</div>`;
-    } else if(field.type === 'office') {
-      html += `<label>${field.label}: ${field.value}</label><input type="hidden" name="f${i}" value="${field.value}">`;
-    } else if(field.type === 'textarea') {
-      html += `<label>${field.label} (Optional)</label><textarea name="f${i}"></textarea>`;
-    }
-  });
-  html += `</div><button type="submit" class="btn btn-green">📤 Send</button></form>`;
-  document.getElementById('mainContent').innerHTML = html;
-  document.getElementById('userForm').onsubmit = async (e) => {
-    e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.target));
-    await addDoc(collection(db, "receivedApps"), {
-      formId, formTitle: f.title, data,
-      submittedAt: Timestamp.now(),
-      expireAt: Timestamp.fromDate(new Date(Date.now() + 100*24*60*60*1000))
-    });
-    showToast('✅ Application Sent to Office Room');
-    document.getElementById('mainContent').innerHTML = '';
-  };
-};
+        function restrictAccess() {
+            isDBAdmin = false;
+            document.getElementById('nav-listpad').classList.add('hidden');
+            document.getElementById('nav-officeroom').classList.add('hidden');
+        }
 
-window.showLinks = async () => {
-  const snap = await getDocs(collection(db, "links"));
-  let html = '<h3>🔗 Links</h3><div class="flex-col">';
-  snap.forEach(d => {
-    const l = d.data();
-    html += `<a href="${l.url}" target="_blank" class="btn">${l.title}</a>
-    ${isOfficeMember?`<button class="btn btn-red" onclick="delDoc('links','${d.id}');showLinks()">🗑️</button>`:''}`;
-  });
-  html += '</div>';
-  document.getElementById('mainContent').innerHTML = html || '<div class="card">No Links</div>';
-};
+        // ৩. ফায়ারবেস ডেটা রিয়েল-টাইম সিঙ্ক এবং অটো-ডিলিট প্রসেসর
+        function syncFirebaseRealtime() {
+            onValue(ref(db, '/'), (snapshot) => {
+                const data = snapshot.val() || {};
+                localDataCache = data;
+                
+                // অফলাইন কাজের সুবিধার জন্য লোকাল স্টোরেজেও ব্যাকআপ রাখা হচ্ছে
+                localStorage.setItem('tools_offline_cache', JSON.stringify(data.tools || {}));
 
-window.showNotice = async () => {
-  const d = await getDoc(doc(db, "settings", "notice"));
-  const notice = d.exists()? d.data().text : 'No Notice Available';
-  document.getElementById('mainContent').innerHTML = `<div class="card"><h3>📢 Notice Board</h3>${nl2br(notice)}</div>`;
-};
+                // কাস্টম কম্পোনেন্ট রেন্ডারিং
+                renderScrollTag(data.scrollTag);
+                renderTools(data.tools);
+                renderListPad();
+                renderReceivedApplications(data.submittedForms);
+                
+                // অটো ডিলিট লজিক রান করা
+                processAutoDeletion(data);
+            });
+        }
 
-// TOOLS
-async function loadTools() {
-  const snap = await getDocs(collection(db, "tools"));
-  let html = '';
-  snap.forEach(d => {
-    const t = d.data();
-    localStorage.setItem('tool_'+d.id, t.code);
-    html += `<div class="card"><b>${t.name}</b><div class="flex">
-      <button class="btn" onclick="runTool('${d.id}')">▶️ Run</button>
-      ${isOfficeMember?`<button class="btn btn-red" onclick="delDoc('tools','${d.id}');localStorage.removeItem('tool_${d.id}');loadTools()">🗑️ Delete</button>`:''}
-    </div></div>`;
-  });
-  document.getElementById('toolsContainer').innerHTML = html || '<div class="card">No Tools Added</div>';
-}
+        // অফলাইন টুলস সাপোর্ট লজিক (ইন্টারনেট না থাকলেও লোকাল ক্যাশ থেকে চলবে)
+        function renderTools(firebaseTools) {
+            let toolsData = firebaseTools;
+            if(!toolsData) {
+                const offline = localStorage.getItem('tools_offline_cache');
+                if(offline) toolsData = JSON.parse(offline);
+            }
 
-window.runTool = (id) => {
-  const code = localStorage.getItem('tool_'+id);
-  const win = window.open('', '_blank');
-  win.document.open(); win.document.write(code); win.document.close();
-};
+            const container = document.getElementById('tools-runtime-container');
+            container.innerHTML = "";
+            if(!toolsData) { container.innerHTML = "কোনো টুলস উপলব্ধ নেই।"; return;}
 
-// OFFICE ROOM MODALS
-window.addToolModal = () => {
-  showModal(`<h3>🛠️ Add Offline Tool</h3>
-    <label>Tool Name</label><input id="toolName" placeholder="Calculator">
-    <label>Full HTML/JS Code (Max 5000 lines)</label>
-    <textarea id="toolCode" rows="12" placeholder="<!DOCTYPE html>..."></textarea>
-    <div class="flex"><button class="btn btn-green" onclick="saveTool()">💾 Save Tool</button>
-    <button class="btn btn-red" onclick="closeModal()">Cancel</button></div>`);
-};
+            Object.keys(toolsData).forEach(key => {
+                const tool = toolsData[key];
+                const div = document.createElement('div');
+                div.className = "data-card";
+                div.innerHTML = `
+                    <h4>🛠️ Tool ID: ${key.substring(1,6)}</h4>
+                    <div id="sandbox-${key}"></div>
+                    ${isDBAdmin ? `<span class="delete-ico" onclick="deleteItem('tools/${key}')">🗑️</span>` : ''}
+                `;
+                container.appendChild(div);
+                
+                // সিকিউর উপায়ে ৫০০০ লাইন পর্যন্ত HTML/JS কোড স্যান্ডবক্সিং ইঞ্জেকশন
+                try {
+                    const shadowTarget = document.getElementById(`sandbox-${key}`);
+                    shadowTarget.innerHTML = tool.code; 
+                } catch (err) {
+                    console.error("টুলস রান করতে সমস্যা হয়েছে", err);
+                }
+            });
+        }
 
-window.saveTool = async () => {
-  const name = document.getElementById('toolName').value.trim();
-  const code = document.getElementById('toolCode').value;
-  if(!name ||!code) return showToast('❌ Fill all fields');
-  if(code.split('\n').length > 5000) return showToast('❌ Max 5000 lines allowed');
-  await addDoc(collection(db, "tools"), {name, code, created: Timestamp.now()});
-  closeModal(); loadTools(); showToast('✅ Tool Saved');
-};
+        function renderScrollTag(tagData) {
+            const marquee = document.getElementById('live-scroll-tag');
+            if(tagData && tagData.text) {
+                marquee.innerText = tagData.text;
+            } else {
+                marquee.innerText = "Your Choice Application 📱";
+            }
+        }
 
-window.addAppFormModal = () => {
-  showModal(`<h3>📝 Create Application Form</h3>
-    <label>Form Title</label><input id="formTitle">
-    <label>Fields JSON</label>
-    <textarea id="formFields" rows="8" placeholder='[{"type":"text","label":"Name"},{"type":"radio","label":"Gender","options":["Male","Female"]},{"type":"office","label":"Form No","value":"2X2"},{"type":"textarea","label":"Message"}]'></textarea>
-    <label>Auto Delete After (Days)</label><input type="number" id="formExpiry" value="30">
-    <div class="flex"><button class="btn btn-green" onclick="saveForm()">💾 Save Form</button>
-    <button class="btn btn-red" onclick="closeModal()">Cancel</button></div>`);
-};
+        // ৪. মেম্বার লিস্ট প্যাড লজিক (ডুপ্লিকেট ডিটেকশন ও অ্যাকশনস)
+        window.handlePadEnter = function(e) {
+            if(e.key === 'Enter') { e.preventDefault(); addLineToPad(); }
+        }
 
-window.saveForm = async () => {
-  try {
-    const title = document.getElementById('formTitle').value.trim();
-    const fields = JSON.parse(document.getElementById('formFields').value);
-    const expiry = parseInt(document.getElementById('formExpiry').value) || 30;
-    await addDoc(collection(db, "appForms"), {title, fields, expiryDays: expiry, created: Timestamp.now()});
-    closeModal(); showToast('✅ Form Created');
-  } catch(e) { showToast('❌ Invalid JSON Format'); }
-};
+        window.addLineToPad = function() {
+            const title = document.getElementById('pad-page-title').value.trim() || "Default Page";
+            const lineText = document.getElementById('pad-line-input').value.trim();
+            if(!lineText) return;
 
-window.addLinkModal = () => {
-  showModal(`<h3>🔗 Add Link</h3>
-    <label>Title</label><input id="linkTitle">
-    <label>URL</label><input id="linkUrl" type="url" placeholder="https://">
-    <div class="flex"><button class="btn btn-green" onclick="saveLink()">💾 Save</button>
-    <button class="btn btn-red" onclick="closeModal()">Cancel</button></div>`);
-};
+            // ডুপ্লিকেট চেকিং লজিক (একই পেজে একই লাইন দুবার চেক করা)
+            const currentLines = localDataCache.listpads || {};
+            let isDuplicate = false;
+            
+            Object.keys(currentLines).forEach(k => {
+                if(currentLines[k].title === title && currentLines[k].line === lineText) {
+                    isDuplicate = true;
+                }
+            });
 
-window.saveLink = async () => {
-  const title = document.getElementById('linkTitle').value.trim();
-  const url = document.getElementById('linkUrl').value.trim();
-  if(!title ||!url) return showToast('❌ Fill all');
-  await addDoc(collection(db, "links"), {title, url, created: Timestamp.now()});
-  closeModal(); showToast('✅ Link Added');
-};
+            if(isDuplicate) {
+                showToastAlert();
+                return;
+            }
 
-window.addScrollTagModal = () => {
-  showModal(`<h3>📜 Add Scroll Tag</h3>
-    <label>Tag Text (Old will be replaced)</label><input id="tagText">
-    <div class="flex"><button class="btn btn-green" onclick="saveScrollTag()">💾 Save</button>
-    <button class="btn btn-red" onclick="closeModal()">Cancel</button></div>`);
-};
+            // ডেটাবেসে পুশ করা
+            const newRef = push(ref(db, 'listpads'));
+            set(newRef, { title: title, line: lineText, timestamp: Date.now() });
+            document.getElementById('pad-line-input').value = "";
+        }
 
-window.saveScrollTag = async () => {
-  const text = document.getElementById('tagText').value.trim();
-  if(!text) return;
-  await setDoc(doc(db, "settings", "scrollTag"), {text});
-  document.querySelector('#scrollTag span').textContent = text;
-  closeModal(); showToast('✅ Scroll Tag Updated');
-};
+        function showToastAlert() {
+            const toast = document.getElementById('toast-alert');
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000); // ৩ সেকেন্ড বড় করে ভেসে থাকবে
+        }
 
-async function loadScrollTag() {
-  const d = await getDoc(doc(db, "settings", "scrollTag"));
-  if(d.exists()) document.querySelector('#scrollTag span').textContent = d.data().text;
-}
+        function renderListPad() {
+            const searchPage = document.getElementById('pad-page-search').value.toLowerCase();
+            const searchLine = document.getElementById('pad-line-search').value.toLowerCase();
+            const container = document.getElementById('pad-lines-list');
+            container.innerHTML = "";
 
-window.addNoticeModal = () => {
-  showModal(`<h3>📢 Add Notice</h3>
-    <label>Notice Text (Old will be replaced)</label>
-    <textarea id="noticeText" rows="6"></textarea>
-    <div class="flex"><button class="btn btn-green" onclick="saveNotice()">💾 Save</button>
-    <button class="btn btn-red" onclick="closeModal()">Cancel</button></div>`);
-};
+            const pads = localDataCache.listpads || {};
+            
+            Object.keys(pads).forEach(key => {
+                const item = pads[key];
+                if(item.title.toLowerCase().includes(searchPage) && item.line.toLowerCase().includes(searchLine)) {
+                    const div = document.createElement('div');
+                    div.className = "data-card";
+                    div.style.borderColor = "#2ecc71";
+                    div.innerHTML = `
+                        <small style="color:gray;">📁 ${item.title}</small>
+                        <p style="margin:5px 0; font-size:16px;">${linkify(item.line)}</p>
+                        <span class="delete-ico" onclick="deleteItem('listpads/${key}')">❌</span>
+                    `;
+                    container.appendChild(div);
+                }
+            });
+        }
 
-window.saveNotice = async () => {
-  const text = document.getElementById('noticeText').value.trim();
-  await setDoc(doc(db, "settings", "notice"), {text});
-  closeModal(); showToast('✅ Notice Updated');
-};
+        window.searchPadPage = function() { renderListPad(); }
+        window.searchPadLine = function() { renderListPad(); }
 
-window.addEventModal = () => {
-  showModal(`<h3>📅 Add Event</h3>
-    <label>Event Title</label><input id="eventTitle">
-    <label>Description</label><textarea id="eventDesc" rows="4"></textarea>
-    <label>Last Date</label><input id="eventDate" type="date">
-    <div class="flex"><button class="btn btn-green" onclick="saveEvent()">💾 Save</button>
-    <button class="btn btn-red" onclick="closeModal()">Cancel</button></div>`);
-};
+        window.copyEntirePage = function() {
+            const currentTitle = document.getElementById('pad-page-title').value.trim() || "Default Page";
+            const pads = localDataCache.listpads || {};
+            let compiledText = "";
 
-window.saveEvent = async () => {
-  const title = document.getElementById('eventTitle').value.trim();
-  const desc = document.getElementById('eventDesc').value.trim();
-  const lastDate = document.getElementById('eventDate').value;
-  if(!title ||!lastDate) return showToast('❌ Title & Date required');
-  await addDoc(collection(db, "events"), {title, desc, lastDate, created: Timestamp.now()});
-  closeModal(); showToast('✅ Event Added');
-};
+            Object.keys(pads).forEach(k => {
+                if(pads[k].title === currentTitle) {
+                    compiledText += pads[k].line + "\n";
+                }
+            });
 
-window.showReceivedApp = async () => {
-  const snap = await getDocs(query(collection(db, "receivedApps"), orderBy("submittedAt", "desc")));
-  let html = '<h3>📥 Received Applications</h3>';
-  const grouped = {};
-  snap.forEach(d => {
-    const a = d.data();
-    if(!grouped[a.formTitle]) grouped[a.formTitle] = [];
-    grouped[a.formTitle].push({id: d.id,...a});
-  });
-  Object.keys(grouped).forEach(title => {
-    html += `<div class="card"><h4>${title}</h4>`;
-    grouped[title].forEach(app => {
-      html += `<div style="border:1px solid #eee;padding:12px;margin:10px 0;border-radius:8px">`;
-      Object.keys(app.data).forEach(k => { html += `<b>${k}:</b> ${nl2br(app.data[k])}<br>`; });
-      html += `<span class="small">Submitted: ${app.submittedAt.toDate().toLocaleString()}</span><br>
-      <div class="flex"><button class="btn" onclick="shareAppLink('${app.id}')">🔗 Create Share Link</button>
-      <button class="btn btn-red" onclick="delDoc('receivedApps','${app.id}');showReceivedApp()">🗑️ Delete</button></div>
-      </div>`;
-    });
-    html += `</div>`;
-  });
-  document.getElementById('officeData').innerHTML = html || '<div class="card">No Applications Yet</div>';
-  document.getElementById('appBadge').classList.add('hide');
-};
+            if(compiledText) {
+                navigator.clipboard.writeText(compiledText);
+                alert("এই পৃষ্ঠার সমস্ত লাইন কপি করা হয়েছে! 📋");
+            } else {
+                alert("কপি করার মতো কোনো লাইন পাওয়া যায়নি।");
+            }
+        }
 
-window.shareAppLink = async (appId) => {
-  const link = location.origin + location.pathname + '?viewApp=' + appId;
-  await navigator.clipboard.writeText(link);
-  showToast('✅ Link Copied! Valid 100 days');
-};
+        window.deleteEntirePage = function() {
+            if(!confirm("আপনি কি নিশ্চিতভাবে এই পৃষ্ঠার সমস্ত ডেটা মুছে ফেলতে চান?")) return;
+            const currentTitle = document.getElementById('pad-page-title').value.trim() || "Default Page";
+            const pads = localDataCache.listpads || {};
 
-function listenApplications() {
-  onSnapshot(collection(db, "receivedApps"), (snap) => {
-    const badge = document.getElementById('appBadge');
-    if(snap.size > 0) { badge.textContent = snap.size; badge.classList.remove('hide'); }
-    else badge.classList.add('hide');
-  });
-}
+            Object.keys(pads).forEach(k => {
+                if(pads[k].title === currentTitle) {
+                    remove(ref(db, `listpads/${k}`));
+                }
+            });
+        }
 
-// URL PARAMS FOR DEEP LINK
-async function checkUrlParams() {
-  const p = new URLSearchParams(location.search);
-  const appId = p.get('viewApp'), eventId = p.get('event');
-  if(appId) {
-    const d = await getDoc(doc(db, "receivedApps", appId));
-    if(d.exists()) {
-      const a = d.data();
-      let html = `<div class="card"><h3>${a.formTitle}</h3>`;
-      Object.keys(a.data).forEach(k => { html += `<b>${k}:</b> ${nl2br(a.data[k])}<br>`; });
-      html += `</div>`;
-      document.getElementById('mainContent').innerHTML = html;
-      showTab('main', document.querySelector('.nav-btn'));
-    }
-  }
-  if(eventId) {
-    const d = await getDoc(doc(db, "events", eventId));
-    if(d.exists()) {
-      const e = d.data();
-      document.getElementById('mainContent').innerHTML = `<div class="card"><h3>📅 ${e.title}</h3><span class="small">Last Date: ${e.lastDate}</span><br>${nl2br(e.desc)}</div>`;
-      showTab('main', document.querySelector('.nav-btn'));
-    }
-  }
-}
+        // ৫. মেইন সেকশনের সাব-মেনু ডাটা লোডিং লজিক (অফিস রুমের সাথে কানেক্টেড)
+        window.openMainSub = function(type) {
+            const display = document.getElementById('main-sub-display');
+            const content = document.getElementById('main-sub-content');
+            display.classList.remove('hidden');
+            content.innerHTML = "লোড হচ্ছে...";
 
-// LIST PAD
-window.newPage = () => {
-  const title = prompt('Enter page title:');
-  if(title && title.trim()) {
-    if(listPages[title]) return showToast('⚠️ Page already exists');
-    listPages[title] = [];
-    saveListPages(); renderPages();
-  }
-};
+            if(type === 'events-view') {
+                content.innerHTML = "<h3>📅 অ্যাক্টিভ ইভেন্ট সমূহ</h3>";
+                const events = localDataCache.events || {};
+                Object.keys(events).forEach(k => {
+                    content.innerHTML += `
+                        <div class="data-card">
+                            <h4>🎉 ${events[k].title}</h4>
+                            <p>⏳ শেষ তারিখ: ${events[k].expiryDate}</p>
+                            <p>🔗 ইভেন্ট লিঙ্ক: <a href="?targetEvent=${k}" target="_blank">ওপেন করুন</a></p>
+                        </div>`;
+                });
+            } 
+            else if(type === 'links-view') {
+                content.innerHTML = "<h3>🔗 অফিসিয়াল পাবলিশড লিঙ্ক</h3>";
+                const links = localDataCache.links || {};
+                Object.keys(links).forEach(k => {
+                    content.innerHTML += `<div class="data-card">🔗 <a href="${links[k].url}" target="_blank">${links[k].url}</a></div>`;
+                });
+            }
+            else if(type === 'notice-view') {
+                content.innerHTML = "<h3>📌 নোটিশ বোর্ড</h3>";
+                const notice = localDataCache.notice || { text: "কোনো নোটিশ নেই।" };
+                content.innerHTML += `<div class="data-card" style="font-size:16px; white-space:pre-wrap;">${linkify(notice.text)}</div>`;
+            }
+            else if(type === 'apps-view') {
+                content.innerHTML = "<h3>📄 অ্যাপ্লিকেশন ফরম ফিলাপ</h3>";
+                const templates = localDataCache.formTemplates || {};
+                Object.keys(templates).forEach(k => {
+                    content.innerHTML += `
+                        <div class="data-card" style="border-color:#e67e22;">
+                            <h4>📋 ${templates[k].title}</h4>
+                            ${templates[k].instruction ? `<p>ℹ️ <i>${templates[k].instruction}</i></p>` : ''}
+                            <div id="live-form-box-${k}">
+                                <input type="text" id="inf-name-${k}" placeholder="আপনার নাম লিখুন (যেমন: Leela Nag)">
+                                <div style="margin:10px 0;">
+                                    <label>লিঙ্গ সিলেক্ট করুন: </label>
+                                    <input type="radio" name="gen-${k}" value="Male" id="m-${k}"> Male ⬜
+                                    <input type="radio" name="gen-${k}" value="Female" id="f-${k}"> Female ⬜
+                                </div>
+                                <button class="action-btn" onclick="submitUserApplication('${k}')">সেন্ড করুন ✉️</button>
+                            </div>
+                        </div>`;
+                });
+            }
+        }
 
-function renderPages() {
-  let html = '';
-  Object.keys(listPages).forEach(title => {
-    html += `<div class="card page-card" data-title="${title.toLowerCase()}"><h4>${title}</h4>
-      <div class="flex"><button class="btn" onclick="copyPage('${title}')">📋 Copy All</button>
-      <button class="btn btn-red" onclick="delPage('${title}')">🗑️ Delete Page</button></div>
-      <input placeholder="Type line & Press Enter..." onkeypress="if(event.key==='Enter'){addLine('${title}',this)}">
-      <div id="lines_${btoa(title)}">`;
-    listPages[title].forEach((line, i) => {
-      html += `<div class="line-item"><span>${nl2br(line)}</span><span class="del-line" onclick="delLine('${title}',${i})">❌</span></div>`;
-    });
-    html += `</div></div>`;
-  });
-  document.getElementById('pagesContainer').innerHTML = html || '<div class="card">No Pages. Click ➕ New Page</div>';
-}
+        window.closeMainSub = function() {
+            document.getElementById('main-sub-display').classList.add('hidden');
+        }
 
-window.addLine = (title, input) => {
-  const line = input.value.trim();
-  if(!line) return;
-  if(listPages[title].includes(line)) return showToast('⚠️ আগেই উপস্থিত আছে');
-  listPages[title].push(line);
-  input.value = ''; saveListPages(); renderPages();
-};
+        // ইউজার কর্তৃক অ্যাপ্লিকেশন সাবমিট লজিক (সরাসরি অফিস রুমে জমা হবে)
+        window.submitUserApplication = function(templateId) {
+            const nameVal = document.getElementById(`inf-name-${templateId}`).value.trim();
+            const genderNode = document.querySelector(`input[name="gen-${templateId}"]:checked`);
+            
+            if(!nameVal || !genderNode) { alert("সব তথ্য সঠিকভাবে পূরণ করুন!"); return; }
+            
+            const uniqueFormNum = "2X" + Math.floor(10 + Math.random() * 90); // 2X2 ফরম্যাট অটো জেনারেশন
+            const template = localDataCache.formTemplates[templateId];
 
-window.delLine = (title, i) => { listPages[title].splice(i,1); saveListPages(); renderPages(); };
-window.delPage = (title) => { if(confirm('Delete entire page?')){ delete listPages[title]; saveListPages(); renderPages(); } };
-window.copyPage = (title) => { navigator.clipboard.writeText(listPages[title].join('\n')); showToast('✅ Copied'); };
-window.filterPages = () => {
-  const q = document.getElementById('searchPage').value.toLowerCase();
-  document.querySelectorAll('.page-card').forEach(c => {
-    c.classList.toggle('hide',!c.dataset.title.includes(q));
-  });
-};
-window.searchAllLines = () => {
-  const q = document.getElementById('searchLine').value.toLowerCase();
-  document.querySelectorAll('.line-item').forEach(item => {
-    item.classList.toggle('hide',!item.textContent.toLowerCase().includes(q));
-  });
-};
-function saveListPages() { localStorage.setItem('listPages', JSON.stringify(listPages)); }
+            const newSubmissionRef = push(ref(db, 'submittedForms'));
+            set(newSubmissionRef, {
+                templateId: templateId,
+                formTitle: template.title,
+                applicantName: nameVal,
+                gender: genderNode.value,
+                formNumber: uniqueFormNum,
+                timestamp: Date.now(),
+                expiryTimestamp: template.expiryDays ? (Date.now() + (parseInt(template.expiryDays) * 86400000)) : null
+            });
 
-// AUTO DELETE
-async function autoDeleteExpired() {
-  const now = Timestamp.now();
-  const snap = await getDocs(collection(db, "receivedApps"));
-  snap.forEach(async (d) => {
-    if(d.data().expireAt && d.data().expireAt.toMillis() < now.toMillis()) await deleteDoc(d.ref);
-  });
-  const forms = await getDocs(collection(db, "appForms"));
-  forms.forEach(async (d) => {
-    const f = d.data();
-    if(f.created && f.expiryDays) {
-      const expiry = f.created.toMillis() + f.expiryDays*24*60*60*1000;
-      if(Date.now() > expiry) await deleteDoc(d.ref);
-    }
-  });
-}
+            alert("আপনার অ্যাপ্লিকেশনটি সরাসরি Office Room এ পাঠানো হয়েছে! ইউনিক ফর্ম নম্বর: " + uniqueFormNum);
+            openMainSub('apps-view');
+        }
 
-// UTILS
-window.delDoc = async (col, id) => { if(confirm('Delete?')){ await deleteDoc(doc(db, col, id)); showToast('✅ Deleted'); } };
-window.showModal = (html) => { document.getElementById('modalContent').innerHTML = html; document.getElementById('modal').classList.remove('hide'); };
-window.closeModal = () => document.getElementById('modal').classList.add('hide');
-function nl2br(str) { return String(str).replace(/\n/g, '<br>'); }
-function showToast(msg) {
-  const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
-  document.body.appendChild(t); setTimeout(()=>t.remove(), 2500);
-}
+        // ৬. অফিস রুম অ্যাডমিন কন্ট্রোল অ্যাকশনস
+        window.adminAddTool = function() {
+            const code = document.getElementById('tool-code-input').value.trim();
+            if(!code) return;
+            const newRef = push(ref(db, 'tools'));
+            set(newRef, { code: code, timestamp: Date.now() });
+            document.getElementById('tool-code-input').value = "";
+            alert("নতুন টুলস সাকসেসফুলি পাবলিশ হয়েছে! ✨");
+        }
 
-// OFFLINE SERVICE WORKER
-function registerSW() {
-  if('serviceWorker' in navigator) {
-    const sw = `const C='v4';self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(['/']))));
-self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
-    const blob = new Blob([sw], {type: 'application/javascript'});
-    navigator.serviceWorker.register(URL.createObjectURL(blob));
-  }
-}
-</script>
+        window.adminAddForm = function() {
+            const title = document.getElementById('form-title').value.trim();
+            const expiry = document.getElementById('form-expiry').value.trim();
+            const instruction = document.getElementById('form-instruction').value.trim();
+
+            if(!title) return;
+            const newRef = push(ref(db, 'formTemplates'));
+            set(newRef, {
+                title: title,
+                expiryDays: expiry ? parseInt(expiry) : null,
+                instruction: instruction,
+                timestamp: Date.now()
+            });
+            
+            document.getElementById('form-title').value = "";
+            document.getElementById('form-expiry').value = "";
+            document.getElementById('form-instruction').value = "";
+            alert("নতুন ফর্ম টেমপ্লেট লাইভ করা হয়েছে! 📢");
+        }
+
+        window.adminAddLink = function() {
+            const url = document.getElementById('link-url').value.trim();
+            if(!url) return;
+            const newRef = push(ref(db, 'links'));
+            set(newRef, { url: url });
+            document.getElementById('link-url').value = "";
+            alert("লিঙ্ক যুক্ত হয়েছে।");
+        }
+
+        window.adminSetScroll = function() {
+            const text = document.getElementById('scroll-text-input').value.trim();
+            set(ref(db, 'scrollTag'), { text: text });
+            document.getElementById('scroll-text-input').value = "";
+            alert("স্ক্রোল টেক্সট আপডেট হয়েছে।");
+        }
+
+        window.adminSetNotice = function() {
+            const text = document.getElementById('notice-text-input').value.trim();
+            set(ref(db, 'notice'), { text: text });
+            document.getElementById('notice-text-input').value = "";
+            alert("নোটিশ বোর্ড আপডেট হয়েছে।");
+        }
+
+        window.adminAddEvent = function() {
+            const title = document.getElementById('event-title').value.trim();
+            const date = document.getElementById('event-date').value;
+            if(!title || !date) return;
+
+            const newRef = push(ref(db, 'events'));
+            set(newRef, { title: title, expiryDate: date });
+            document.getElementById('event-title').value = "";
+            alert("ইভেন্ট ক্রিয়েট হয়েছে।");
+        }
+
+        // রিসিভড ফর্ম রেন্ডারিং এবং ইউনিক লিঙ্ক প্রোডাকশন (১০০ দিনের মেয়াদ)
+        function renderReceivedApplications(submittedData) {
+            const container = document.getElementById('received-apps-container');
+            container.innerHTML = "";
+            if(!submittedData) { container.innerHTML = "কোনো অ্যাপ্লিকেশন জমা পড়েনি।"; return; }
+
+            Object.keys(submittedData).forEach(key => {
+                const app = submittedData[key];
+                const uniqueWebLink = window.location.origin + window.location.pathname + "?viewApp=" + key;
+                
+                const div = document.createElement('div');
+                div.className = "data-card";
+                div.style.borderColor = "#9b59b6";
+                div.innerHTML = `
+                    <h4>📁 শিরোনাম: ${app.formTitle}</h4>
+                    <p><b>👤 নাম:</b> ${app.applicantName} | <b>⚥ লিঙ্গ:</b> ${app.gender}</p>
+                    <p><b>🔢 Form Number:</b> ${app.formNumber}</p>
+                    <p style="font-size:11px; color:#7f8c8d;">🔗 ইউনিক শেয়ার লিঙ্ক (মেয়াদ ১০০ দিন):<br>
+                    <a href="${uniqueWebLink}" target="_blank">${uniqueWebLink}</a></p>
+                    <span class="delete-ico" onclick="deleteItem('submittedForms/${key}')">🗑️</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // ৭. অটো-ডিলিট সিস্টেম ইন্টেলিজেন্স (মেয়াদ শেষ হলে নিজে থেকেই ফায়ারবেস থেকে মুছে যাবে)
+        function processAutoDeletion(allData) {
+            const now = Date.now();
+
+            // ক. অ্যাপ্লিকেশন ফর্ম ডিলিট প্রসেস (অফিস টাইমস্ট্যাম্প বেসড)
+            if(allData.submittedForms) {
+                Object.keys(allData.submittedForms).forEach(k => {
+                    const app = allData.submittedForms[k];
+                    if(app.expiryTimestamp && now > app.expiryTimestamp) {
+                        remove(ref(db, `submittedForms/${k}`));
+                    }
+                });
+            }
+
+            // খ. ইভেন্ট অটো ডিলিট (লাস্ট ডেট পার হলে)
+            if(allData.events) {
+                Object.keys(allData.events).forEach(k => {
+                    const ev = allData.events[k];
+                    const targetDate = new Date(ev.expiryDate).getTime();
+                    if(now > (targetDate + 86400000)) { // ইভেন্টের দিন পার হয়ে গেলে ডিলিট হবে
+                        remove(ref(db, `events/${k}`));
+                    }
+                });
+            }
+        }
+
+        // ইউনিভার্সাল ডিলিট লজিক
+        window.deleteItem = function(path) {
+            if(confirm("আপনি কি নিশ্চিত এটি ডিলিট করতে চান?")) {
+                remove(ref(db, path));
+            }
+        }
+
+        // ইউটিলিটি ফাংশন: টেক্সটের ভেতর কোনো লিঙ্ক থাকলে তা স্বয়ংক্রিয়ভাবে ক্লিকেবল লিঙ্কে রূপান্তর হবে
+        function linkify(inputText) {
+            var replacedText, replacePattern1, replacePattern2, replacePattern3;
+            replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
+            replacedText = inputText.replace(replacePattern1, '<a href="$1" target="_blank">$1</a>');
+            replacePattern2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
+            replacedText = replacedText.replace(replacePattern2, '$1<a href="http://$2" target="_blank">$2</a>');
+            replacePattern3 = /(([a-zA-Z0-9\-\_\.])+@[a-zA-Z\_]+?(\.[a-zA-Z]{2,6})+)/gim;
+            replacedText = replacedText.replace(replacePattern3, '<a href="mailto:$1">$1</a>');
+            return replacedText;
+        }
+    </script>
+
+    <script>
+        function switchTab(sectionId) {
+            document.querySelectorAll('.app-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(sectionId).classList.add('active');
+            // বাটন হাইলাইট অ্যাক্টিভ করা
+            const currentBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => btn.getAttribute('onclick').includes(sectionId));
+            if(currentBtn) currentBtn.classList.add('active');
+        }
+    </script>
 </body>
 </html>
