@@ -181,6 +181,16 @@
             margin: 5px 0;
             align-items: center;
         }
+        
+        .external-app-card {
+            background: #fffdf9;
+            border: 1px solid #ffcc80;
+            border-left: 5px solid #e67e22;
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 8px;
+            position: relative;
+        }
     </style>
 </head>
 <body>
@@ -384,7 +394,7 @@
                 activateAdminMode();
                 localStorage.setItem('app_session_role', 'admin');
             } else {
-                alert("স্বাগতম " + inputVal + "! সাধারণ ইউজার মোড সক্রিয়।");
+                alert("স্বাগতম " + inputVal + "! সাধারণ ইউজার মোড অ্যাক্টিভ হয়েছে।");
                 document.getElementById('user-auth-input').value = "";
             }
         }
@@ -433,10 +443,10 @@
                 renderReceivedApplications(data.submittedForms);
                 processAutoDeletion(data);
                 
-                // যদি সাব-ডিসপ্লে প্যানেলটি খোলা থাকে, তবে ডাটা লাইভ আপডেট করুন
-                const display = document.getElementById('main-sub-display');
-                if(display && !display.classList.contains('hidden') && window.currentOpenSubType) {
-                    openMainSub(window.currentOpenSubType);
+                // যদি সাব-ডিসপ্লে খোলা থাকে, ডাটা লাইভ আপডেট করার জন্য
+                if(!document.getElementById('main-sub-display').classList.contains('hidden')){
+                     const openType = document.getElementById('main-sub-display').getAttribute('data-open-type');
+                     if(openType) openMainSub(openType, true);
                 }
             });
         }
@@ -471,6 +481,7 @@
             document.getElementById('live-scroll-tag').innerText = (tagData && tagData.text) ? tagData.text : "Your Choice Application 📱";
         }
 
+        // লিস্ট প্যাড
         window.handlePadEnter = function(e) { if(e.key === 'Enter') { e.preventDefault(); addLineToPad(); } }
         window.addLineToPad = function() {
             const title = document.getElementById('pad-page-title').value.trim() || "Default Page";
@@ -511,7 +522,7 @@
                     div.innerHTML = `
                         <small style="color:gray;">📁 ${item.title}</small>
                         <p style="margin:5px 0; font-size:16px;">${linkify(item.line)}</p>
-                        <span class="delete-ico" onclick="deleteItem('listpads/${key}')">❌</span>
+                        ${isDBAdmin ? `<span class="delete-ico" onclick="deleteItem('listpads/${key}')">❌</span>` : ''}
                     `;
                     container.appendChild(div);
                 }
@@ -530,6 +541,7 @@
         }
 
         window.deleteEntirePage = function() {
+            if(!isDBAdmin) { alert("⚠️ শুধুমাত্র Office Room সদস্যরা মুছে ফেলতে পারবেন!"); return; }
             if(!confirm("এই পৃষ্ঠার সমস্ত ডেটা মুছে ফেলবেন?")) return;
             const currentTitle = document.getElementById('pad-page-title').value.trim() || "Default Page";
             Object.keys(localDataCache.listpads || {}).forEach(k => {
@@ -537,103 +549,80 @@
             });
         }
 
-        // ================= FIX: মেইন সেকশনের সাব-মেনু ডাটা রেন্ডারিং লজিক =================
-        window.openMainSub = function(type) {
-            window.currentOpenSubType = type; // অ্যাক্টিভ সাব-টাইপ ট্র্যাক রাখার জন্য
+        // ================= MAIN TABS RENDERING =================
+        window.openMainSub = function(type, isRefresh = false) {
             const display = document.getElementById('main-sub-display');
             const content = document.getElementById('main-sub-content');
             display.classList.remove('hidden');
-            content.innerHTML = "লোড হচ্ছে...";
+            display.setAttribute('data-open-type', type);
+            if(!isRefresh) content.innerHTML = "লোড হচ্ছে...";
 
             if(type === 'events-view') {
-                content.innerHTML = "<h3>📅 অ্যাক্টিভ ইভেন্ট সমূহ</h3>";
+                let html = "<h3>📅 অ্যাক্টিভ ইভেন্ট সমূহ</h3>";
                 const events = localDataCache.events || {};
-                if(Object.keys(events).length === 0) {
-                    content.innerHTML += "<p style='color:gray;'>কোনো ইভেন্ট উপলব্ধ নেই।</p>";
-                } else {
-                    Object.keys(events).forEach(k => {
-                        content.innerHTML += `
-                            <div class="data-card">
-                                <h4>🎉 ${events[k].title}</h4>
-                                <p>⏳ শেষ তারিখ: ${events[k].expiryDate}</p>
-                                ${isDBAdmin ? `<span class="delete-ico" onclick="deleteItem('events/${k}')">🗑️</span>` : ''}
-                            </div>`;
-                    });
-                }
+                const keys = Object.keys(events);
+                
+                if(keys.length === 0) { html += "<p>কোনো ইভেন্ট উপলব্ধ নেই।</p>"; }
+                keys.forEach(k => {
+                    const uniqueEventLink = window.location.origin + window.location.pathname + "?targetEvent=" + k;
+                    html += `
+                        <div class="data-card">
+                            <h4>🎉 ${events[k].title}</h4>
+                            <p>⏳ শেষ তারিখ: ${events[k].expiryDate}</p>
+                            <button class="action-btn" onclick="window.open('${uniqueEventLink}', '_blank')">ইভেন্ট দেখুন 🔗</button>
+                            ${isDBAdmin ? `<span class="delete-ico" onclick="deleteItem('events/${k}')">🗑️</span>` : ''}
+                        </div>`;
+                });
+                content.innerHTML = html;
             } 
             else if(type === 'links-view') {
-                content.innerHTML = "<h3>🔗 পাবলিশড লিঙ্ক</h3>";
+                let html = "<h3>🔗 পাবলিশড লিঙ্ক</h3>";
                 const links = localDataCache.links || {};
-                if(Object.keys(links).length === 0) {
-                    content.innerHTML += "<p style='color:gray;'>কোনো লিঙ্ক উপলব্ধ নেই।</p>";
-                } else {
-                    Object.keys(links).forEach(k => {
-                        content.innerHTML += `
-                            <div class="data-card" style="position:relative;">
-                                🔗 <a href="${links[k].url}" target="_blank">${links[k].url}</a>
-                                ${isDBAdmin ? `<span class="delete-ico" onclick="deleteItem('links/${k}')">🗑️</span>` : ''}
-                            </div>`;
-                    });
-                }
+                const keys = Object.keys(links);
+
+                if(keys.length === 0) { html += "<p>কোনো লিঙ্ক উপলব্ধ নেই।</p>"; }
+                keys.forEach(k => {
+                    html += `
+                        <div class="data-card">
+                            🔗 <button class="action-btn secondary" style="padding: 5px 10px;" onclick="window.open('${links[k].url}', '_blank')">${links[k].url}</button>
+                            ${isDBAdmin ? `<span class="delete-ico" onclick="deleteItem('links/${k}')">🗑️</span>` : ''}
+                        </div>`;
+                });
+                content.innerHTML = html;
             }
             else if(type === 'notice-view') {
                 const text = localDataCache.notice ? localDataCache.notice.text : "কোনো নোটিশ নেই।";
                 content.innerHTML = `<h3>📌 নোটিশ বোর্ড</h3><div class="data-card" style="font-size:16px; white-space:pre-wrap;">${linkify(text)}</div>`;
             }
             else if(type === 'apps-view') {
-                content.innerHTML = "<h3>📄 অ্যাপ্লিকেশন ফরম ফিলাপ</h3>";
+                let html = "<h3>📄 অ্যাপ্লিকেশন ফরম ফিলাপ</h3>";
                 const templates = localDataCache.formTemplates || {};
-                
-                if(Object.keys(templates).length === 0) {
-                    content.innerHTML += "<p style='color:gray;'>কোনো ফর্ম টেমপ্লেট উপলব্ধ নেই।</p>";
-                } else {
-                    Object.keys(templates).forEach(k => {
-                        const t = templates[k];
-                        let fieldsHTML = '';
-                        
-                        if(t.fields) {
-                            t.fields.forEach((field, fIdx) => {
-                                fieldsHTML += `<div style="margin:12px 0;"><label style="font-weight:bold; display:block; margin-bottom:4px;">${field.label}:</label>`;
-                                
-                                if(field.type === 'text') {
-                                    fieldsHTML += `<input type="text" class="user-input-${k}" data-label="${field.label}" placeholder="উত্তর লিখুন...">`;
-                                } else if(field.type === 'textarea') {
-                                    fieldsHTML += `<textarea class="user-input-${k}" data-label="${field.label}" placeholder="বিস্তারিত লিখুন..."></textarea>`;
-                                } else if(field.type === 'office_only') {
-                                    fieldsHTML += `<input type="text" class="user-input-${k}" data-label="${field.label}" value="[ can be edited only from Office Room ]" disabled style="background:#ddd; color:#7f8c8d;">`;
-                                } else if(field.type === 'radio' && field.options) {
-                                    field.options.forEach(opt => {
-                                        fieldsHTML += `<label style="margin-right:15px; display:inline-block;"><input type="radio" name="rad-${k}-${fIdx}" class="user-input-${k}" data-label="${field.label}" value="${opt}"> ${opt}</label>`;
-                                    });
-                                } else if(field.type === 'checkbox' && field.options) {
-                                    field.options.forEach(opt => {
-                                        fieldsHTML += `<label style="margin-right:15px; display:inline-block;"><input type="checkbox" class="user-input-${k}-box" data-label="${field.label}" value="${opt}"> ${opt}</label>`;
-                                    });
-                                }
-                                fieldsHTML += `</div>`;
-                            });
-                        }
+                const keys = Object.keys(templates);
 
-                        content.innerHTML += `
-                            <div class="data-card" style="border-color:#e67e22; position:relative;">
-                                <h4>📋 ${t.title}</h4>
-                                ${t.instruction ? `<p>ℹ️ <i>${t.instruction}</i></p>` : ''}
-                                <div id="live-form-box-${k}">
-                                    ${fieldsHTML}
-                                    <button class="action-btn" onclick="submitUserApplication('${k}')">সেন্ড করুন ✉️</button>
-                                </div>
-                                ${isDBAdmin ? `<span class="delete-ico" onclick="deleteItem('formTemplates/${k}')">🗑️</span>` : ''}
-                            </div>`;
-                    });
-                }
+                if(keys.length === 0) { html += "<p>কোনো ফর্ম উপলব্ধ নেই।</p>"; }
+                keys.forEach(k => {
+                    const t = templates[k];
+                    const uniqueFormTabLink = window.location.origin + window.location.pathname + "?openForm=" + k;
+                    
+                    html += `
+                        <div class="external-app-card">
+                            <h4>📋 ${t.title}</h4>
+                            ${t.instruction ? `<p style="color: #555;">ℹ️ <i>${t.instruction}</i></p>` : ''}
+                            <p style="font-size:13px; color:gray;">⏳ ফর্ম রিমুভাল টাইমস্ট্যাম্প নির্ধারণ করা আছে।</p>
+                            <button class="action-btn" onclick="window.open('${uniqueFormTabLink}', '_blank')">নতুন ট্যাবে ফর্মটি ওপেন করুন 📂</button>
+                            ${isDBAdmin ? `<span class="delete-ico" onclick="deleteItem('formTemplates/${k}')">🗑️</span>` : ''}
+                        </div>`;
+                });
+                content.innerHTML = html;
             }
         }
 
         window.closeMainSub = function() { 
-            window.currentOpenSubType = null;
             document.getElementById('main-sub-display').classList.add('hidden'); 
+            document.getElementById('main-sub-display').removeAttribute('data-open-type');
         }
 
+        // কাস্টম অ্যাপ্লিকেশন ডাটা সাবমিশন
         window.submitUserApplication = function(templateId) {
             const template = localDataCache.formTemplates[templateId];
             let submissionData = {};
@@ -665,10 +654,77 @@
                 expiryTimestamp: template.expiryDays ? (Date.now() + (parseInt(template.expiryDays) * 86400000)) : null
             });
 
-            alert("আপনার অ্যাপ্লিকেশনটি সফলভাবে Office Room এ পাঠানো হয়েছে!");
-            openMainSub('apps-view');
+            alert("আপনার অ্যাপ্লিকেশনটি সফলভাবে Office Room এ পাঠানো হয়েছে! আপনি এখন ট্যাবটি বন্ধ করতে পারেন।");
+            window.close();
         }
 
+        // ইউআরএল প্যারামিটার প্রসেসর (আলাদা ট্যাবে সাব-পেজ রেন্ডারিং)
+        function checkUrlParameters() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // ১. কাস্টম অ্যাপ্লিকেশন আলাদা ট্যাবে লোড লজিক
+            if(urlParams.has('openForm')) {
+                const formId = urlParams.get('openForm');
+                onValue(ref(db, `formTemplates/${formId}`), (snapshot) => {
+                    const t = snapshot.val();
+                    if(!t) { document.body.innerHTML = "<h2 style='text-align:center;margin-top:50px;'>❌ ফর্মটি পাওয়া যায়নি বা মুছে ফেলা হয়েছে।</h2>"; return; }
+                    
+                    let fieldsHTML = '';
+                    if(t.fields) {
+                        t.fields.forEach((field, fIdx) => {
+                            fieldsHTML += `<div style="margin:15px 0;"><label style="font-weight:bold; display:block; margin-bottom:6px;">${field.label}:</label>`;
+                            if(field.type === 'text') {
+                                fieldsHTML += `<input type="text" class="user-input-${formId}" data-label="${field.label}" placeholder="উত্তর লিখুন...">`;
+                            } else if(field.type === 'textarea') {
+                                fieldsHTML += `<textarea class="user-input-${formId}" data-label="${field.label}" rows="4" placeholder="বিস্তারিত লিখুন..."></textarea>`;
+                            } else if(field.type === 'office_only') {
+                                fieldsHTML += `<input type="text" class="user-input-${formId}" data-label="${field.label}" value="[শুধুমাত্র অফিস রুম থেকে পূরণযোগ্য]" disabled style="background:#ddd;">`;
+                            } else if(field.type === 'radio' && field.options) {
+                                field.options.forEach(opt => {
+                                    fieldsHTML += `<label style="margin-right:20px; display:inline-block;"><input type="radio" name="rad-${formId}-${fIdx}" class="user-input-${formId}" data-label="${field.label}" value="${opt}"> ${opt}</label>`;
+                                });
+                            } else if(field.type === 'checkbox' && field.options) {
+                                field.options.forEach(opt => {
+                                    fieldsHTML += `<label style="margin-right:20px; display:inline-block;"><input type="checkbox" class="user-input-${formId}-box" data-label="${field.label}" value="${opt}"> ${opt}</label>`;
+                                });
+                            }
+                            fieldsHTML += `</div>`;
+                        });
+                    }
+
+                    document.body.innerHTML = `
+                        <div style="max-width:600px; margin:4px auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); font-family:sans-serif;">
+                            <h2 style="color:#2c3e50; text-align:center; border-bottom:2px solid #3498db; padding-bottom:10px;">${t.title}</h2>
+                            ${t.instruction ? `<p style="background:#f8f9fa; padding:10px; border-left:4px solid #e67e22; font-style:italic;">${t.instruction}</p>` : ''}
+                            <div id="live-form-box-${formId}">${fieldsHTML}</div>
+                            <button style="background:#2ecc71; color:white; border:none; padding:12px 25px; font-size:16px; font-weight:bold; border-radius:6px; cursor:pointer; width:100%; margin-top:15px;" onclick="submitUserApplication('${formId}')">অ্যাপ্লিকেশন জমা দিন ✉️</button>
+                        </div>
+                    `;
+                });
+            }
+
+            // ২. কাস্টম ইভেন্ট আলাদা ট্যাবে ভিউ লজিক
+            if(urlParams.has('targetEvent')) {
+                const evId = urlParams.get('targetEvent');
+                onValue(ref(db, `events/${evId}`), (snapshot) => {
+                    const ev = snapshot.val();
+                    if(!ev) { document.body.innerHTML = "<h2 style='text-align:center;margin-top:50px;'>❌ ইভেন্টটি খুঁজে পাওয়া যায়নি।</h2>"; return; }
+                    document.body.innerHTML = `
+                        <div style="max-width:500px; margin:80px auto; background:#fff; padding:4px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); text-align:center; font-family:sans-serif; border-top:8px solid #2980b9;">
+                            <h1 style="color:#2c3e50;">🎉 ${ev.title}</h1>
+                            <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
+                            <p style="font-size:18px; color:#e74c3c;"><b>⏳ শেষ তারিখ:</b> ${ev.expiryDate}</p>
+                            <p style="color:gray; font-size:13px; margin-top:30px;">Your Choice Event System 🗓️</p>
+                        </div>
+                    `;
+                });
+            }
+        }
+        
+        // রিয়েলটাইম লিসেনারের পর প্যারামিটার চেক রান করা
+        setTimeout(checkUrlParameters, 1200);
+
+        // অ্যাডমিন ফর্ম ক্রিয়েশন 
         window.adminAddForm = function() {
             const title = document.getElementById('form-title').value.trim();
             const expiry = document.getElementById('form-expiry').value.trim();
@@ -676,8 +732,7 @@
             if(!title) { alert("ফর্মের শিরোনাম আবশ্যক!"); return; }
 
             let customFields = [];
-            const rows = document.querySelectorAll('.field-builder-row');
-            rows.forEach(row => {
+            document.querySelectorAll('.field-builder-row').forEach(row => {
                 const label = row.querySelector('.builder-label').value.trim();
                 const type = row.querySelector('.builder-type').value;
                 const optionsVal = row.querySelector('.builder-options').value.trim();
@@ -713,7 +768,7 @@
             if(!code) return;
             set(push(ref(db, 'tools')), { code: code, timestamp: Date.now() });
             document.getElementById('tool-code-input').value = "";
-            alert("নতুন টুলস পাবলিশ হয়েছে!");
+            alert("নতুনツールস পাবলিশ হয়েছে!");
         }
 
         window.adminAddLink = function() {
@@ -753,7 +808,6 @@
             Object.keys(submittedData).forEach(key => {
                 const app = submittedData[key];
                 let responseHTML = '';
-                
                 if(app.responses) {
                     Object.keys(app.responses).forEach(label => {
                         responseHTML += `<p style="margin:4px 0;"><b>• ${label}:</b> ${JSON.stringify(app.responses[label])}</p>`;
@@ -762,11 +816,10 @@
 
                 let officeActionHTML = '';
                 const template = localDataCache.formTemplates ? localDataCache.formTemplates[app.templateId] : null;
-                
                 if(template && template.fields) {
                     template.fields.forEach(f => {
                         if(f.type === 'office_only') {
-                            const currentOfficeVal = app.responses && app.responses[f.label] && !app.responses[f.label].includes('[can be edited') ? app.responses[f.label] : '';
+                            const currentOfficeVal = app.responses && app.responses[f.label] && !app.responses[f.label].includes('[শুধুমাত্র') ? app.responses[f.label] : '';
                             officeActionHTML += `
                                 <div style="margin-top:8px; display:flex; gap:5px;">
                                     <input type="text" id="office-edit-${key}-${f.label}" placeholder="${f.label} লিখুন..." value="${currentOfficeVal}">
@@ -777,7 +830,6 @@
                 }
 
                 const uniqueWebLink = window.location.origin + window.location.pathname + "?viewApp=" + key;
-                
                 const div = document.createElement('div');
                 div.className = "data-card";
                 div.style.borderColor = "#9b59b6";
@@ -787,7 +839,7 @@
                     ${officeActionHTML}
                     <p style="font-size:11px; color:#7f8c8d; margin-top:10px;">🔗 ইউনিক শেয়ার লিঙ্ক (১০০ দিন):<br>
                     <a href="${uniqueWebLink}" target="_blank">${uniqueWebLink}</a></p>
-                    <span class="delete-ico" onclick="deleteItem('submittedForms/${key}')">🗑️</span>
+                    ${isDBAdmin ? `<span class="delete-ico" onclick="deleteItem('submittedForms/${key}')">🗑️</span>` : ''}
                 `;
                 container.appendChild(div);
             });
@@ -798,6 +850,17 @@
             if(!inputVal) return;
             set(ref(db, `submittedForms/${submissionId}/responses/${label}`), inputVal);
             alert(`${label} সংরক্ষণ করা হয়েছে!`);
+        }
+
+        // ইউনিভার্সাল ডিলিট সিকিউরিটি রুল এনফোর্সমেন্ট
+        window.deleteItem = function(path) { 
+            if(!isDBAdmin) { 
+                alert("⚠️ অ্যাক্সেস ডিনাইড! শুধুমাত্র Office Room এর সদস্যরা ডিলিট করতে পারবেন।"); 
+                return; 
+            }
+            if(confirm("আপনি কি নিশ্চিত এটি সম্পূর্ণ মুছে ফেলতে চান?")) {
+                remove(ref(db, path));
+            } 
         }
 
         function processAutoDeletion(allData) {
@@ -817,8 +880,6 @@
                 });
             }
         }
-
-        window.deleteItem = function(path) { if(confirm("ডিলিট করতে চান?")) remove(ref(db, path)); }
 
         function linkify(inputText) {
             var replacedText, replacePattern1, replacePattern2;
