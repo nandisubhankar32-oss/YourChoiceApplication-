@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Office Pro</title>
+<title>Your Choice Application</title>
 <style>
 :root{--p:#1976d2;--r:#d32f2f;--g:#388e3c;--o:#f57c00}
 *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,sans-serif}
@@ -60,7 +60,7 @@ hr{border:none;border-top:1px solid #eee;margin:12px 0}
     </div>
   </div>
   <div class="card" id="userArea">
-    <label>Enter Name / 20091307 for Office Access</label>
+    <label>Enter Name / Office Access Code</label>
     <input type="text" id="username" placeholder="Type here..." onkeypress="if(event.key==='Enter')loginUser()">
     <button class="btn btn-green" onclick="loginUser()">Enter ➤</button>
   </div>
@@ -87,7 +87,7 @@ hr{border:none;border-top:1px solid #eee;margin:12px 0}
 
 <!-- OFFICE ROOM -->
 <div id="office" class="tab-content hide">
-  <div id="officeLock" class="card">🔒 Enter 20091307 in Main tab to access Office Room</div>
+  <div id="officeLock" class="card">🔒 Enter Office Access Code in Main tab</div>
   <div id="officeContent" class="hide">
     <div class="flex">
       <button class="btn" onclick="addToolModal()">🛠️ Add Tools</button>
@@ -136,7 +136,7 @@ window.onload = async () => {
   registerSW();
   autoDeleteExpired();
   checkUrlParams();
-  setInterval(autoDeleteExpired, 1800000); // 30 min
+  setInterval(autoDeleteExpired, 1800000);
 };
 
 function checkLoginStatus() {
@@ -152,17 +152,24 @@ function checkLoginStatus() {
   }
 }
 
-window.loginUser = () => {
+window.loginUser = async () => {
   const name = document.getElementById('username').value.trim();
-  if(name === '20091307') {
-    isOfficeMember = true;
-    localStorage.setItem('isOfficeMember', 'true');
-    checkLoginStatus();
-    showToast('✅ Office Room Unlocked');
-  } else if(name) {
-    showToast('👋 Welcome ' + name);
-  } else {
-    showToast('❌ Enter name');
+  if(!name) return showToast('❌ Enter name');
+
+  try {
+    const secretDoc = await getDoc(doc(db, "settings", "officeKey"));
+    const officeKey = secretDoc.exists()? secretDoc.data().key : '';
+
+    if(name === officeKey && officeKey!== '') {
+      isOfficeMember = true;
+      localStorage.setItem('isOfficeMember', 'true');
+      checkLoginStatus();
+      showToast('✅ Office Room Unlocked');
+    } else {
+      showToast('👋 Welcome ' + name);
+    }
+  } catch(e) {
+    showToast('❌ Connection Error');
   }
 };
 
@@ -363,6 +370,11 @@ window.saveNotice = async () => {
   closeModal(); showToast('✅ Notice Updated'); showNotice();
 };
 
+async function loadNotice() {
+  const d = await getDoc(doc(db, "settings", "notice"));
+  if(d.exists()) return d.data().text;
+}
+
 window.addEventModal = () => {
   showModal(`<h3>📅 Add Event</h3>
     <label>Event Title</label><input id="eventTitle">
@@ -415,7 +427,6 @@ window.shareAppLink = async (appId) => {
 async function checkUrlParams() {
   const params = new URLSearchParams(location.search);
   const appId = params.get('viewApp');
-  const eventId = params.get('event');
   if(appId) {
     const d = await getDoc(doc(db, "receivedApps", appId));
     if(d.exists()) {
@@ -500,7 +511,6 @@ async function autoDeleteExpired() {
   snap.forEach(async (d) => {
     if(d.data().expireAt && d.data().expireAt.toMillis() < now.toMillis()) await deleteDoc(d.ref);
   });
-  // Delete expired forms
   const forms = await getDocs(collection(db, "appForms"));
   forms.forEach(async (d) => {
     const f = d.data();
@@ -514,7 +524,7 @@ async function autoDeleteExpired() {
 // OFFLINE SW
 function registerSW() {
   if('serviceWorker' in navigator) {
-    const sw = `const CACHE='v2';self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/']))));
+    const sw = `const CACHE='v3';self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/']))));
 self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
     const blob = new Blob([sw], {type: 'application/javascript'});
     navigator.serviceWorker.register(URL.createObjectURL(blob));
