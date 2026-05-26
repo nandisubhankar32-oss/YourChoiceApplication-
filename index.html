@@ -191,7 +191,7 @@
 
     <div class="container">
         <header>
-            <h1 id="app-title">Your Choice Application </h1>
+            <h1 id="app-title">Your Choice Application 📱</h1>
         </header>
 
         <nav class="nav-tabs">
@@ -267,8 +267,7 @@
             
             <div style="background:#f9f9f9; padding:15px; border:1px solid #ddd; border-radius:8px; margin:10px 0;">
                 <p style="margin-top:0; font-weight:bold; color:var(--primary-color);">🛠️ ফর্মের ফিল্ড সাজান (কাস্টম ডায়নামিক ফিল্ড):</p>
-                <div id="form-fields-builder-container">
-                    </div>
+                <div id="form-fields-builder-container"></div>
                 <button type="button" class="action-btn secondary" onclick="addBuilderFieldRow()">➕ নতুন ফিল্ড যোগ করুন</button>
             </div>
 
@@ -323,7 +322,7 @@
             setupInputLineBreaks();
             checkSavedSession();
             syncFirebaseRealtime();
-            addBuilderFieldRow(); // ডিফল্ট ১টি ফিল্ড রো দিয়ে শুরু করা
+            addBuilderFieldRow();
         });
 
         function setupInputLineBreaks() {
@@ -341,7 +340,6 @@
             });
         }
 
-        // কাস্টম ফিল্ড বিল্ডার লজিক (Office Room এর জন্য)
         window.addBuilderFieldRow = function() {
             builderFieldCount++;
             const container = document.getElementById('form-fields-builder-container');
@@ -379,7 +377,6 @@
             }
         }
 
-        // সিক্রেট মেম্বারশিপ চেক
         window.checkAuth = function() {
             const secretCode = "20091307";
             const inputVal = document.getElementById('user-auth-input').value.trim();
@@ -387,7 +384,7 @@
                 activateAdminMode();
                 localStorage.setItem('app_session_role', 'admin');
             } else {
-                alert("স্বাগতম " + inputVal + "! সাধারণ ইউজার মোডে ডেটাবেস সেভ নিষ্ক্রিয় থাকবে।");
+                alert("স্বাগতম " + inputVal + "! সাধারণ ইউজার মোড সক্রিয়।");
                 document.getElementById('user-auth-input').value = "";
             }
         }
@@ -435,6 +432,12 @@
                 renderListPad();
                 renderReceivedApplications(data.submittedForms);
                 processAutoDeletion(data);
+                
+                // যদি সাব-ডিসপ্লে প্যানেলটি খোলা থাকে, তবে ডাটা লাইভ আপডেট করুন
+                const display = document.getElementById('main-sub-display');
+                if(display && !display.classList.contains('hidden') && window.currentOpenSubType) {
+                    openMainSub(window.currentOpenSubType);
+                }
             });
         }
 
@@ -468,7 +471,6 @@
             document.getElementById('live-scroll-tag').innerText = (tagData && tagData.text) ? tagData.text : "Your Choice Application 📱";
         }
 
-        // লিস্ট প্যাড লজিক
         window.handlePadEnter = function(e) { if(e.key === 'Enter') { e.preventDefault(); addLineToPad(); } }
         window.addLineToPad = function() {
             const title = document.getElementById('pad-page-title').value.trim() || "Default Page";
@@ -535,8 +537,9 @@
             });
         }
 
-        // মেইন সেকশন এবং ডায়নামিক ফর্ম জেনারেশন
+        // ================= FIX: মেইন সেকশনের সাব-মেনু ডাটা রেন্ডারিং লজিক =================
         window.openMainSub = function(type) {
+            window.currentOpenSubType = type; // অ্যাক্টিভ সাব-টাইপ ট্র্যাক রাখার জন্য
             const display = document.getElementById('main-sub-display');
             const content = document.getElementById('main-sub-content');
             display.classList.remove('hidden');
@@ -544,19 +547,34 @@
 
             if(type === 'events-view') {
                 content.innerHTML = "<h3>📅 অ্যাক্টিভ ইভেন্ট সমূহ</h3>";
-                Object.keys(localDataCache.events || {}).forEach(k => {
-                    content.innerHTML += `
-                        <div class="data-card">
-                            <h4>🎉 ${localDataCache.events[k].title}</h4>
-                            <p>⏳ শেষ তারিখ: ${localDataCache.events[k].expiryDate}</p>
-                        </div>`;
-                });
+                const events = localDataCache.events || {};
+                if(Object.keys(events).length === 0) {
+                    content.innerHTML += "<p style='color:gray;'>কোনো ইভেন্ট উপলব্ধ নেই।</p>";
+                } else {
+                    Object.keys(events).forEach(k => {
+                        content.innerHTML += `
+                            <div class="data-card">
+                                <h4>🎉 ${events[k].title}</h4>
+                                <p>⏳ শেষ তারিখ: ${events[k].expiryDate}</p>
+                                ${isDBAdmin ? `<span class="delete-ico" onclick="deleteItem('events/${k}')">🗑️</span>` : ''}
+                            </div>`;
+                    });
+                }
             } 
             else if(type === 'links-view') {
                 content.innerHTML = "<h3>🔗 পাবলিশড লিঙ্ক</h3>";
-                Object.keys(localDataCache.links || {}).forEach(k => {
-                    content.innerHTML += `<div class="data-card">🔗 <a href="${localDataCache.links[k].url}" target="_blank">${localDataCache.links[k].url}</a></div>`;
-                });
+                const links = localDataCache.links || {};
+                if(Object.keys(links).length === 0) {
+                    content.innerHTML += "<p style='color:gray;'>কোনো লিঙ্ক উপলব্ধ নেই।</p>";
+                } else {
+                    Object.keys(links).forEach(k => {
+                        content.innerHTML += `
+                            <div class="data-card" style="position:relative;">
+                                🔗 <a href="${links[k].url}" target="_blank">${links[k].url}</a>
+                                ${isDBAdmin ? `<span class="delete-ico" onclick="deleteItem('links/${k}')">🗑️</span>` : ''}
+                            </div>`;
+                    });
+                }
             }
             else if(type === 'notice-view') {
                 const text = localDataCache.notice ? localDataCache.notice.text : "কোনো নোটিশ নেই।";
@@ -566,56 +584,60 @@
                 content.innerHTML = "<h3>📄 অ্যাপ্লিকেশন ফরম ফিলাপ</h3>";
                 const templates = localDataCache.formTemplates || {};
                 
-                Object.keys(templates).forEach(k => {
-                    const t = templates[k];
-                    let fieldsHTML = '';
-                    
-                    // কাস্টম ফিল্ড লুপ চালিয়ে তৈরি করা হচ্ছে
-                    if(t.fields) {
-                        t.fields.forEach((field, fIdx) => {
-                            fieldsHTML += `<div style="margin:12px 0;"><label style="font-weight:bold; display:block; margin-bottom:4px;">${field.label}:</label>`;
-                            
-                            if(field.type === 'text') {
-                                fieldsHTML += `<input type="text" class="user-input-${k}" data-label="${field.label}" placeholder="উত্তর লিখুন...">`;
-                            } else if(field.type === 'textarea') {
-                                fieldsHTML += `<textarea class="user-input-${k}" data-label="${field.label}" placeholder="বিস্তারিত লিখুন..."></textarea>`;
-                            } else if(field.type === 'office_only') {
-                                fieldsHTML += `<input type="text" class="user-input-${k}" data-label="${field.label}" value="[শুধুমাত্র অফিস রুম থেকে পূরণযোগ্য]" disabled style="background:#ddd;">`;
-                            } else if(field.type === 'radio' && field.options) {
-                                field.options.forEach(opt => {
-                                    fieldsHTML += `<label style="margin-right:15px;"><input type="radio" name="rad-${k}-${fIdx}" class="user-input-${k}" data-label="${field.label}" value="${opt}"> ${opt} ⬜</label>`;
-                                });
-                            } else if(field.type === 'checkbox' && field.options) {
-                                field.options.forEach(opt => {
-                                    fieldsHTML += `<label style="margin-right:15px;"><input type="checkbox" class="user-input-${k}-box" data-label="${field.label}" value="${opt}"> ${opt} ⬜</label>`;
-                                });
-                            }
-                            fieldsHTML += `</div>`;
-                        });
-                    }
+                if(Object.keys(templates).length === 0) {
+                    content.innerHTML += "<p style='color:gray;'>কোনো ফর্ম টেমপ্লেট উপলব্ধ নেই।</p>";
+                } else {
+                    Object.keys(templates).forEach(k => {
+                        const t = templates[k];
+                        let fieldsHTML = '';
+                        
+                        if(t.fields) {
+                            t.fields.forEach((field, fIdx) => {
+                                fieldsHTML += `<div style="margin:12px 0;"><label style="font-weight:bold; display:block; margin-bottom:4px;">${field.label}:</label>`;
+                                
+                                if(field.type === 'text') {
+                                    fieldsHTML += `<input type="text" class="user-input-${k}" data-label="${field.label}" placeholder="উত্তর লিখুন...">`;
+                                } else if(field.type === 'textarea') {
+                                    fieldsHTML += `<textarea class="user-input-${k}" data-label="${field.label}" placeholder="বিস্তারিত লিখুন..."></textarea>`;
+                                } else if(field.type === 'office_only') {
+                                    fieldsHTML += `<input type="text" class="user-input-${k}" data-label="${field.label}" value="[ can be edited only from Office Room ]" disabled style="background:#ddd; color:#7f8c8d;">`;
+                                } else if(field.type === 'radio' && field.options) {
+                                    field.options.forEach(opt => {
+                                        fieldsHTML += `<label style="margin-right:15px; display:inline-block;"><input type="radio" name="rad-${k}-${fIdx}" class="user-input-${k}" data-label="${field.label}" value="${opt}"> ${opt}</label>`;
+                                    });
+                                } else if(field.type === 'checkbox' && field.options) {
+                                    field.options.forEach(opt => {
+                                        fieldsHTML += `<label style="margin-right:15px; display:inline-block;"><input type="checkbox" class="user-input-${k}-box" data-label="${field.label}" value="${opt}"> ${opt}</label>`;
+                                    });
+                                }
+                                fieldsHTML += `</div>`;
+                            });
+                        }
 
-                    content.innerHTML += `
-                        <div class="data-card" style="border-color:#e67e22;">
-                            <h4>📋 ${t.title}</h4>
-                            ${t.instruction ? `<p>ℹ️ <i>${t.instruction}</i></p>` : ''}
-                            <div id="live-form-box-${k}">
-                                ${fieldsHTML}
-                                <button class="action-btn" onclick="submitUserApplication('${k}')">সেন্ড করুন ✉️</button>
-                            </div>
-                        </div>`;
-                });
+                        content.innerHTML += `
+                            <div class="data-card" style="border-color:#e67e22; position:relative;">
+                                <h4>📋 ${t.title}</h4>
+                                ${t.instruction ? `<p>ℹ️ <i>${t.instruction}</i></p>` : ''}
+                                <div id="live-form-box-${k}">
+                                    ${fieldsHTML}
+                                    <button class="action-btn" onclick="submitUserApplication('${k}')">সেন্ড করুন ✉️</button>
+                                </div>
+                                ${isDBAdmin ? `<span class="delete-ico" onclick="deleteItem('formTemplates/${k}')">🗑️</span>` : ''}
+                            </div>`;
+                    });
+                }
             }
         }
 
-        window.closeMainSub = function() { document.getElementById('main-sub-display').classList.add('hidden'); }
+        window.closeMainSub = function() { 
+            window.currentOpenSubType = null;
+            document.getElementById('main-sub-display').classList.add('hidden'); 
+        }
 
-        // কাস্টম অ্যাপ্লিকেশন ডাটা সাবমিশন
         window.submitUserApplication = function(templateId) {
             const template = localDataCache.formTemplates[templateId];
             let submissionData = {};
-            let valid = true;
 
-            // সাধারণ ইনপুট রিড করা
             const inputs = document.querySelectorAll(`.user-input-${templateId}`);
             inputs.forEach(input => {
                 const label = input.getAttribute('data-label');
@@ -626,7 +648,6 @@
                 }
             });
 
-            // চেকবক্স ইনপুট রিড করা
             const checkboxes = document.querySelectorAll(`.user-input-${templateId}-box`);
             checkboxes.forEach(box => {
                 const label = box.getAttribute('data-label');
@@ -644,18 +665,16 @@
                 expiryTimestamp: template.expiryDays ? (Date.now() + (parseInt(template.expiryDays) * 86400000)) : null
             });
 
-            alert("আপনার অ্যাপ্লিকেশনটি সরাসরি Office Room এ পাঠানো হয়েছে!");
+            alert("আপনার অ্যাপ্লিকেশনটি সফলভাবে Office Room এ পাঠানো হয়েছে!");
             openMainSub('apps-view');
         }
 
-        // অফিস রুম অ্যাডমিন অ্যাকশনস (কাস্টম ফর্ম তৈরি)
         window.adminAddForm = function() {
             const title = document.getElementById('form-title').value.trim();
             const expiry = document.getElementById('form-expiry').value.trim();
             const instruction = document.getElementById('form-instruction').value.trim();
             if(!title) { alert("ফর্মের শিরোনাম আবশ্যক!"); return; }
 
-            // ফিল্ড বিল্ডার থেকে ফিল্ডসমূহ সংগ্রহ করা
             let customFields = [];
             const rows = document.querySelectorAll('.field-builder-row');
             rows.forEach(row => {
@@ -681,7 +700,6 @@
                 timestamp: Date.now()
             });
             
-            // ইনপুট রিসেট
             document.getElementById('form-title').value = "";
             document.getElementById('form-expiry').value = "";
             document.getElementById('form-instruction').value = "";
@@ -727,7 +745,6 @@
             alert("ইভেন্ট ক্রিয়েট হয়েছে।");
         }
 
-        // রিসিভড অ্যাপ্লিকেশন রেন্ডার ও অফিস এন্ট্রি লজিক
         function renderReceivedApplications(submittedData) {
             const container = document.getElementById('received-apps-container');
             container.innerHTML = "";
@@ -737,21 +754,19 @@
                 const app = submittedData[key];
                 let responseHTML = '';
                 
-                // জমা হওয়া কাস্টম ফিল্ডগুলোর ডাটা প্রদর্শন
                 if(app.responses) {
                     Object.keys(app.responses).forEach(label => {
                         responseHTML += `<p style="margin:4px 0;"><b>• ${label}:</b> ${JSON.stringify(app.responses[label])}</p>`;
                     });
                 }
 
-                // অফিস রুম থেকে এডিট বা অফিস-অনলি ফিল্ড পূরণের ব্যবস্থা
                 let officeActionHTML = '';
                 const template = localDataCache.formTemplates ? localDataCache.formTemplates[app.templateId] : null;
                 
                 if(template && template.fields) {
                     template.fields.forEach(f => {
                         if(f.type === 'office_only') {
-                            const currentOfficeVal = app.responses && app.responses[f.label] && !app.responses[f.label].includes('[শুধুমাত্র') ? app.responses[f.label] : '';
+                            const currentOfficeVal = app.responses && app.responses[f.label] && !app.responses[f.label].includes('[can be edited') ? app.responses[f.label] : '';
                             officeActionHTML += `
                                 <div style="margin-top:8px; display:flex; gap:5px;">
                                     <input type="text" id="office-edit-${key}-${f.label}" placeholder="${f.label} লিখুন..." value="${currentOfficeVal}">
@@ -778,7 +793,6 @@
             });
         }
 
-        // অফিস রুম থেকে কাস্টম অফিস ফিল্ড সেভ করার ফাংশন
         window.saveOfficeField = function(submissionId, label) {
             const inputVal = document.getElementById(`office-edit-${submissionId}-${label}`).value.trim();
             if(!inputVal) return;
@@ -807,7 +821,7 @@
         window.deleteItem = function(path) { if(confirm("ডিলিট করতে চান?")) remove(ref(db, path)); }
 
         function linkify(inputText) {
-            var replacedText, replacePattern1, replacePattern2, replacePattern3;
+            var replacedText, replacePattern1, replacePattern2;
             replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
             replacedText = inputText.replace(replacePattern1, '<a href="$1" target="_blank">$1</a>');
             replacePattern2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
