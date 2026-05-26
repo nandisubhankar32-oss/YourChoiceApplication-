@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEGH - Learning Time Portal</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --bg-color: #f4f6f7;
+            --card-bg: #ffffff;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* Red Scroll Tag */
+        #marquee-container {
+            background-color: red;
+            color: white;
+            padding: 8px;
+            font-weight: bold;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        #marquee-text {
+            display: inline-block;
+            animation: marquee 15s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% { transform: translate3d(100%, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+
+        /* Navigation Tabs */
+        .tab-bar {
+            display: flex;
+            background-color: #34495e;
+            sticky: top;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px 5px;
+            border: none;
+            background: none;
+            color: #bdc3c7;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            color: white;
+            background-color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        /* Content Screens */
+        .screen {
+            display: none;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+
+        .btn:hover { background-color: #1a252f; }
+        .btn-danger { background-color: var(--accent-color); }
+        .btn-danger:hover { background-color: #c0392b; }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* Grid for Main Sub-buttons */
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .sub-screen {
+            display: none;
+            border-top: 2px solid var(--primary-color);
+            margin-top: 15px;
+            padding-top: 15px;
+        }
+
+        .sub-screen.active { display: block; }
+
+        .error-popup {
+            color: red;
+            font-weight: bold;
+            font-size: 1.2em;
+            animation: blink 1s linear infinite;
+        }
+
+        @keyframes blink { 50% { opacity: 0; } }
+        
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+
+<header>📝 MEGH Portal</header>
+
+<div id="marquee-container">
+    <div id="marquee-text" id="live-scroll">স্বাগতম! কোনো নতুন নোটিশ নেই।</div>
+</div>
+
+<div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('main-screen')">🏠 Main</button>
+    <button class="tab-btn" onclick="switchTab('tools-screen')">🛠️ Tools</button>
+    <button class="tab-btn" id="listpad-tab-btn" onclick="switchTab('listpad-screen')" style="display:none;">📋 List Pad</button>
+    <button class="tab-btn" onclick="switchTab('office-screen')">🏢 Office Room</button>
+</div>
+
+<div id="main-screen" class="screen active">
+    <div class="card">
+        <h3>👤 User Profile</h3>
+        <input type="text" id="user-auth-input" placeholder="এখানে নাম লিখুন অথবা কোড দিয়ে এন্টার চাপুন..." onkeydown="handleAuthEnter(event)">
+        <div id="auth-status-msg"></div>
+    </div>
+
+    <div class="grid-container">
+        <button class="btn" onclick="switchMainSub('sub-events')">📅 A. Events</button>
+        <button class="btn" onclick="switchMainSub('sub-apps')">📝 B. Application</button>
+        <button class="btn" onclick="switchMainSub('sub-links')">🔗 C. Links</button>
+        <button class="btn" onclick="switchMainSub('sub-notice')">📢 D. Notice Board</button>
+    </div>
+
+    <div id="sub-events" class="sub-screen">
+        <h4>📋 রানিং ইভেন্টস</h4>
+        <div id="live-events-list"></div>
+    </div>
+
+    <div id="sub-apps" class="sub-screen">
+        <h4>📝 অ্যাপ্লিকেশন ফর্ম ফিল-আপ</h4>
+        <div id="live-forms-container">অ্যাপ্লিকেশন ফর্ম লোড হচ্ছে...</div>
+    </div>
+
+    <div id="sub-links" class="sub-screen">
+        <h4>🔗 গুরুত্বপূর্ণ লিঙ্কসমূহ</h4>
+        <div id="live-links-list"></div>
+    </div>
+
+    <div id="sub-notice" class="sub-screen">
+        <h4>📢 অফিস নোটিশ বোর্ড</h4>
+        <div id="live-notice-display" class="card" style="font-weight: bold; color: #2c3e50;">কোনো নোটিশ নেই।</div>
+    </div>
+</div>
+
+<div id="tools-screen" class="screen">
+    <h2>🛠️ অফলাইন টুলস এরিয়া</h2>
+    <p style="font-size: 12px; color: gray;">*এই টুলসগুলো একবার লোড হয়ে গেলে ইন্টারনেট ছাড়াও কাজ করবে।</p>
+    <div id="offline-tools-container"></div>
+</div>
+
+<div id="listpad-screen" class="screen">
+    <h2>📋 মেম্বার লিস্ট প্যাড</h2>
+    <div class="card">
+        <input type="text" id="lp-search-page" placeholder="🔍 শিরোনাম বা পেজ খুঁজুন..." oninput="renderListPad()">
+        <input type="text" id="lp-new-page-title" placeholder="নতুন পেজের শিরোনাম লিখুন...">
+        <button class="btn" onclick="createNewPage()">➕ নতুন পেজ তৈরি করুন</button>
+    </div>
+
+    <div id="listpad-pages-render"></div>
+</div>
+
+<div id="office-screen" class="screen">
+    <div id="office-auth-lock">
+        <h2>🔒 অফিস রুম সুরক্ষিত</h2>
+        <p>এই সেকশনে প্রবেশ করতে আপনার মেম্বার আইডি দিয়ে Main স্ক্রিনে লগইন করুন।</p>
+    </div>
+
+    <div id="office-content" style="display: none;">
+        <h2>🏢 অ্যাডমিন কন্ট্রোল প্যানেল (Office Room)</h2>
+        <button class="btn btn-danger" onclick="triggerLogout()">🔒 সিস্টেম লগ আউট</button>
+        <hr>
+
+        <div class="card">
+            <h3>⚙️ 1. Add Tools (HTML/JS Code)</h3>
+            <input type="text" id="tool-title" placeholder="টুলের নাম">
+            <textarea id="tool-code" rows="5" placeholder="সর্বোচ্চ ৫০০০ লাইন পর্যন্ত HTML/JS লজিক কোড এখানে পেস্ট করুন..."></textarea>
+            <button class="btn" onclick="publishTool()">🚀 টুল পাবলিশ করুন</button>
+        </div>
+
+        <div class="card">
+            <h3>📝 2. Add Application Form Generator</h3>
+            <input type="text" id="form-title" placeholder="ফর্মের শিরোনাম">
+            <input type="number" id="form-expiry-days" placeholder="কতদিন পর ফর্মটি অটো ডিলিট হবে? (দিন)">
+            <textarea id="form-instruction" placeholder="অপশনাল বক্তব্য বা নির্দেশনাবলী..."></textarea>
+            <button class="btn" onclick="publishForm()">📋 ফর্মটি লাইভ করুন</button>
+        </div>
+
+        <div class="card">
+            <h3>🔗 3. Add Important Links</h3>
+            <input type="text" id="link-title" placeholder="লিংকের নাম">
+            <input type="url" id="link-url" placeholder="https://example.com">
+            <button class="btn" onclick="publishLink()">🔗 লিঙ্ক যুক্ত করুন</button>
+        </div>
+
+        <div class="card">
+            <h3>🚨 4. Add/Update Scroll Tag</h3>
+            <input type="text" id="scroll-input" placeholder="নতুন স্ক্রোল মেসেজ লিখুন...">
+            <button class="btn" onclick="publishScroll()">🔄 স্ক্রোল আপডেট করুন</button>
+        </div>
+
+        <div class="card">
+            <h3>📢 5. Add/Update Notice Board</h3>
+            <textarea id="notice-input" placeholder="নোটিশ বোর্ডে প্রদর্শনের লেখা..."></textarea>
+            <button class="btn" onclick="publishNotice()">📢 নোটিশ দিন</button>
+        </div>
+
+        <div class="card">
+            <h3>📅 6. Add Event with Auto-Expiry</h3>
+            <input type="text" id="event-title" placeholder="ইভেন্টের নাম বা বিস্তারিত">
+            <input type="date" id="event-date">
+            <button class="btn" onclick="publishEvent()">📅 ইভেন্ট পোস্ট করুন</button>
+        </div>
+
+        <div class="card">
+            <h3>📥 7. Receive & Manage Applications</h3>
+            <div id="received-apps-container">কোনো অ্যাপ্লিকেশন জমা পড়েনি।</div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getDatabase, ref, set, push, onValue, remove, get } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAVNKYEONsmJQYvNQZLrsDFjWRIFS9Iupk",
+        authDomain: "your-choice-application-3f40a.firebaseapp.com",
+        projectId: "your-choice-application-3f40a",
+        storageBucket: "your-choice-application-3f40a.firebasestorage.app",
+        messagingSenderId: "149984268715",
+        appId: "1:149984268715:web:669e5fe20dcf5bce5c82ee",
+        measurementId: "G-DPFE88RN21"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Global App State
+    let isMember = false;
+
+    // Check Local Login State
+    window.onload = function() {
+        if(localStorage.getItem('officeMemberSync') === 'true') {
+            activateMemberPrivileges();
+        }
+        syncFirebaseData();
+        renderOfflineTools();
+    };
+
+    // Auth Handle Logic
+    window.handleAuthEnter = function(e) {
+        if(e.key === 'Enter') {
+            let inputVal = document.getElementById('user-auth-input').value.trim();
+            if(inputVal === '20091307') {
+                localStorage.setItem('officeMemberSync', 'true');
+                activateMemberPrivileges();
+                document.getElementById('user-auth-input').value = '';
+            } else {
+                // Normal user profile setup - No DB Save as requested
+                document.getElementById('auth-status-msg').innerHTML = "🟢 ভিজিটর মুড একটিভ (কোনো প্রোফাইল ডাটা সেভ হবে না)";
+            }
+        }
+    }
+
+    function activateMemberPrivileges() {
+        isMember = true;
+        document.getElementById('office-auth-lock').style.display = 'none';
+        document.getElementById('office-content').style.display = 'block';
+        document.getElementById('listpad-tab-btn').style.display = 'block';
+        document.getElementById('auth-status-msg').innerHTML = `<button class="btn btn-danger" onclick="triggerLogout()">🚪 Log Out</button>`;
+    }
+
+    window.triggerLogout = function() {
+        localStorage.removeItem('officeMemberSync');
+        isMember = false;
+        location.reload();
+    }
+
+    // Tab switcher logic
+    window.switchTab = function(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    window.switchMainSub = function(subId) {
+        document.querySelectorAll('.sub-screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(subId).classList.add('active');
+    }
+
+    // ==================== DATABASE SYNC & RENDER ====================
+    function syncFirebaseData() {
+        // 1. Scroll Tag Sync
+        onValue(ref(db, 'scrollTag'), (snapshot) => {
+            const data = snapshot.val();
+            document.getElementById('marquee-text').innerText = data ? data.text : "MEGH সিস্টেমে আপনাকে স্বাগতম।";
+        });
+
+        // 2. Notice Sync
+        onValue(ref(db, 'notice'), (snapshot) => {
+            const data = snapshot.val();
+            document.getElementById('live-notice-display').innerText = data ? data.text : "আপাতত কোনো বিশেষ নোটিশ নেই।";
+        });
+
+        // 3. Links Sync
+        onValue(ref(db, 'links'), (snapshot) => {
+            let html = '';
+            snapshot.forEach((child) => {
+                let link = child.val();
+                html += `<div class="list-item">🌐 <a href="${link.url}" target="_blank">${link.title}</a> 
+                ${isMember ? `<button class="btn btn-danger" onclick="deleteData('links/${child.key}')">❌</button>` : ''}</div>`;
+            });
+            document.getElementById('live-links-list').innerHTML = html || 'কোনো লিঙ্ক পাওয়া যায়নি।';
+        });
+
+        // 4. Events Sync with Auto-Expiry
+        onValue(ref(db, 'events'), (snapshot) => {
+            let html = '';
+            const now = new Date().getTime();
+            snapshot.forEach((child) => {
+                let ev = child.val();
+                let expiryTime = new Date(ev.endDate).getTime();
+                if (now > expiryTime) {
+                    remove(ref(db, `events/${child.key}`)); // Auto Delete expired
+                } else {
+                    html += `<div class="card">
+                        <h5>📅 ${ev.title}</h5>
+                        <p>🗓️ শেষ তারিখ: ${ev.endDate}</p>
+                        ${isMember ? `<button class="btn btn-danger" onclick="deleteData('events/${child.key}')">ডিলিট</button>` : ''}
+                    </div>`;
+                }
+            });
+            document.getElementById('live-events-list').innerHTML = html || 'চলতি কোনো ইভেন্ট নেই।';
+        });
+
+        // 5. Tools Cloud Sync to LocalStorage (Offline capability)
+        onValue(ref(db, 'tools'), (snapshot) => {
+            let toolsArr = [];
+            snapshot.forEach((child) => { toolsArr.push(child.val()); });
+            localStorage.setItem('offlineToolsCache', JSON.stringify(toolsArr));
+            renderOfflineTools();
+        });
+
+        // 6. Application Forms & Expired Form cleanup
+        onValue(ref(db, 'forms'), (snapshot) => {
+            let userHtml = '';
+            const now = new Date().getTime();
+            
+            snapshot.forEach((child) => {
+                let formObj = child.val();
+                if(formObj.expiryTimestamp && now > formObj.expiryTimestamp) {
+                    remove(ref(db, `forms/${child.key}`)); // Auto Delete
+                } else {
+                    userHtml += `
+                    <div class="card" id="form-block-${child.key}">
+                        <h5>📋 ${formObj.title}</h5>
+                        <p style="font-size:12px; color:gray;">${formObj.instruction || ''}</p>
+                        <label>১. আপনার নাম বা টাইপিং ইনপুট:</label>
+                        <input type="text" id="input-text-${child.key}" placeholder="এখানে লিখুন...">
+                        <label>২. জেন্ডার / পছন্দ সিলেক্ট করুন:</label>
+                        <div>
+                           <input type="radio" name="gender-${child.key}" value="Male" id="m-${child.key}"> Male &nbsp;&nbsp;
+                           <input type="radio" name="gender-${child.key}" value="Female" id="f-${child.key}"> Female
+                        </div>
+                        <button class="btn" onclick="submitUserApplication('${child.key}', '${formObj.title}')">📤 অ্যাপ্লিকেশন সেন্ড করুন</button>
+                    </div>`;
+                }
+            });
+            document.getElementById('live-forms-container').innerHTML = userHtml || 'কোনো ফর্ম উপলব্ধ নেই।';
+        });
+
+        // 7. Received Applications Render (Admin Only)
+        onValue(ref(db, 'submitted_apps'), (snapshot) => {
+            let html = '';
+            snapshot.forEach((child) => {
+                let appData = child.val();
+                html += `
+                <div class="card" style="border-left: 5px solid green;">
+                    <h4>📂 ফর্ম: ${appData.formTitle}</h4>
+                    <p><b>📝 নাম/ইনপুট:</b> ${appData.textInput}</p>
+                    <p><b>🧬 লিঙ্গ:</b> ${appData.genderInput}</p>
+                    <p><b>🔑 ইউনিক ফর্ম লিংক (১০০ দিন মেয়াদ):</b> <br><small>${window.location.href}?viewApp=${child.key}</small></p>
+                    <button class="btn btn-danger" onclick="deleteData('submitted_apps/${child.key}')">🗑️ ডিলিট অ্যাপ্লিকেশন</button>
+                </div>`;
+            });
+            document.getElementById('received-apps-container').innerHTML = html || 'কোনো ডেটা নেই।';
+        });
+    }
+
+    // Delete Wrapper Function
+    window.deleteData = function(path) {
+        if(confirm("আপনি কি নিশ্চিতভাবে এটি ডিলিট করতে চান?")) {
+            remove(ref(db, path));
+        }
+    }
+
+    // ==================== ADMIN ACTIONS (OFFICE ROOM) ====================
+    window.publishScroll = function() {
+        let text = document.getElementById('scroll-input').value;
+        set(ref(db, 'scrollTag'), { text: text });
+        document.getElementById('scroll-input').value = '';
+    }
+
+    window.publishNotice = function() {
+        let text = document.getElementById('notice-input').value;
+        set(ref(db, 'notice'), { text: text });
+        document.getElementById('notice-input').value = '';
+    }
+
+    window.publishLink = function() {
+        let title = document.getElementById('link-title').value;
+        let url = document.getElementById('link-url').value;
+        push(ref(db, 'links'), { title: title, url: url });
+        document.getElementById('link-title').value = '';
+        document.getElementById('link-url').value = '';
+    }
+
+    window.publishEvent = function() {
+        let title = document.getElementById('event-title').value;
+        let date = document.getElementById('event-date').value;
+        if(title && date) {
+            push(ref(db, 'events'), { title: title, endDate: date });
+            document.getElementById('event-title').value = '';
+        }
+    }
+
+    window.publishTool = function() {
+        let title = document.getElementById('tool-title').value;
+        let code = document.getElementById('tool-code').value;
+        if(title && code) {
+            push(ref(db, 'tools'), { title: title, code: code });
+            document.getElementById('tool-title').value = '';
+            document.getElementById('tool-code').value = '';
+        }
+    }
+
+    window.publishForm = function() {
+        let title = document.getElementById('form-title').value;
+        let days = parseInt(document.getElementById('form-expiry-days').value) || 1;
+        let instruction = document.getElementById('form-instruction').value;
+        let expiryTimestamp = new Date().getTime() + (days * 24 * 60 * 60 * 1000);
+
+        if(title) {
+            push(ref(db, 'forms'), {
+                title: title,
+                instruction: instruction,
+                expiryTimestamp: expiryTimestamp
+            });
+            document.getElementById('form-title').value = '';
+            document.getElementById('form-expiry-days').value = '';
+            document.getElementById('form-instruction').value = '';
+        }
+    }
+
+    // ==================== USER SUBMISSIONS ====================
+    window.submitUserApplication = function(formKey, formTitle) {
+        let textVal = document.getElementById(`input-text-${formKey}`).value;
+        let genderNode = document.querySelector(`input[name="gender-${formKey}"]:checked`);
+        let genderVal = genderNode ? genderNode.value : "উল্লেখিত নয়";
+
+        if(!textVal) {
+            alert("অনুগ্রহ করে আপনার নাম বা তথ্যটি টাইপ করুন।");
+            return;
+        }
+
+        push(ref(db, 'submitted_apps'), {
+            formTitle: formTitle,
+            textInput: textVal,
+            genderInput: genderVal,
+            timestamp: new Date().getTime()
+        }).then(() => {
+            alert("🚀 অ্যাপ্লিকেশনটি সফলভাবে Office Room এ পাঠানো হয়েছে!");
+            document.getElementById(`input-text-${formKey}`).value = '';
+        });
+    }
+
+    // Url Parameter Reader for Unique Link Checking (Max 100 days logic)
+    const urlParams = new URLSearchParams(window.location.search);
+    const viewAppId = urlParams.get('viewApp');
+    if(viewAppId) {
+        setTimeout(() => {
+            get(ref(db, `submitted_apps/${viewAppId}`)).then((snapshot) => {
+                if(snapshot.exists()) {
+                    let app = snapshot.val();
+                    let now = new Date().getTime();
+                    let hundredDaysInMs = 100 * 24 * 60 * 60 * 1000;
+                    if(now - app.timestamp > hundredDaysInMs) {
+                        alert("লিংকটির ১০০ দিনের মেয়াদ শেষ হয়ে গেছে!");
+                    } else {
+                        alert(`🔗 লিংক ভিউ:\n\nফর্মের নাম: ${app.formTitle}\nইনপুট তথ্য: ${app.textInput}\nজেন্ডার: ${app.genderInput}`);
+                    }
+                } else {
+                    alert("ডেটা খুঁজে পাওয়া যায়নি বা মুছে ফেলা হয়েছে।");
+                }
+            });
+        }, 2000);
+    }
+</script>
+
+<script>
+    // Render Offline Tools from LocalCache
+    function renderOfflineTools() {
+        let cached = localStorage.getItem('offlineToolsCache');
+        let container = document.getElementById('offline-tools-container');
+        if(cached) {
+            let tools = JSON.parse(cached);
+            let html = '';
+            tools.forEach((tool, index) => {
+                html += `<div class="card">
+                    <h4>🛠️ ${tool.title}</h4>
+                    <button class="btn" onclick="runOfflineTool(${index})">টুল চালু করুন</button>
+                    <div id="tool-sandbox-${index}" style="margin-top:10px;"></div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        } else {
+            container.innerHTML = 'অফলাইন ব্যবহারের জন্য কোনো টুলস ক্লাউড থেকে সিঙ্ক হয়নি।';
+        }
+    }
+
+    window.runOfflineTool = function(index) {
+        let tools = JSON.parse(localStorage.getItem('offlineToolsCache'));
+        let targetDiv = document.getElementById(`tool-sandbox-${index}`);
+        targetDiv.innerHTML = tools[index].code; // Inject dynamic full logic HTML/JS safely
+    }
+
+    // ==================== LIST PAD FULL LOGIC ====================
+    let listPadData = JSON.parse(localStorage.getItem('lp_data')) || {};
+
+    window.createNewPage = function() {
+        let title = document.getElementById('lp-new-page-title').value.trim();
+        if(title) {
+            if(!listPadData[title]) {
+                listPadData[title] = [];
+                saveListPad();
+                document.getElementById('lp-new-page-title').value = '';
+                renderListPad();
+            } else {
+                alert("এই শিরোনামের পেজ অলরেডি আছে!");
+            }
+        }
+    }
+
+    window.addListLine = function(pageTitle) {
+        let inputEl = document.getElementById(`lp-input-${btoa(pageTitle)}`);
+        let lineText = inputEl.value.trim();
+        
+        if(lineText) {
+            if(listPadData[pageTitle].includes(lineText)) {
+                let errDiv = document.getElementById(`err-${btoa(pageTitle)}`);
+                errDiv.innerText = "⚠️ আগেই উপস্থিত আছে!";
+                setTimeout(() => errDiv.innerText = '', 3000);
+            } else {
+                listPadData[pageTitle].push(lineText);
+                saveListPad();
+                inputEl.value = '';
+                renderListPad();
+            }
+        }
+    }
+
+    window.deleteLine = function(pageTitle, lineIndex) {
+        listPadData[pageTitle].splice(lineIndex, 1);
+        saveListPad();
+        renderListPad();
+    }
+
+    window.copyWholePage = function(pageTitle) {
+        let allLines = listPadData[pageTitle].join('\n');
+        navigator.clipboard.writeText(allLines);
+        alert("📋 সম্পূর্ণ পেজ সফলভাবে কপি করা হয়েছে!");
+    }
+
+    window.deleteWholePage = function(pageTitle) {
+        if(confirm("সম্পূর্ণ পেজটি ডিলিট করতে চান?")) {
+            delete listPadData[pageTitle];
+            saveListPad();
+            renderListPad();
+        }
+    }
+
+    function saveListPad() {
+        localStorage.setItem('lp_data', JSON.stringify(listPadData));
+    }
+
+    window.renderListPad = function() {
+        let searchKeyword = document.getElementById('lp-search-page').value.toLowerCase();
+        let renderBox = document.getElementById('listpad-pages-render');
+        renderBox.innerHTML = '';
+
+        for(let pageTitle in listPadData) {
+            if(pageTitle.toLowerCase().includes(searchKeyword)) {
+                let safeId = btoa(pageTitle);
+                let pageCard = document.createElement('div');
+                pageCard.className = 'card';
+                
+                let linesHtml = '';
+                listPadData[pageTitle].forEach((line, index) => {
+                    linesHtml += `
+                    <div class="list-item">
+                        <span>🔹 ${line}</span>
+                        <button class="btn-danger" style="border:none; border-radius:3px; cursor:pointer;" onclick="deleteLine('${pageTitle}', ${index})">❌</button>
+                    </div>`;
+                });
+
+                pageCard.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #ccc; padding-bottom:5px;">
+                        <h4>📄 ${pageTitle}</h4>
+                        <div>
+                            <button class="btn" onclick="copyWholePage('${pageTitle}')">📄 কপি পেজ</button>
+                            <button class="btn btn-danger" onclick="deleteWholePage('${pageTitle}')">🗑️ ডিলিট পেজ</button>
+                        </div>
+                    </div>
+                    <div id="err-${safeId}" class="error-popup"></div>
+                    <div style="margin:10px 0;">
+                        <input type="text" id="lp-input-${safeId}" placeholder="নতুন লাইন লিখুন এবং এন্টার দিন..." onkeydown="if(event.key==='Enter') addListLine('${pageTitle}')">
+                    </div>
+                    <div>${linesHtml}</div>
+                `;
+                renderBox.appendChild(pageCard);
+            }
+        }
+    }
+</script>
+</body>
+</html>
