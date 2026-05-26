@@ -3,314 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Choice Application</title>
+    <title>Your Choice System</title>
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --accent-color: #e74c3c;
-            --bg-color: #f4f6f7;
-            --card-bg: #ffffff;
-            --text-color: #333;
+            --primary-color: #3498db;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --dark-color: #2c3e50;
+            --bg-color: #f5f6fa;
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-        }
-
-        #top-scroll-container {
-            background-color: var(--accent-color);
-            color: white;
-            padding: 8px 0;
-            font-weight: bold;
-            overflow: hidden;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .scroll-text {
-            display: inline-block;
-            white-space: nowrap;
-            animation: marquee 20s linear infinite;
-            padding-left: 100%;
-        }
-
-        @keyframes marquee {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(-100%, 0, 0); }
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 15px;
-        }
-
-        header h1 {
-            text-align: center;
-            color: var(--primary-color);
-            margin-bottom: 25px;
-        }
-
-        .nav-tabs {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .tab-btn {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 12px 5px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-            text-align: center;
-        }
-
-        .tab-btn:hover { background-color: #34495e; }
-        .tab-btn.active { background-color: #3498db; }
-
-        .app-section {
-            display: none;
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .app-section.active { display: block; }
-
-        .sub-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .btn-card {
-            background: #ecf0f1;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            font-weight: bold;
-            border: 2px solid transparent;
-            transition: 0.2s;
-        }
-
-        .btn-card:hover { border-color: #3498db; background: #e2e7e9; }
-
-        input[type="text"], input[type="date"], textarea, select {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 15px;
-        }
-
-        button.action-btn {
-            background-color: #2ecc71;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            margin: 4px 0;
-        }
-
-        button.action-btn.delete { background-color: var(--accent-color); }
-        button.action-btn.secondary { background-color: #34495e; }
-
-        .data-card {
-            background: #f8f9fa;
-            border-left: 5px solid #3498db;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 4px;
-            position: relative;
-        }
-
-        .delete-ico {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            cursor: pointer;
-            color: var(--accent-color);
-            font-weight: bold;
-        }
-
-        #toast-alert {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(231, 76, 60, 0.95);
-            color: white;
-            padding: 30px;
-            border-radius: 10px;
-            font-size: 24px;
-            font-weight: bold;
-            z-index: 2000;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            text-align: center;
-        }
-
-        .hidden { display: none !important; }
-        a { color: #3498db; text-decoration: none; word-break: break-all; }
-        a:hover { text-decoration: underline; }
-
-        .field-builder-row {
-            display: flex;
-            gap: 10px;
-            background: #f1f2f6;
-            padding: 8px;
-            border-radius: 6px;
-            margin: 5px 0;
-            align-items: center;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: var(--bg-color); color: #333; padding: 15px; }
+        header { background: var(--dark-color); color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center; }
         
-        .external-app-card {
-            background: #fffdf9;
-            border: 1px solid #ffcc80;
-            border-left: 5px solid #e67e22;
-            padding: 15px;
-            margin: 12px 0;
-            border-radius: 8px;
-            position: relative;
-        }
+        .marquee-box { background: #fff; padding: 10px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; font-weight: bold; color: #e67e22; }
+        
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .card h3 { margin-bottom: 12px; border-bottom: 2px solid var(--primary-color); padding-bottom: 5px; color: var(--dark-color); }
+        
+        /* Navigation Grid for Main Actions */
+        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .menu-btn { background: #ecf0f1; border: none; padding: 15px 10px; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .menu-btn:hover { background: var(--primary-color); color: white; }
+        
+        /* Data Cards & Sub-displays */
+        .data-card { background: #f8f9fa; border-left: 4px solid var(--primary-color); padding: 10px; margin-bottom: 10px; border-radius: 0 6px 6px 0; position: relative; }
+        .external-app-card { background: #fff; border: 1px solid #ddd; padding: 12px; margin-bottom: 10px; border-radius: 8px; border-top: 4px solid var(--success-color); }
+        .delete-ico { position: absolute; top: 8px; right: 8px; cursor: pointer; color: var(--danger-color); font-size: 16px; }
+        
+        /* Forms & Inputs */
+        input, select, textarea { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        .action-btn { background: var(--primary-color); color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; }
+        .action-btn.secondary { background: #7f8c8d; }
+        .action-btn.delete { background: var(--danger-color); }
+        .action-btn:hover { opacity: 0.9; }
+        
+        .hidden { display: none !important; }
+        .field-builder-row { display: flex; gap: 5px; align-items: center; margin-bottom: 8px; background: #f1f2f6; padding: 5px; border-radius: 4px; }
+        
+        #main-sub-display { background: white; border: 2px solid var(--primary-color); padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        #toast-alert { display: none; background: var(--danger-color); color: white; padding: 10px; text-align: center; border-radius: 4px; margin-bottom: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="top-scroll-container">
-        <div class="scroll-text" id="live-scroll-tag">স্বাগতম! অ্যাপ্লিকেশনটি লোড হচ্ছে... 📢</div>
+    <header>
+        <h1>Your Choice Portal 📱</h1>
+        <p style="font-size: 12px; color: #b2bec3; margin-top: 5px;">Real-time Dynamic Content Management</p>
+    </header>
+
+    <div class="marquee-box">
+        <marquee id="live-scroll-tag" scrollamount="4">লোড হচ্ছে...</marquee>
     </div>
 
-    <div class="container">
-        <header>
-            <h1 id="app-title">Your Choice Application </h1>
-        </header>
+    <div id="toast-alert">⚠️ এই লাইনে একই ডাটা ইতিমধ্যেই বিদ্যমান! ডুপ্লিকেট করা যাবে না।</div>
 
-        <nav class="nav-tabs">
-            <button class="tab-btn active" onclick="switchTab('main-sec')">🏠 Main</button>
-            <button class="tab-btn" onclick="switchTab('tools-sec')">🛠️ Tools</button>
-            <button class="tab-btn" id="nav-listpad" onclick="switchTab('listpad-sec')">📝 List Pad</button>
-            <button class="tab-btn" id="nav-officeroom" onclick="switchTab('office-sec')">🏢 Office Room</button>
-        </nav>
+    <div id="parameter-view-box" class="hidden"></div>
 
-        <section id="main-sec" class="app-section active">
-            <div id="auth-area" style="background:#e8f4f8; padding:15px; border-radius:8px; margin-bottom:15px;">
-                <label id="user-label" style="font-weight: bold;">👤 User Name Input:</label>
-                <div style="display: flex; gap:10px; margin-top:5px;">
-                    <input type="text" id="user-auth-input" placeholder="নাম লিখুন বা কোড দিন..." onkeydown="handleAuthEnter(event)">
-                    <button class="action-btn" id="auth-btn" onclick="checkAuth()">প্রবেশ ➡️</button>
+    <div id="main-app-body">
+        
+        <div id="main-sub-display" class="hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h2 style="color: var(--dark-color);">📋 ভিউ প্যানেল</h2>
+                <button class="action-btn delete" onclick="closeMainSub()" style="width: auto; padding: 5px 15px;">বন্ধ করুন ❌</button>
+            </div>
+            <div id="main-sub-content"></div>
+        </div>
+
+        <div class="grid-container">
+            <div class="card">
+                <h3>📢 লাইভ নোটিশ ও অ্যাকশন</h3>
+                <div class="menu-grid">
+                    <button class="menu-btn" onclick="openMainSub('notice-view')">📌 নোটিশ বোর্ড</button>
+                    <button class="menu-btn" onclick="openMainSub('apps-view')">📄 ফর্ম ফিলাপ</button>
+                    <button class="menu-btn" onclick="openMainSub('events-view')">📅 ইভেন্ট সমূহ</button>
+                    <button class="menu-btn" onclick="openMainSub('links-view')">🔗 লিংক জোন</button>
                 </div>
             </div>
 
-            <div class="sub-grid">
-                <div class="btn-card" onclick="openMainSub('events-view')">📅 A. Event</div>
-                <div class="btn-card" onclick="openMainSub('apps-view')">📄 B. Application</div>
-                <div class="btn-card" onclick="openMainSub('links-view')">🔗 C. Link</div>
-                <div class="btn-card" onclick="openMainSub('notice-view')">📌 D. Notice Board</div>
-            </div>
-
-            <div id="main-sub-display" style="margin-top: 20px; border-top: 2px dashed #ccc; padding-top: 15px;" class="hidden">
-                <button style="float: right;" class="action-btn delete" onclick="closeMainSub()">বন্ধ করুন ❌</button>
-                <div id="main-sub-content"></div>
-            </div>
-        </section>
-
-        <section id="tools-sec" class="app-section">
-            <h2>🧰 অফলাইন টুলস বক্স</h2>
-            <p style="font-size:12px; color:#7f8c8d;">*একবার লোড হয়ে গেলে এই টুলসগুলো ইন্টারনেট ছাড়াও কাজ করবে।</p>
-            <div id="tools-runtime-container"></div>
-        </section>
-
-        <section id="listpad-sec" class="app-section">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h2>📋 মেম্বার লিস্ট প্যাড</h2>
-                <div>
-                    <button class="action-btn" onclick="copyEntirePage()">📋 পেজ কপি</button>
-                    <button class="action-btn delete" onclick="deleteEntirePage()">🗑️ পেজ ডিলিট</button>
+            <div class="card">
+                <h3>📝 Live List Pad</h3>
+                <input type="text" id="pad-page-title" placeholder="পৃষ্ঠার নাম (উদা: Class 10 GK)" value="Default Page">
+                <input type="text" id="pad-line-input" onkeydown="handlePadEnter(event)" placeholder="লাইন লিখে এন্টার মারুন...">
+                <button class="action-btn" onclick="addLineToPad()" style="margin-bottom: 10px;">লাইন যোগ করুন ➕</button>
+                
+                <div style="display: flex; gap: 5px;">
+                    <button class="action-btn secondary" onclick="copyEntirePage()">📋 সব কপি</button>
+                    <button class="action-btn delete" onclick="deleteEntirePage()">🗑️ সব মুছুন</button>
                 </div>
             </div>
+
+            <div class="card">
+                <h3>🔍 ফিল্টার ও অনুসন্ধান (List Pad)</h3>
+                <input type="text" id="pad-page-search" oninput="searchPadPage()" placeholder="📁 পৃষ্ঠা নাম দিয়ে খুঁজুন...">
+                <input type="text" id="pad-line-search" oninput="searchPadLine()" placeholder="📄 সুনির্দিষ্ট লাইন খুঁজুন...">
+                <div id="pad-lines-list" style="max-height: 200px; overflow-y: auto; margin-top: 10px;"></div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 15px;" id="auth-area">
+            <h3>🔒 Office Room Member Access</h3>
+            <div style="display: flex; gap: 10px;">
+                <input type="password" id="user-auth-input" onkeydown="handleAuthEnter(event)" placeholder="সিক্রেট কোড দিন..." style="margin: 0;">
+                <button class="action-btn" onclick="checkAuth()" style="width: auto; white-space: nowrap;">কানেক্ট করুন 🔑</button>
+            </div>
+        </div>
+
+        <div id="nav-officeroom" class="grid-container hidden">
             
-            <input type="text" id="pad-page-search" placeholder="🔍 শিরোনাম বা পৃষ্ঠা খুঁজুন..." oninput="searchPadPage()">
-            <input type="text" id="pad-page-title" placeholder="📄 পৃষ্ঠার শিরোনাম (যেমন: কাজের তালিকা)">
-            
-            <div style="background:#f9f9f9; padding:15px; border-radius:8px; margin-top:10px;">
-                <div style="display: flex; gap:10px;">
-                    <input type="text" id="pad-line-input" placeholder="✍️ নতুন লাইন লিখুন..." onkeydown="handlePadEnter(event)">
-                    <button class="action-btn" onclick="addLineToPad()">যোগ করুন ➕</button>
-                </div>
-                <input type="text" id="pad-line-search" placeholder="🔎 লাইনের ভেতরের লেখা খুঁজুন..." oninput="searchPadLine()" style="margin-top:10px;">
+            <div class="card" style="grid-column: span 2;">
+                <h3>🛠️ অ্যাডমিন কাস্টম ফর্ম মেকার</h3>
+                <input type="text" id="form-title" placeholder="ফর্মের নাম বা টাইটেল (উদা: স্কলারশিপ আবেদন ২০২৬)">
+                <input type="number" id="form-expiry" placeholder="কতদিন পর ফর্ম অটো ডিলিট হবে? (উদা: 5)">
+                <textarea id="form-instruction" placeholder="ফর্মের সাধারণ নির্দেশনাবলী (ঐচ্ছিক)" rows="2"></textarea>
+                
+                <div id="form-fields-builder-container" style="margin-bottom: 10px;">
+                    </div>
+                
+                <button type="button" class="action-btn secondary" onclick="addBuilderFieldRow()" style="margin-bottom: 10px;">➕ নতুন ফিল্ড রো যোগ করুন</button>
+                <button type="button" class="action-btn" onclick="adminAddForm()">📢 কাস্টম ফর্ম লাইভ পাবলিশ করুন</button>
             </div>
 
-            <div id="pad-lines-list" style="margin-top:15px;"></div>
-        </section>
+            <div class="card">
+                <h3>⚙️ ড্যাশবোর্ড কন্ট্রোল</h3>
+                
+                <label><b>১. স্ক্রোল টেক্সট পরিবর্তন:</b></label>
+                <input type="text" id="scroll-text-input" placeholder="নতুন স্ক্রোল মেসেজ...">
+                <button class="action-btn" onclick="adminSetScroll()">আপডেট 🔄</button>
+                <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
 
-        <section id="office-sec" class="app-section">
-            <h2>🏢 অফিস কন্ট্রোল রুম</h2>
-            <hr>
-            
-            <h3>1. Add Tools 🧰</h3>
-            <textarea id="tool-code-input" rows="4" placeholder="সর্বোচ্চ ৫০০০ লাইন পর্যন্ত HTML বা JS কোড..."></textarea>
-            <button class="action-btn" onclick="adminAddTool()">টুল পাবলিশ করুন 🚀</button>
+                <label><b>২. নোটিশ বোর্ড আপডেট:</b></label>
+                <textarea id="notice-text-input" placeholder="নোটিশের তথ্য এখানে লিখুন..." rows="3"></textarea>
+                <button class="action-btn" onclick="adminSetNotice()">নোটিশ দিন 📌</button>
+                <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
 
-            <h3>2. Add Custom Application Forms 📄</h3>
-            <input type="text" id="form-title" placeholder="ফর্মের শিরোনাম (যেমন: এডমিশন ফর্ম)">
-            <input type="text" id="form-expiry" placeholder="কতদিন পর অটো ডিলিট হবে? (দিন সংখ্যা, যেমন: 30)">
-            <textarea id="form-instruction" placeholder="ফর্মের মূল বক্তব্য বা বিবরণ (ঐচ্ছিক)"></textarea>
-            
-            <div style="background:#f9f9f9; padding:15px; border:1px solid #ddd; border-radius:8px; margin:10px 0;">
-                <p style="margin-top:0; font-weight:bold; color:var(--primary-color);">🛠️ ফর্মের ফিল্ড সাজান (কাস্টম ডায়নামিক ফিল্ড):</p>
-                <div id="form-fields-builder-container"></div>
-                <button type="button" class="action-btn secondary" onclick="addBuilderFieldRow()">➕ নতুন ফিল্ড যোগ করুন</button>
+                <label><b>৩. গুরুত্বপূর্ণ লিংক সংযুক্তকরণ:</b></label>
+                <input type="url" id="link-url" placeholder="https://example.com">
+                <button class="action-btn" onclick="adminAddLink()">লিঙ্ক যুক্ত করুন 🔗</button>
             </div>
 
-            <button class="action-btn" onclick="adminAddForm()">ফর্ম তৈরি ও রিলিজ করুন 📢</button>
+            <div class="card">
+                <h3>🗓️ ইভেন্ট ও স্যান্ডবক্স টুলস</h3>
+                
+                <label><b>৪. নতুন ইভেন্ট তৈরি:</b></label>
+                <input type="text" id="event-title" placeholder="ইভেন্টের নাম">
+                <input type="date" id="event-date">
+                <button class="action-btn" onclick="adminAddEvent()">ইভেন্ট লঞ্চ করুন 🎉</button>
+                <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
 
-            <h3>3. Add Active Links 🔗</h3>
-            <input type="text" id="link-url" placeholder="https://example.com">
-            <button class="action-btn" onclick="adminAddLink()">লিঙ্ক যুক্ত করুন 🔗</button>
+                <label><b>৫. স্যান্ডবক্স এইচটিএমএল টুলস ইনজেক্টর:</b></label>
+                <textarea id="tool-code-input" placeholder="HTML / CSS / JS কোড এখানে পেস্ট করুন..." rows="4"></textarea>
+                <button class="action-btn" onclick="adminAddTool()">টুলস লাইভ রেন্ডার করুন 🛠️</button>
+            </div>
+        </div>
 
-            <h3>4. Add Scroll Tag 📢</h3>
-            <input type="text" id="scroll-text-input" placeholder="চলন্ত লাল স্ক্রিপ্ট টেক্সট...">
-            <button class="action-btn" onclick="adminSetScroll()">স্ক্রোল আপডেট করুন 🔄</button>
+        <div id="nav-listpad" class="grid-container hidden">
+            <div class="card" style="grid-column: span 2;">
+                <h3>📥 অফিস রুমে জমা পড়া লাইভ অ্যাপ্লিকেশন সমূহ</h3>
+                <div id="received-apps-container">কোনো অ্যাপ্লিকেশন জমা পড়েনি।</div>
+            </div>
+            <div class="card" style="grid-column: span 2;">
+                <h3>🛠️ রেন্ডার হওয়া স্যান্ডবক্স ইনজেক্টেড টুলস</h3>
+                <div id="tools-runtime-container">কোনো টুলস উপলব্ধ নেই।</div>
+            </div>
+        </div>
 
-            <h3>5. Add Notice Board 📌</h3>
-            <textarea id="notice-text-input" placeholder="নোটিশ বোর্ডের তথ্য..."></textarea>
-            <button class="action-btn" onclick="adminSetNotice()">নোটিশ আপডেট করুন 📌</button>
-
-            <h3>6. Add Event 📅</h3>
-            <input type="text" id="event-title" placeholder="ইভেন্টের নাম">
-            <input type="date" id="event-date">
-            <button class="action-btn" onclick="adminAddEvent()">ইভেন্ট যোগ করুন 🗓️</button>
-
-            <h3>7. Receive Submitted Applications 📥</h3>
-            <div id="received-apps-container">কোনো অ্যাপ্লিকেশন জমা পড়েনি।</div>
-        </section>
     </div>
-
-    <div id="toast-alert">⚠️ এই লাইনটি আগেই উপস্থিত আছে! ⚠️</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // আপনার ফায়ারবেস কনফিগারেশন
         const firebaseConfig = {
             apiKey: "AIzaSyAVNKYEONsmJQYvNQZLrsDFjWRIFS9Iupk",
             authDomain: "your-choice-application-3f40a.firebaseapp.com",
@@ -333,26 +198,54 @@
             checkSavedSession();
             syncFirebaseRealtime();
             addBuilderFieldRow();
+            checkUrlParameters();
         });
 
+        // 🟢 ১. ফিক্সড: ইনপুট লাইনের ব্রেক ট্র্যাপ সমাধান (কোনো সাধারণ ইনপুট ফিল্ডে \n ঢুকবে না)
         function setupInputLineBreaks() {
             document.body.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
-                    if(e.target.id !== 'user-auth-input' && e.target.id !== 'pad-line-input' && !e.target.classList.contains('builder-label')) {
-                        e.preventDefault();
-                        const start = e.target.selectionStart;
-                        const end = e.target.selectionEnd;
-                        const val = e.target.value;
-                        e.target.value = val.substring(0, start) + "\n" + val.substring(end);
-                        e.target.selectionStart = e.target.selectionEnd = start + 1;
+                if (e.key === 'Enter') {
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+                        e.preventDefault(); 
+                    } else if (e.target.tagName === 'TEXTAREA') {
+                        // Textarea স্বাভাবিকভাবে তার লাইন ব্রেক হ্যান্ডেল করবে, কোনো অতিরিক্ত ট্র্যাপ হবে না।
                     }
                 }
             });
         }
 
+        // 🟢 ২. ফিক্সড: রিয়েল-টাইম ডাটা রিফ্রেশ লুপ সমাধান (Firebase থেকে openMainSub() কল সম্পূর্ণ বাদ)
+        function syncFirebaseRealtime() {
+            onValue(ref(db, '/'), (snapshot) => {
+                const data = snapshot.val() || {};
+                localDataCache = data;
+                
+                // অফলাইন ব্যাকআপ ম্যানেজমেন্ট
+                localStorage.setItem('tools_offline_cache', JSON.stringify(data.tools || {}));
+                
+                // মেইন পেজের ডেটা সঠিকভাবে প্রচার করার রেন্ডারার্স
+                renderScrollTag(data.scrollTag);
+                renderTools(data.tools);
+                renderListPad();
+                renderReceivedApplications(data.submittedForms);
+                processAutoDeletion(data);
+                
+                // অ্যাক্টিভ ভিউ খোলা থাকলে পেজ মেমোরি ক্র্যাশ না করে ডেটা রি-সিঙ্ক করার মেকানিজম
+                const currentDisplay = document.getElementById('main-sub-display');
+                if (currentDisplay && !currentDisplay.classList.contains('hidden')) {
+                    const activeType = currentDisplay.getAttribute('data-open-type');
+                    if (activeType) {
+                        openMainSub(activeType, true); 
+                    }
+                }
+            });
+        }
+
+        // 🟢 ৩. ফিক্সড: উইন্ডো মেথড মিসিং সমাধান (গ্লোবাল স্ক্রোপে বাটন অ্যাকশন রেজিস্টার)
         window.addBuilderFieldRow = function() {
             builderFieldCount++;
             const container = document.getElementById('form-fields-builder-container');
+            if(!container) return;
             const row = document.createElement('div');
             row.className = 'field-builder-row';
             row.id = `builder-row-${builderFieldCount}`;
@@ -378,6 +271,7 @@
 
         window.toggleOptionsInput = function(id) {
             const row = document.getElementById(`builder-row-${id}`);
+            if(!row) return;
             const type = row.querySelector('.builder-type').value;
             const optionsInput = row.querySelector('.builder-options');
             if(type === 'radio' || type === 'checkbox') {
@@ -387,67 +281,76 @@
             }
         }
 
-        window.checkAuth = function() {
-            const secretCode = "20091307";
-            const inputVal = document.getElementById('user-auth-input').value.trim();
-            if (inputVal === secretCode) {
-                activateAdminMode();
-                localStorage.setItem('app_session_role', 'admin');
-            } else {
-                alert("স্বাগতম " + inputVal + "! সাধারণ ইউজার মোড অ্যাক্টিভ হয়েছে।");
-                document.getElementById('user-auth-input').value = "";
+        // মেইন পেজে ডেটা প্রচার করার কোর স্ক্রিপ্টসমূহ
+        window.openMainSub = function(type, isRefresh = false) {
+            const display = document.getElementById('main-sub-display');
+            const content = document.getElementById('main-sub-content');
+            display.classList.remove('hidden');
+            display.setAttribute('data-open-type', type);
+            if(!isRefresh) content.innerHTML = "লোড হচ্ছে...";
+
+            if(type === 'events-view') {
+                let html = "<h3>📅 অ্যাক্টিভ ইভেন্ট সমূহ</h3>";
+                const events = localDataCache.events || {};
+                const keys = Object.keys(events);
+                
+                if(keys.length === 0) { html += "<p>কোনো অ্যাক্টিভ ইভেন্ট উপলব্ধ নেই।</p>"; }
+                keys.forEach(k => {
+                    const uniqueEventLink = window.location.origin + window.location.pathname + "?targetEvent=" + k;
+                    html += `
+                        <div class="data-card">
+                            <h4>🎉 ${events[k].title}</h4>
+                            <p>⏳ শেষ তারিখ: ${events[k].expiryDate}</p>
+                            <button class="action-btn" style="width:auto; margin-top:5px; padding: 5px 10px;" onclick="window.open('${uniqueEventLink}', '_blank')">ইভেন্ট দেখুন 🔗</button>
+                            ${isDBAdmin ? `<span class="delete-ico" onclick="deleteItem('events/${k}')">🗑️</span>` : ''}
+                        </div>`;
+                });
+                content.innerHTML = html;
+            } 
+            else if(type === 'links-view') {
+                let html = "<h3>🔗 পাবলিশড লিঙ্ক জোন</h3>";
+                const links = localDataCache.links || {};
+                const keys = Object.keys(links);
+
+                if(keys.length === 0) { html += "<p>কোনো অফিসিয়াল লিঙ্ক উপলব্ধ নেই।</p>"; }
+                keys.forEach(k => {
+                    html += `
+                        <div class="data-card">
+                            🔗 <button class="action-btn secondary" style="padding: 5px 10px; width:auto;" onclick="window.open('${links[k].url}', '_blank')">${links[k].url}</button>
+                            ${isDBAdmin ? `<span class="delete-ico" onclick="deleteItem('links/${k}')">🗑️</span>` : ''}
+                        </div>`;
+                });
+                content.innerHTML = html;
+            }
+            else if(type === 'notice-view') {
+                const text = localDataCache.notice ? localDataCache.notice.text : "কোনো নোটিশ নেই।";
+                content.innerHTML = `<h3>📌 নোটিশ বোর্ড</h3><div class="data-card" style="font-size:16px; white-space:pre-wrap;">${linkify(text)}</div>`;
+            }
+            else if(type === 'apps-view') {
+                let html = "<h3>📄 অ্যাপ্লিকেশন ফরম ফিলাপ</h3>";
+                const templates = localDataCache.formTemplates || {};
+                const keys = Object.keys(templates);
+
+                if(keys.length === 0) { html += "<p>কোনো লাইভ ফর্ম উপলব্ধ নেই।</p>"; }
+                keys.forEach(k => {
+                    const t = templates[k];
+                    const uniqueFormTabLink = window.location.origin + window.location.pathname + "?openForm=" + k;
+                    
+                    html += `
+                        <div class="external-app-card">
+                            <h4>📋 ${t.title}</h4>
+                            ${t.instruction ? `<p style="color: #555; margin: 5px 0;">ℹ️ <i>${t.instruction}</i></p>` : ''}
+                            <button class="action-btn" style="margin-top:5px;" onclick="window.open('${uniqueFormTabLink}', '_blank')">নতুন ট্যাবে ফর্ম ওপেন করুন 📂</button>
+                            ${isDBAdmin ? `<span class="delete-ico" onclick="deleteItem('formTemplates/${k}')">🗑️</span>` : ''}
+                        </div>`;
+                });
+                content.innerHTML = html;
             }
         }
 
-        window.handleAuthEnter = function(e) {
-            if(e.key === 'Enter') { e.preventDefault(); checkAuth(); }
-        }
-
-        function checkSavedSession() {
-            const savedRole = localStorage.getItem('app_session_role');
-            if (savedRole === 'admin') activateAdminMode();
-            else restrictAccess();
-        }
-
-        function activateAdminMode() {
-            isDBAdmin = true;
-            document.getElementById('nav-listpad').classList.remove('hidden');
-            document.getElementById('nav-officeroom').classList.remove('hidden');
-            document.getElementById('auth-area').innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="color:#27ae60; font-weight:bold;">🟢 Office Room Member Connected</span>
-                    <button class="action-btn delete" onclick="logOutUser()">Log out 🔓</button>
-                </div>
-            `;
-        }
-
-        window.logOutUser = function() {
-            localStorage.removeItem('app_session_role');
-            location.reload();
-        }
-
-        function restrictAccess() {
-            isDBAdmin = false;
-            document.getElementById('nav-listpad').classList.add('hidden');
-            document.getElementById('nav-officeroom').classList.add('hidden');
-        }
-
-        function syncFirebaseRealtime() {
-            onValue(ref(db, '/'), (snapshot) => {
-                const data = snapshot.val() || {};
-                localDataCache = data;
-                localStorage.setItem('tools_offline_cache', JSON.stringify(data.tools || {}));
-                renderScrollTag(data.scrollTag);
-                renderTools(data.tools);
-                renderListPad();
-                renderReceivedApplications(data.submittedForms);
-                processAutoDeletion(data);
-                
-                if(!document.getElementById('main-sub-display').classList.contains('hidden')){
-                     const openType = document.getElementById('main-sub-display').getAttribute('data-open-type');
-                     if(openType) openMainSub(openType, true);
-                }
-            });
+        window.closeMainSub = function() { 
+            document.getElementById('main-sub-display').classList.add('hidden'); 
+            document.getElementById('main-sub-display').removeAttribute('data-open-type');
         }
 
         function renderTools(firebaseTools) {
@@ -457,8 +360,9 @@
                 if(offline) toolsData = JSON.parse(offline);
             }
             const container = document.getElementById('tools-runtime-container');
+            if(!container) return;
             container.innerHTML = "";
-            if(!toolsData) { container.innerHTML = "কোনো টুলস উপলব্ধ নেই।"; return;}
+            if(!toolsData) { container.innerHTML = "কোনো স্যান্ডবক্স টুলস উপলব্ধ নেই।"; return;}
 
             Object.keys(toolsData).forEach(key => {
                 const tool = toolsData[key];
@@ -477,7 +381,7 @@
         }
 
         function renderScrollTag(tagData) {
-            document.getElementById('live-scroll-tag').innerText = (tagData && tagData.text) ? tagData.text : "Your Choice Application 📱";
+            document.getElementById('live-scroll-tag').innerText = (tagData && tagData.text) ? tagData.text : "Your Choice Application 📱 System Loaded Successfully.";
         }
 
         window.handlePadEnter = function(e) { if(e.key === 'Enter') { e.preventDefault(); addLineToPad(); } }
@@ -505,9 +409,12 @@
         }
 
         function renderListPad() {
-            const searchPage = document.getElementById('pad-page-search').value.toLowerCase();
-            const searchLine = document.getElementById('pad-line-search').value.toLowerCase();
+            const searchPageField = document.getElementById('pad-page-search');
+            const searchLineField = document.getElementById('pad-line-search');
+            const searchPage = searchPageField ? searchPageField.value.toLowerCase() : "";
+            const searchLine = searchLineField ? searchLineField.value.toLowerCase() : "";
             const container = document.getElementById('pad-lines-list');
+            if(!container) return;
             container.innerHTML = "";
             const pads = localDataCache.listpads || {};
             
@@ -547,78 +454,6 @@
             });
         }
 
-        window.openMainSub = function(type, isRefresh = false) {
-            const display = document.getElementById('main-sub-display');
-            const content = document.getElementById('main-sub-content');
-            display.classList.remove('hidden');
-            display.setAttribute('data-open-type', type);
-            if(!isRefresh) content.innerHTML = "লোড হচ্ছে...";
-
-            if(type === 'events-view') {
-                let html = "<h3>📅 অ্যাক্টিভ ইভেন্ট সমূহ</h3>";
-                const events = localDataCache.events || {};
-                const keys = Object.keys(events);
-                
-                if(keys.length === 0) { html += "<p>কোনো ইভেন্ট উপলব্ধ নেই।</p>"; }
-                keys.forEach(k => {
-                    const uniqueEventLink = window.location.origin + window.location.pathname + "?targetEvent=" + k;
-                    html += `
-                        <div class="data-card">
-                            <h4>🎉 ${events[k].title}</h4>
-                            <p>⏳ শেষ তারিখ: ${events[k].expiryDate}</p>
-                            <button class="action-btn" onclick="window.open('${uniqueEventLink}', '_blank')">ইভেন্ট দেখুন 🔗</button>
-                            ${isDBAdmin ? `<span class="delete-ico" onclick="deleteItem('events/${k}')">🗑️</span>` : ''}
-                        </div>`;
-                });
-                content.innerHTML = html;
-            } 
-            else if(type === 'links-view') {
-                let html = "<h3>🔗 পাবলিশড লিঙ্ক</h3>";
-                const links = localDataCache.links || {};
-                const keys = Object.keys(links);
-
-                if(keys.length === 0) { html += "<p>কোনো লিঙ্ক উপলব্ধ নেই।</p>"; }
-                keys.forEach(k => {
-                    html += `
-                        <div class="data-card">
-                            🔗 <button class="action-btn secondary" style="padding: 5px 10px;" onclick="window.open('${links[k].url}', '_blank')">${links[k].url}</button>
-                            ${isDBAdmin ? `<span class="delete-ico" onclick="deleteItem('links/${k}')">🗑️</span>` : ''}
-                        </div>`;
-                });
-                content.innerHTML = html;
-            }
-            else if(type === 'notice-view') {
-                const text = localDataCache.notice ? localDataCache.notice.text : "কোনো নোটিশ নেই।";
-                content.innerHTML = `<h3>📌 নোটিশ বোর্ড</h3><div class="data-card" style="font-size:16px; white-space:pre-wrap;">${linkify(text)}</div>`;
-            }
-            else if(type === 'apps-view') {
-                let html = "<h3>📄 অ্যাপ্লিকেশন ফরম ফিলাপ</h3>";
-                const templates = localDataCache.formTemplates || {};
-                const keys = Object.keys(templates);
-
-                if(keys.length === 0) { html += "<p>কোনো ফর্ম উপলব্ধ নেই।</p>"; }
-                keys.forEach(k => {
-                    const t = templates[k];
-                    const uniqueFormTabLink = window.location.origin + window.location.pathname + "?openForm=" + k;
-                    
-                    html += `
-                        <div class="external-app-card">
-                            <h4>📋 ${t.title}</h4>
-                            ${t.instruction ? `<p style="color: #555;">ℹ️ <i>${t.instruction}</i></p>` : ''}
-                            <p style="font-size:13px; color:gray;">⏳ ফর্ম রিমুভাল টাইমস্ট্যাম্প নির্ধারণ করা আছে।</p>
-                            <button class="action-btn" onclick="window.open('${uniqueFormTabLink}', '_blank')">নতুন ট্যাবে ফর্মটি ওপেন করুন 📂</button>
-                            ${isDBAdmin ? `<span class="delete-ico" onclick="deleteItem('formTemplates/${k}')">🗑️</span>` : ''}
-                        </div>`;
-                });
-                content.innerHTML = html;
-            }
-        }
-
-        window.closeMainSub = function() { 
-            document.getElementById('main-sub-display').classList.add('hidden'); 
-            document.getElementById('main-sub-display').removeAttribute('data-open-type');
-        }
-
         window.submitUserApplication = function(templateId) {
             const template = localDataCache.formTemplates[templateId];
             let submissionData = {};
@@ -650,18 +485,23 @@
                 expiryTimestamp: template.expiryDays ? (Date.now() + (parseInt(template.expiryDays) * 86400000)) : null
             });
 
-            alert("আপনার অ্যাপ্লিকেশনটি সফলভাবে Office Room এ পাঠানো হয়েছে! আপনি এখন ট্যাবটি বন্ধ করতে পারেন।");
+            alert("আপনার অ্যাপ্লিকেশনটি সফলভাবে জমা হয়েছে!");
             window.close();
         }
 
         function checkUrlParameters() {
             const urlParams = new URLSearchParams(window.location.search);
+            const mainAppBody = document.getElementById('main-app-body');
+            const paramViewBox = document.getElementById('parameter-view-box');
             
             if(urlParams.has('openForm')) {
+                mainAppBody.classList.add('hidden');
+                paramViewBox.classList.remove('hidden');
                 const formId = urlParams.get('openForm');
+                
                 onValue(ref(db, `formTemplates/${formId}`), (snapshot) => {
                     const t = snapshot.val();
-                    if(!t) { document.body.innerHTML = "<h2 style='text-align:center;margin-top:50px;'>❌ ফর্মটি পাওয়া যায়নি বা মুছে ফেলা হয়েছে।</h2>"; return; }
+                    if(!t) { paramViewBox.innerHTML = "<h2 style='text-align:center;margin-top:50px;'>❌ ফর্মটি পাওয়া যায়নি বা মুছে ফেলা হয়েছে।</h2>"; return; }
                     
                     let fieldsHTML = '';
                     if(t.fields) {
@@ -686,7 +526,7 @@
                         });
                     }
 
-                    document.body.innerHTML = `
+                    paramViewBox.innerHTML = `
                         <div style="max-width:600px; margin:40px auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); font-family:sans-serif;">
                             <h2 style="color:#2c3e50; text-align:center; border-bottom:2px solid #3498db; padding-bottom:10px;">${t.title}</h2>
                             ${t.instruction ? `<p style="background:#f8f9fa; padding:10px; border-left:4px solid #e67e22; font-style:italic;">${t.instruction}</p>` : ''}
@@ -697,13 +537,16 @@
                 });
             }
 
-            if(urlParams.has('targetEvent')) {
+            else if(urlParams.has('targetEvent')) {
+                mainAppBody.classList.add('hidden');
+                paramViewBox.classList.remove('hidden');
                 const evId = urlParams.get('targetEvent');
+                
                 onValue(ref(db, `events/${evId}`), (snapshot) => {
                     const ev = snapshot.val();
-                    if(!ev) { document.body.innerHTML = "<h2 style='text-align:center;margin-top:50px;'>❌ ইভেন্টটি খুঁজে পাওয়া যায়নি।</h2>"; return; }
-                    document.body.innerHTML = `
-                        <div style="max-width:500px; margin:80px auto; background:#fff; padding:4px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); text-align:center; font-family:sans-serif; border-top:8px solid #2980b9;">
+                    if(!ev) { paramViewBox.innerHTML = "<h2 style='text-align:center;margin-top:50px;'>❌ ইভেন্টটি খুঁজে পাওয়া যায়নি।</h2>"; return; }
+                    paramViewBox.innerHTML = `
+                        <div style="max-width:500px; margin:80px auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); text-align:center; font-family:sans-serif; border-top:8px solid #2980b9;">
                             <h1 style="color:#2c3e50;">🎉 ${ev.title}</h1>
                             <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
                             <p style="font-size:18px; color:#e74c3c;"><b>⏳ শেষ তারিখ:</b> ${ev.expiryDate}</p>
@@ -712,9 +555,33 @@
                     `;
                 });
             }
+            
+            else if(urlParams.has('viewApp')) {
+                mainAppBody.classList.add('hidden');
+                paramViewBox.classList.remove('hidden');
+                const submissionId = urlParams.get('viewApp');
+                
+                onValue(ref(db, `submittedForms/${submissionId}`), (snapshot) => {
+                    const appData = snapshot.val();
+                    if(!appData) { paramViewBox.innerHTML = "<h2 style='text-align:center;margin-top:50px;'>❌ অ্যাপ্লিকেশনটি খুঁজে পাওয়া যায়নি বা এটি এক্সপায়ার হয়ে গেছে।</h2>"; return; }
+                    
+                    let respHTML = "";
+                    if(appData.responses) {
+                        Object.keys(appData.responses).forEach(label => {
+                            respHTML += `<p style="font-size:16px; margin:10px 0; border-bottom:1px solid #eee; padding-bottom:5px;"><b>• ${label}:</b> ${JSON.stringify(appData.responses[label])}</p>`;
+                        });
+                    }
+                    
+                    paramViewBox.innerHTML = `
+                        <div style="max-width:600px; margin:40px auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); font-family:sans-serif;">
+                            <h2 style="color:#9b59b6; text-align:center;">📁 সাবমিট করা ফর্ম: ${appData.formTitle}</h2>
+                            <div style="background:#f9f9f9; padding:15px; border-radius:8px; margin-top:20px;">${respHTML}</div>
+                            <p style="color:gray; font-size:12px; text-align:center; margin-top:20px;">Your Choice Verification System ✅</p>
+                        </div>
+                    `;
+                });
+            }
         }
-        
-        setTimeout(checkUrlParameters, 1200);
 
         window.adminAddForm = function() {
             const title = document.getElementById('form-title').value.trim();
@@ -793,6 +660,7 @@
 
         function renderReceivedApplications(submittedData) {
             const container = document.getElementById('received-apps-container');
+            if(!container) return;
             container.innerHTML = "";
             if(!submittedData) { container.innerHTML = "কোনো অ্যাপ্লিকেশন জমা পড়েনি।"; return; }
 
@@ -879,15 +747,53 @@
             replacedText = replacedText.replace(replacePattern2, '$1<a href="http://$2" target="_blank">$2</a>');
             return replacedText;
         }
-    </script>
 
-    <script>
-        function switchTab(sectionId) {
-            document.querySelectorAll('.app-section').forEach(sec => sec.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(sectionId).classList.add('active');
-            const currentBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => btn.getAttribute('onclick').includes(sectionId));
-            if(currentBtn) currentBtn.classList.add('active');
+        window.checkAuth = function() {
+            const secretCode = "20091307";
+            const inputVal = document.getElementById('user-auth-input').value.trim();
+            if (inputVal === secretCode) {
+                activateAdminMode();
+                localStorage.setItem('app_session_role', 'admin');
+            } else {
+                alert("স্বাগতম " + inputVal + "! সাধারণ ইউজার মোড অ্যাক্টিভ হয়েছে।");
+                document.getElementById('user-auth-input').value = "";
+            }
+        }
+
+        window.handleAuthEnter = function(e) {
+            if(e.key === 'Enter') { e.preventDefault(); checkAuth(); }
+        }
+
+        function checkSavedSession() {
+            const savedRole = localStorage.getItem('app_session_role');
+            if (savedRole === 'admin') activateAdminMode();
+            else restrictAccess();
+        }
+
+        function activateAdminMode() {
+            isDBAdmin = true;
+            document.getElementById('nav-listpad').classList.remove('hidden');
+            document.getElementById('nav-officeroom').classList.remove('hidden');
+            const authArea = document.getElementById('auth-area');
+            if(authArea) {
+                authArea.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                        <span style="color:#27ae60; font-weight:bold;">🟢 Office Room Member Connected</span>
+                        <button class="action-btn delete" onclick="logOutUser()" style="width:auto; padding:5px 10px;">Log out 🔓</button>
+                    </div>
+                `;
+            }
+        }
+
+        window.logOutUser = function() {
+            localStorage.removeItem('app_session_role');
+            location.reload();
+        }
+
+        function restrictAccess() {
+            isDBAdmin = false;
+            document.getElementById('nav-listpad').classList.add('hidden');
+            document.getElementById('nav-officeroom').classList.add('hidden');
         }
     </script>
 </body>
