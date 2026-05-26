@@ -5,63 +5,64 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Your Choice Application</title>
 <style>
-:root{--p:#1976d2;--r:#d32f2f;--g:#388e3c;--o:#f57c00}
-*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,sans-serif}
-body{background:#f5f5f5;font-size:15px}
+:root{--p:#1976d2;--r:#d32f2f;--g:#388e3c;--o:#f57c00;--bg:#f0f2f5}
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);font-size:15px}
 .hide{display:none!important}
-.header{background:var(--p);color:#fff;padding:14px;text-align:center;font-size:18px;font-weight:600;position:sticky;top:0;z-index:100}
+.header{background:var(--p);color:#fff;padding:14px;text-align:center;font-size:18px;font-weight:700;position:sticky;top:0;z-index:100}
 .scroll-tag{background:var(--r);color:#fff;padding:8px;overflow:hidden;white-space:nowrap}
-.scroll-tag span{display:inline-block;animation:scroll 20s linear infinite;padding-left:100%}
+.scroll-tag span{display:inline-block;animation:scroll 18s linear infinite;padding-left:100%}
 @keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
-.nav{display:flex;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.15);position:sticky;top:52px;z-index:99}
-.nav-btn{flex:1;padding:14px 5px;border:none;background:#fff;border-bottom:3px solid transparent;cursor:pointer;font-weight:600;font-size:13px}
+.nav{display:flex;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.1);position:sticky;top:52px;z-index:99}
+.nav-btn{flex:1;padding:13px 4px;border:none;background:#fff;border-bottom:3px solid transparent;cursor:pointer;font-weight:600;font-size:12px}
 .nav-btn.active{border-bottom:3px solid var(--p);color:var(--p)}
-.tab-content{padding:12px;max-width:800px;margin:auto}
-.btn{padding:11px 16px;margin:4px 2px;background:var(--p);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;display:inline-block}
-.btn:active{transform:scale(.96)}
-.btn-red{background:var(--r)}.btn-green{background:var(--g)}.btn-orange{background:var(--o)}
-.card{background:#fff;padding:14px;margin:10px 0;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.1)}
-input,textarea,select{width:100%;padding:11px;margin:6px 0;border:1px solid #ddd;border-radius:6px;font-size:15px}
-textarea{resize:vertical;min-height:80px}
-label{font-weight:600;font-size:14px;margin-top:8px;display:block}
-.line-item{display:flex;align-items:center;padding:10px;border-bottom:1px solid #eee;gap:8px}
+.tab-content{padding:12px;max-width:900px;margin:auto}
+.btn{padding:12px 16px;margin:4px 2px;background:var(--p);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600}
+.btn:active{transform:scale(.97)}
+.btn-red{background:var(--r)}.btn-green{background:var(--g)}.btn-orange{background:var(--o)}.btn-gray{background:#757575}
+.card{background:#fff;padding:16px;margin:10px 0;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+input,textarea,select{width:100%;padding:12px;margin:6px 0;border:1px solid #ddd;border-radius:8px;font-size:15px;outline:none}
+input:focus,textarea:focus{border-color:var(--p)}
+textarea{resize:vertical;min-height:90px}
+label{font-weight:600;font-size:14px;margin-top:10px;display:block}
+.line-item{display:flex;align-items:center;padding:10px;border-bottom:1px solid #eee;gap:10px}
 .line-item span{flex:1;white-space:pre-wrap;word-break:break-word}
-.del-line{color:var(--r);cursor:pointer;font-size:22px;line-height:1}
+.del-line{color:var(--r);cursor:pointer;font-size:24px;line-height:1;padding:0 5px}
 .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:999;padding:15px}
-.modal-content{background:#fff;padding:18px;border-radius:12px;width:100%;max-width:600px;max-height:90vh;overflow:auto}
-.badge{background:var(--r);color:#fff;padding:2px 7px;border-radius:12px;font-size:11px;margin-left:4px}
-.flex{display:flex;gap:8px;flex-wrap:wrap}
-.flex-col{display:flex;flex-direction:column;gap:6px}
-.small{font-size:12px;color:#666}
-hr{border:none;border-top:1px solid #eee;margin:12px 0}
-.radio-group label{font-weight:400;display:flex;align-items:center;gap:8px;margin:4px 0}
+.modal-content{background:#fff;padding:20px;border-radius:14px;width:100%;max-width:650px;max-height:90vh;overflow:auto}
+.badge{background:var(--r);color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;margin-left:5px}
+.flex{display:flex;gap:8px;flex-wrap:wrap}.flex-col{display:flex;flex-direction:column;gap:8px}
+.small{font-size:12px;color:#666}.center{text-align:center}
+hr{border:none;border-top:1px solid #eee;margin:14px 0}
+.radio-group label{font-weight:400;display:flex;align-items:center;gap:8px;margin:5px 0}
 .radio-group input{width:auto}
+.toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:12px 22px;border-radius:25px;z-index:1000;font-size:14px}
 </style>
 </head>
 <body>
-<div class="header">🏢 Office Pro</div>
-<div class="scroll-tag" id="scrollTag"><span>Welcome to Office Pro App</span></div>
+<div class="header">🌟 Your Choice Application</div>
+<div class="scroll-tag" id="scrollTag"><span>Welcome to Your Choice Application</span></div>
 
 <div class="nav">
   <button class="nav-btn active" onclick="showTab('main',this)">🏠 Main</button>
   <button class="nav-btn" onclick="showTab('tools',this)">🛠️ Tools</button>
   <button class="nav-btn" onclick="showTab('listpad',this)">📋 List Pad</button>
-  <button class="nav-btn" onclick="showTab('office',this)">🏢 Office</button>
+  <button class="nav-btn" onclick="showTab('office',this)">🏢 Office Room</button>
 </div>
 
 <!-- MAIN -->
 <div id="main" class="tab-content">
   <div class="card">
     <div class="flex">
-      <button class="btn" onclick="showEvent()">📅 Event</button>
-      <button class="btn" onclick="showApplication()">📝 Application</button>
-      <button class="btn" onclick="showLinks()">🔗 Link</button>
-      <button class="btn" onclick="showNotice()">📢 Notice Board</button>
+      <button class="btn" onclick="showEvent()">📅 A. Event</button>
+      <button class="btn" onclick="showApplication()">📝 B. Application</button>
+      <button class="btn" onclick="showLinks()">🔗 C. Link</button>
+      <button class="btn" onclick="showNotice()">📢 D. Notice Board</button>
     </div>
   </div>
   <div class="card" id="userArea">
-    <label>Enter Name / Office Access Code</label>
-    <input type="text" id="username" placeholder="Type here..." onkeypress="if(event.key==='Enter')loginUser()">
+    <label>E. User Name / Office Access</label>
+    <input type="text" id="username" placeholder="Enter your name..." onkeypress="if(event.key==='Enter')loginUser()">
     <button class="btn btn-green" onclick="loginUser()">Enter ➤</button>
   </div>
   <button class="btn btn-red hide" id="logoutBtn" onclick="logout()">🚪 Log Out</button>
@@ -71,15 +72,16 @@ hr{border:none;border-top:1px solid #eee;margin:12px 0}
 <!-- TOOLS -->
 <div id="tools" class="tab-content hide">
   <h3>🛠️ Offline Tools</h3>
-  <p class="small">Tools work offline after first load</p>
+  <p class="small">একবার লোড হলে নেট ছাড়াও চলবে</p>
   <div id="toolsContainer"></div>
 </div>
 
 <!-- LIST PAD -->
 <div id="listpad" class="tab-content hide">
-  <div id="listpadLock" class="card">🔒 Only Office Room members can access List Pad</div>
+  <div id="listpadLock" class="card center">🔒 Only Office Room members can access</div>
   <div id="listpadContent" class="hide">
-    <input type="text" id="searchPage" placeholder="🔍 Search page by title..." onkeyup="filterPages()">
+    <input type="text" id="searchPage" placeholder="🔍 Search page title..." onkeyup="filterPages()">
+    <input type="text" id="searchLine" placeholder="🔍 Search line in all pages..." onkeyup="searchAllLines()">
     <button class="btn btn-green" onclick="newPage()">➕ New Page</button>
     <div id="pagesContainer"></div>
   </div>
@@ -87,7 +89,7 @@ hr{border:none;border-top:1px solid #eee;margin:12px 0}
 
 <!-- OFFICE ROOM -->
 <div id="office" class="tab-content hide">
-  <div id="officeLock" class="card">🔒 Enter Office Access Code in Main tab</div>
+  <div id="officeLock" class="card center">🔒 Enter Office Access Code in Main tab</div>
   <div id="officeContent" class="hide">
     <div class="flex">
       <button class="btn" onclick="addToolModal()">🛠️ Add Tools</button>
@@ -109,7 +111,7 @@ hr{border:none;border-top:1px solid #eee;margin:12px 0}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, deleteDoc, query, where, orderBy, onSnapshot, updateDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, deleteDoc, query, where, orderBy, onSnapshot, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAVNKYEONsmJQYvNQZLrsDFjWRIFS9Iupk",
@@ -132,11 +134,11 @@ window.onload = async () => {
   checkLoginStatus();
   loadScrollTag();
   loadTools();
-  loadNotice();
   registerSW();
   autoDeleteExpired();
   checkUrlParams();
   setInterval(autoDeleteExpired, 1800000);
+  if(isOfficeMember) listenApplications();
 };
 
 function checkLoginStatus() {
@@ -148,29 +150,26 @@ function checkLoginStatus() {
     document.getElementById('listpadLock').classList.add('hide');
     document.getElementById('listpadContent').classList.remove('hide');
     renderPages();
-    checkNewApplications();
   }
 }
 
 window.loginUser = async () => {
   const name = document.getElementById('username').value.trim();
   if(!name) return showToast('❌ Enter name');
-
   try {
     const secretDoc = await getDoc(doc(db, "settings", "officeKey"));
     const officeKey = secretDoc.exists()? secretDoc.data().key : '';
-
     if(name === officeKey && officeKey!== '') {
       isOfficeMember = true;
       localStorage.setItem('isOfficeMember', 'true');
       checkLoginStatus();
+      listenApplications();
       showToast('✅ Office Room Unlocked');
     } else {
-      showToast('👋 Welcome ' + name);
+      showToast('👋 Welcome');
+      document.getElementById('username').value = '';
     }
-  } catch(e) {
-    showToast('❌ Connection Error');
-  }
+  } catch(e) { showToast('❌ Network Error'); }
 };
 
 window.logout = () => {
@@ -186,15 +185,17 @@ window.showTab = (tab, btn) => {
   if(btn) btn.classList.add('active');
 };
 
-// MAIN TAB FUNCTIONS
+// MAIN FUNCTIONS
 window.showEvent = async () => {
   const q = query(collection(db, "events"), orderBy("created", "desc"));
   const snap = await getDocs(q);
   let html = '<h3>📅 Events</h3>';
   snap.forEach(d => {
     const e = d.data();
+    const shareLink = location.origin + location.pathname + '?event=' + d.id;
     html += `<div class="card"><b>${e.title}</b><br><span class="small">Last Date: ${e.lastDate}</span><br>${nl2br(e.desc)}<br>
-    ${isOfficeMember?`<button class="btn btn-red" onclick="delDoc('events','${d.id}')">🗑️ Delete</button>`:''}</div>`;
+    <button class="btn btn-gray" onclick="navigator.clipboard.writeText('${shareLink}');showToast('🔗 Link Copied')">🔗 Copy Link</button>
+    ${isOfficeMember?`<button class="btn btn-red" onclick="delDoc('events','${d.id}');showEvent()">🗑️ Delete</button>`:''}</div>`;
   });
   document.getElementById('mainContent').innerHTML = html || '<div class="card">No Events</div>';
 };
@@ -228,7 +229,7 @@ window.fillForm = async (formId) => {
       html += `<label>${field.label} (Optional)</label><textarea name="f${i}"></textarea>`;
     }
   });
-  html += `</div><button type="submit" class="btn btn-green">📤 Send to Office</button></form>`;
+  html += `</div><button type="submit" class="btn btn-green">📤 Send</button></form>`;
   document.getElementById('mainContent').innerHTML = html;
   document.getElementById('userForm').onsubmit = async (e) => {
     e.preventDefault();
@@ -238,7 +239,7 @@ window.fillForm = async (formId) => {
       submittedAt: Timestamp.now(),
       expireAt: Timestamp.fromDate(new Date(Date.now() + 100*24*60*60*1000))
     });
-    showToast('✅ Application Sent');
+    showToast('✅ Application Sent to Office Room');
     document.getElementById('mainContent').innerHTML = '';
   };
 };
@@ -249,7 +250,7 @@ window.showLinks = async () => {
   snap.forEach(d => {
     const l = d.data();
     html += `<a href="${l.url}" target="_blank" class="btn">${l.title}</a>
-    ${isOfficeMember?`<button class="btn btn-red" onclick="delDoc('links','${d.id}')">🗑️</button>`:''}`;
+    ${isOfficeMember?`<button class="btn btn-red" onclick="delDoc('links','${d.id}');showLinks()">🗑️</button>`:''}`;
   });
   html += '</div>';
   document.getElementById('mainContent').innerHTML = html || '<div class="card">No Links</div>';
@@ -257,29 +258,11 @@ window.showLinks = async () => {
 
 window.showNotice = async () => {
   const d = await getDoc(doc(db, "settings", "notice"));
-  const notice = d.exists()? d.data().text : 'No Notice';
+  const notice = d.exists()? d.data().text : 'No Notice Available';
   document.getElementById('mainContent').innerHTML = `<div class="card"><h3>📢 Notice Board</h3>${nl2br(notice)}</div>`;
 };
 
-// OFFICE FUNCTIONS
-window.addToolModal = () => {
-  showModal(`<h3>🛠️ Add Offline Tool</h3>
-    <label>Tool Name</label><input id="toolName" placeholder="Calculator">
-    <label>Full HTML/JS Code (Max 5000 lines)</label>
-    <textarea id="toolCode" rows="12" placeholder="<!DOCTYPE html>..."></textarea>
-    <div class="flex"><button class="btn btn-green" onclick="saveTool()">💾 Save</button>
-    <button class="btn btn-red" onclick="closeModal()">Cancel</button></div>`);
-};
-
-window.saveTool = async () => {
-  const name = document.getElementById('toolName').value.trim();
-  const code = document.getElementById('toolCode').value;
-  if(!name ||!code) return showToast('❌ Fill all fields');
-  if(code.split('\n').length > 5000) return showToast('❌ Max 5000 lines');
-  await addDoc(collection(db, "tools"), {name, code, created: Timestamp.now()});
-  closeModal(); loadTools(); showToast('✅ Tool Saved - Works Offline');
-};
-
+// TOOLS
 async function loadTools() {
   const snap = await getDocs(collection(db, "tools"));
   let html = '';
@@ -300,6 +283,25 @@ window.runTool = (id) => {
   win.document.open(); win.document.write(code); win.document.close();
 };
 
+// OFFICE ROOM MODALS
+window.addToolModal = () => {
+  showModal(`<h3>🛠️ Add Offline Tool</h3>
+    <label>Tool Name</label><input id="toolName" placeholder="Calculator">
+    <label>Full HTML/JS Code (Max 5000 lines)</label>
+    <textarea id="toolCode" rows="12" placeholder="<!DOCTYPE html>..."></textarea>
+    <div class="flex"><button class="btn btn-green" onclick="saveTool()">💾 Save Tool</button>
+    <button class="btn btn-red" onclick="closeModal()">Cancel</button></div>`);
+};
+
+window.saveTool = async () => {
+  const name = document.getElementById('toolName').value.trim();
+  const code = document.getElementById('toolCode').value;
+  if(!name ||!code) return showToast('❌ Fill all fields');
+  if(code.split('\n').length > 5000) return showToast('❌ Max 5000 lines allowed');
+  await addDoc(collection(db, "tools"), {name, code, created: Timestamp.now()});
+  closeModal(); loadTools(); showToast('✅ Tool Saved');
+};
+
 window.addAppFormModal = () => {
   showModal(`<h3>📝 Create Application Form</h3>
     <label>Form Title</label><input id="formTitle">
@@ -317,7 +319,7 @@ window.saveForm = async () => {
     const expiry = parseInt(document.getElementById('formExpiry').value) || 30;
     await addDoc(collection(db, "appForms"), {title, fields, expiryDays: expiry, created: Timestamp.now()});
     closeModal(); showToast('✅ Form Created');
-  } catch(e) { showToast('❌ Invalid JSON'); }
+  } catch(e) { showToast('❌ Invalid JSON Format'); }
 };
 
 window.addLinkModal = () => {
@@ -367,13 +369,8 @@ window.addNoticeModal = () => {
 window.saveNotice = async () => {
   const text = document.getElementById('noticeText').value.trim();
   await setDoc(doc(db, "settings", "notice"), {text});
-  closeModal(); showToast('✅ Notice Updated'); showNotice();
+  closeModal(); showToast('✅ Notice Updated');
 };
-
-async function loadNotice() {
-  const d = await getDoc(doc(db, "settings", "notice"));
-  if(d.exists()) return d.data().text;
-}
 
 window.addEventModal = () => {
   showModal(`<h3>📅 Add Event</h3>
@@ -405,16 +402,16 @@ window.showReceivedApp = async () => {
   Object.keys(grouped).forEach(title => {
     html += `<div class="card"><h4>${title}</h4>`;
     grouped[title].forEach(app => {
-      html += `<div style="border:1px solid #eee;padding:10px;margin:8px 0;border-radius:6px">`;
-      Object.keys(app.data).forEach(k => { html += `<b>${k}:</b> ${app.data[k]}<br>`; });
+      html += `<div style="border:1px solid #eee;padding:12px;margin:10px 0;border-radius:8px">`;
+      Object.keys(app.data).forEach(k => { html += `<b>${k}:</b> ${nl2br(app.data[k])}<br>`; });
       html += `<span class="small">Submitted: ${app.submittedAt.toDate().toLocaleString()}</span><br>
-      <button class="btn" onclick="shareAppLink('${app.id}')">🔗 Create Share Link</button>
-      <button class="btn btn-red" onclick="delDoc('receivedApps','${app.id}');showReceivedApp()">🗑️ Delete</button>
+      <div class="flex"><button class="btn" onclick="shareAppLink('${app.id}')">🔗 Create Share Link</button>
+      <button class="btn btn-red" onclick="delDoc('receivedApps','${app.id}');showReceivedApp()">🗑️ Delete</button></div>
       </div>`;
     });
     html += `</div>`;
   });
-  document.getElementById('officeData').innerHTML = html || '<div class="card">No Applications</div>';
+  document.getElementById('officeData').innerHTML = html || '<div class="card">No Applications Yet</div>';
   document.getElementById('appBadge').classList.add('hide');
 };
 
@@ -424,28 +421,37 @@ window.shareAppLink = async (appId) => {
   showToast('✅ Link Copied! Valid 100 days');
 };
 
+function listenApplications() {
+  onSnapshot(collection(db, "receivedApps"), (snap) => {
+    const badge = document.getElementById('appBadge');
+    if(snap.size > 0) { badge.textContent = snap.size; badge.classList.remove('hide'); }
+    else badge.classList.add('hide');
+  });
+}
+
+// URL PARAMS FOR DEEP LINK
 async function checkUrlParams() {
-  const params = new URLSearchParams(location.search);
-  const appId = params.get('viewApp');
+  const p = new URLSearchParams(location.search);
+  const appId = p.get('viewApp'), eventId = p.get('event');
   if(appId) {
     const d = await getDoc(doc(db, "receivedApps", appId));
     if(d.exists()) {
       const a = d.data();
       let html = `<div class="card"><h3>${a.formTitle}</h3>`;
-      Object.keys(a.data).forEach(k => { html += `<b>${k}:</b> ${a.data[k]}<br>`; });
+      Object.keys(a.data).forEach(k => { html += `<b>${k}:</b> ${nl2br(a.data[k])}<br>`; });
       html += `</div>`;
       document.getElementById('mainContent').innerHTML = html;
       showTab('main', document.querySelector('.nav-btn'));
     }
   }
-}
-
-async function checkNewApplications() {
-  onSnapshot(collection(db, "receivedApps"), (snap) => {
-    const count = snap.size;
-    const badge = document.getElementById('appBadge');
-    if(count > 0) { badge.textContent = count; badge.classList.remove('hide'); }
-  });
+  if(eventId) {
+    const d = await getDoc(doc(db, "events", eventId));
+    if(d.exists()) {
+      const e = d.data();
+      document.getElementById('mainContent').innerHTML = `<div class="card"><h3>📅 ${e.title}</h3><span class="small">Last Date: ${e.lastDate}</span><br>${nl2br(e.desc)}</div>`;
+      showTab('main', document.querySelector('.nav-btn'));
+    }
+  }
 }
 
 // LIST PAD
@@ -464,20 +470,20 @@ function renderPages() {
     html += `<div class="card page-card" data-title="${title.toLowerCase()}"><h4>${title}</h4>
       <div class="flex"><button class="btn" onclick="copyPage('${title}')">📋 Copy All</button>
       <button class="btn btn-red" onclick="delPage('${title}')">🗑️ Delete Page</button></div>
-      <input placeholder="Type line & Enter..." onkeypress="if(event.key==='Enter'){addLine('${title}',this);}">
+      <input placeholder="Type line & Press Enter..." onkeypress="if(event.key==='Enter'){addLine('${title}',this)}">
       <div id="lines_${btoa(title)}">`;
     listPages[title].forEach((line, i) => {
       html += `<div class="line-item"><span>${nl2br(line)}</span><span class="del-line" onclick="delLine('${title}',${i})">❌</span></div>`;
     });
     html += `</div></div>`;
   });
-  document.getElementById('pagesContainer').innerHTML = html || '<div class="card">No Pages. Click + New Page</div>';
+  document.getElementById('pagesContainer').innerHTML = html || '<div class="card">No Pages. Click ➕ New Page</div>';
 }
 
 window.addLine = (title, input) => {
   const line = input.value.trim();
   if(!line) return;
-  if(listPages[title].includes(line)) return showToast('⚠️ Already present');
+  if(listPages[title].includes(line)) return showToast('⚠️ আগেই উপস্থিত আছে');
   listPages[title].push(line);
   input.value = ''; saveListPages(); renderPages();
 };
@@ -491,18 +497,13 @@ window.filterPages = () => {
     c.classList.toggle('hide',!c.dataset.title.includes(q));
   });
 };
+window.searchAllLines = () => {
+  const q = document.getElementById('searchLine').value.toLowerCase();
+  document.querySelectorAll('.line-item').forEach(item => {
+    item.classList.toggle('hide',!item.textContent.toLowerCase().includes(q));
+  });
+};
 function saveListPages() { localStorage.setItem('listPages', JSON.stringify(listPages)); }
-
-// UTILS
-window.delDoc = async (col, id) => { if(confirm('Delete?')){ await deleteDoc(doc(db, col, id)); showToast('✅ Deleted'); } };
-window.showModal = (html) => { document.getElementById('modalContent').innerHTML = html; document.getElementById('modal').classList.remove('hide'); };
-window.closeModal = () => document.getElementById('modal').classList.add('hide');
-function nl2br(str) { return str.replace(/\n/g, '<br>'); }
-function showToast(msg) {
-  const t = document.createElement('div');
-  t.textContent = msg; t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:12px 20px;border-radius:25px;z-index:1000';
-  document.body.appendChild(t); setTimeout(()=>t.remove(), 2500);
-}
 
 // AUTO DELETE
 async function autoDeleteExpired() {
@@ -521,10 +522,20 @@ async function autoDeleteExpired() {
   });
 }
 
-// OFFLINE SW
+// UTILS
+window.delDoc = async (col, id) => { if(confirm('Delete?')){ await deleteDoc(doc(db, col, id)); showToast('✅ Deleted'); } };
+window.showModal = (html) => { document.getElementById('modalContent').innerHTML = html; document.getElementById('modal').classList.remove('hide'); };
+window.closeModal = () => document.getElementById('modal').classList.add('hide');
+function nl2br(str) { return String(str).replace(/\n/g, '<br>'); }
+function showToast(msg) {
+  const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t); setTimeout(()=>t.remove(), 2500);
+}
+
+// OFFLINE SERVICE WORKER
 function registerSW() {
   if('serviceWorker' in navigator) {
-    const sw = `const CACHE='v3';self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/']))));
+    const sw = `const C='v4';self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(['/']))));
 self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
     const blob = new Blob([sw], {type: 'application/javascript'});
     navigator.serviceWorker.register(URL.createObjectURL(blob));
