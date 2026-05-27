@@ -4,601 +4,804 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Choice Application</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
-        body { background-color: #f0f2f5; color: #333; padding-bottom: 30px; }
-        header { background-color: #1e3a8a; color: white; padding: 15px; text-align: center; font-size: 20px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        
-        /* Red Scroll Tag */
-        #scroll-container { background-color: #dc2626; color: white; overflow: hidden; white-space: nowrap; padding: 8px 0; font-weight: bold; font-size: 14px; }
-        #scroll-text { display: inline-block; padding-left: 100%; animation: marquee 25s linear infinite; }
-        @keyframes marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
-
-        /* Navigation Tabs */
-        .tab-bar { display: table; width: 100%; background-color: #ffffff; border-bottom: 2px solid #e5e7eb; }
-        .tab-btn { display: table-cell; text-align: center; padding: 12px 5px; font-size: 13px; font-weight: 600; color: #4b5563; cursor: pointer; border-bottom: 3px solid transparent; }
-        .tab-btn.active { color: #1e3a8a; border-bottom-color: #1e3a8a; background-color: #eff6ff; }
-
-        /* Containers */
-        .container { padding: 15px; display: none; }
-        .container.active { display: block; }
-        .card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: relative; word-wrap: break-word; }
-        .card h3 { margin-bottom: 10px; color: #1e3a8a; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-
-        /* Form elements & Buttons */
-        input, textarea, select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; resize: vertical; }
-        button { background-color: #1e3a8a; color: white; padding: 10px 15px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; display: inline-block; margin-right: 5px; margin-bottom: 5px; }
-        button:hover { background-color: #1d4ed8; }
-        .btn-danger { background-color: #dc2626; }
-        .btn-danger:hover { background-color: #b91c1c; }
-        .btn-sm { padding: 5px 10px; font-size: 12px; }
-
-        /* System Styles */
-        .notice-box { background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 10px; margin-bottom: 15px; border-radius: 4px; }
-        .list-item { display: block; padding: 8px; background: #f9fafb; border: 1px solid #e5e7eb; margin-bottom: 5px; border-radius: 4px; position: relative; padding-right: 40px; }
-        .delete-item-btn { position: absolute; right: 8px; top: 8px; color: #dc2626; font-weight: bold; cursor: pointer; background: none; border: none; font-size: 16px; }
-        .error-popup { background-color: #fee2e2; color: #991b1b; padding: 12px; border-radius: 6px; margin-bottom: 10px; font-weight: bold; border: 1px solid #fca5a5; display: none; font-size: 16px; text-align: center; }
-        
-        /* Utilities */
-        .text-link { color: #2563eb; text-decoration: underline; cursor: pointer; word-break: break-all; }
-        .hidden-room { display: none !important; }
-        .info-tag { font-size: 11px; color: #6b7280; margin-top: 5px; display: block; }
-        iframe { width: 100%; border: 1px solid #ccc; border-radius: 6px; background: #fff; margin-top: 10px; min-height: 200px; }
+        .scroll-text { 
+            animation: scroll 15s linear infinite; 
+            will-change: transform; 
+        }
+        @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
     </style>
-
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
-<body>
+<body class="bg-gray-100 min-h-screen text-gray-800">
 
-    <header>🏠 <span id="app-title">Your Choice Application</span></header>
-
-    <div id="scroll-container">
-        <div id="scroll-text">স্বাগতম! কোনো সচল স্ক্রোল বার্তা নেই।</div>
+    <div id="forceStopScreen" class="hidden fixed inset-0 bg-white z-50 flex flex-col justify-center items-center p-6 text-center">
+        <h1 class="text-4xl font-bold text-red-600 mb-4">Your Choice Application</h1>
+        <p class="text-xl font-medium text-gray-600">⚠️ এখন পরিষেবা বন্ধ আছে।</p>
     </div>
 
-    <div class="tab-bar">
-        <div class="tab-btn active" onclick="switchTab('main-tab')">🚀 Main</div>
-        <div class="tab-btn" onclick="switchTab('tools-tab')">🧰 Tools</div>
-        <div class="tab-btn hidden-room" id="listpad-nav" onclick="switchTab('listpad-tab')">📝 List Pad</div>
-        <div class="tab-btn" id="office-nav" onclick="switchTab('office-tab')">🏢 Office Room</div>
+    <div id="deepLinkContainer" class="hidden max-w-md mx-auto bg-white min-h-screen shadow-xl p-6 flex flex-col justify-between">
+        <div class="space-y-4">
+            <h2 class="text-xl font-bold text-blue-600 border-b pb-2">📂 Shared Secure Application Data</h2>
+            <div id="deepLinkContent" class="bg-gray-50 p-4 rounded-xl border border-gray-300 shadow-inner whitespace-pre-wrap text-sm text-gray-800 font-medium"></div>
+        </div>
+        <button onclick="closeDeepLinkView()" class="w-full mt-6 bg-blue-600 text-white font-bold py-2 rounded-lg">Return to Application Home 🏠</button>
     </div>
 
-    <div id="main-tab" class="container active">
-        <div class="card">
-            <h3>👤 User Profile / Access Authentication</h3>
-            <div id="auth-logged-out">
-                <input type="text" id="user-name-input" placeholder="এখানে নাম লিখুন... ">
-                <button onclick="handleAuthentication()">🔓 Enter / Verify</button>
-            </div>
-            <div id="auth-logged-in" style="display:none;">
-                <p style="font-weight: bold; color: #16a34a; margin-bottom: 8px;">🟢 আপনি একজন মেম্বার হিসেবে যুক্ত আছেন (Office Room Active)</p>
-                <button class="btn-danger" onclick="logOutOffice()">🔒 Log Out</button>
-            </div>
-        </div>
-
-        <div id="notice-board-section" class="notice-box" style="display:none;">
-            <strong>📌 নোটিশ বোর্ড:</strong>
-            <div id="notice-board-content" style="white-space: pre-wrap; margin-top: 5px;"></div>
-        </div>
-
-        <div class="card">
-            <h3>📅 Events (চলতি ইভেন্টসমূহ)</h3>
-            <div id="main-events-container">কোনো ইভেন্ট নেই।</div>
-        </div>
-
-        <div class="card">
-            <h3>📄 Applications (আবেদনপত্র ফর্ম)</h3>
-            <div id="main-apps-container">কোনো ফর্ম উপলব্ধ নেই।</div>
-        </div>
-
-        <div class="card">
-            <h3>🔗 Published Links (গুরুত্বপূর্ণ লিংক)</h3>
-            <div id="main-links-container">কোনো লিংক যুক্ত করা হয়নি।</div>
-        </div>
-    </div>
-
-    <div id="tools-tab" class="container">
-        <div class="card">
-            <h3>🧰 Offline Functional Tools</h3>
-            <p class="info-tag" style="margin-bottom:10px;">* এই টুলসগুলো সম্পূর্ণ অফলাইনে কাজ করতে সক্ষম।</p>
-            <div id="tools-runtime-container">কোনো অফলাইন টুল লোড করা নেই।</div>
-        </div>
-    </div>
-
-    <div id="listpad-tab" class="container">
-        <div class="error-popup" id="listpad-error">আগেই উপস্থিত আছে ❌</div>
+    <div id="appContainer" class="max-w-md mx-auto bg-white min-h-screen shadow-lg flex flex-col justify-between">
         
-        <div class="card">
-            <h3>📝 List Pad (মেম্বার স্পেশাল)</h3>
-            <input type="text" id="lp-search-page" placeholder="🔍 শিরোনাম বা পৃষ্ঠা খুঁজুন..." oninput="renderListPadPages()">
-            <input type="text" id="lp-new-page-title" placeholder="নতুন পৃষ্ঠার শিরোনাম দিন...">
-            <button onclick="createNewListPage()">➕ নতুন পৃষ্ঠা তৈরি করুন</button>
+        <header class="bg-blue-600 text-white p-4 text-center font-bold text-xl shadow-md">
+            📱 Your Choice Application
+        </header>
+
+        <div id="globalScrollTagContainer" class="bg-red-600 text-white overflow-hidden py-1 text-sm font-semibold hidden">
+            <div id="globalScrollTag" class="scroll-text whitespace-nowrap inline-block"></div>
         </div>
 
-        <div id="listpad-pages-render"></div>
-    </div>
-
-    <div id="office-tab" class="container">
-        <div id="office-lock-screen" class="card">
-            <h3 style="color:#dc2626;">🔒 সংরক্ষিত এলাকা</h3>
-            <p>এই বিভাগে প্রবেশ করতে অনুগ্রহ করে 'Main' ট্যাবে গিয়ে সঠিক মেম্বার কোড ভেরিফাই করুন Suspended।</p>
-        </div>
-
-        <div id="office-content-area" class="hidden-room">
+        <main class="flex-grow p-4 overflow-y-auto">
             
-            <div class="card">
-                <h3>🧰 1. Add Tools (HTML/JS Logic)</h3>
-                <input type="text" id="tool-name" placeholder="টুলের নাম (যেমন- Calculator)">
-                <textarea id="tool-html-code" rows="5" placeholder="সর্বোচ্চ ৫০০০ লাইনের ফুল লজিক HTML/JS কোড এখানে দিন..."></textarea>
-                <button onclick="uploadTool()">Publish Tool</button>
-                <div id="office-tools-list" style="margin-top:10px;"></div>
+            <div id="homeMenu" class="grid grid-cols-2 gap-4 my-4">
+                <button onclick="switchTab('mainTab')" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-2 rounded-xl shadow transition flex flex-col items-center justify-center gap-2">
+                    🏠 <span class="text-sm">Main</span>
+                </button>
+                <button onclick="switchTab('toolsTab')" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 px-2 rounded-xl shadow transition flex flex-col items-center justify-center gap-2">
+                    🛠️ <span class="text-sm">Tools</span>
+                </button>
+                <button id="navListPad" onclick="switchTab('listPadTab')" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-4 px-2 rounded-xl shadow transition flex flex-col items-center justify-center gap-2 hidden">
+                    📝 <span class="text-sm">List pad</span>
+                </button>
+                <button id="navOfficeRoom" onclick="switchTab('officeRoomTab')" class="bg-rose-500 hover:bg-rose-600 text-white font-bold py-4 px-2 rounded-xl shadow transition flex flex-col items-center justify-center gap-2 hidden">
+                    🏢 <span class="text-sm">Office room</span>
+                </button>
             </div>
 
-            <div class="card">
-                <h3>📄 2. Add Application Forms</h3>
-                <input type="text" id="app-form-title" placeholder="আবেদনপত্রের শিরোনাম">
-                <textarea id="app-form-desc" placeholder="আবেদনপত্র বা বক্তব্যের বিবরণ লিখুন (ঐচ্ছিক)"></textarea>
-                <select id="app-form-condition">
-                    <option value="user_typing">১. সাধারণ ইউজার কিবোর্ড টাইপিং এর মাধ্যমে পূরণ করবে</option>
-                    <option value="office_only_expiry">২. শুধুমাত্র Office Room থেকে টেক্সট টাইপিং হবে + অটো ডিলিট</option>
-                </select>
-                <div id="expiry-days-container">
-                    <label class="info-tag">ফর্মটি কতদিন পর অটো ডিলিট হবে (দিন সংখ্যা লিখুন):</label>
-                    <input type="number" id="app-expiry-days" value="7" min="1">
+            <hr class="border-gray-200 my-4">
+
+            <div id="mainTab" class="tab-content hidden space-y-4">
+                <h2 class="text-lg font-bold text-emerald-600 border-b pb-1">🏠 Main Section</h2>
+                
+                <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    <div id="loginForm">
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">User Name (মেয়েদের নাম / Passkey):</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="usernameInput" placeholder="এখানে নাম বা কোড লিখুন..." class="flex-grow border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <button onclick="handleLogin()" class="bg-blue-600 text-white px-4 py-1.5 rounded text-sm font-semibold">Enter ➡️</button>
+                        </div>
+                    </div>
+                    <div id="logoutForm" class="hidden flex justify-between items-center">
+                        <span class="text-sm font-bold text-green-600 flex items-center gap-1">🟢 Office Member Active</span>
+                        <button onclick="handleLogout()" class="bg-red-600 text-white px-3 py-1 rounded text-xs font-bold uppercase tracking-wide">Log out 🚪</button>
+                    </div>
                 </div>
-                <button onclick="createApplicationForm()">Create Layout Form</button>
-                <div id="office-forms-config-list" style="margin-top:10px;"></div>
+
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <button onclick="showMainSub('subEvent')" class="bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold p-3 rounded text-center">📅 A. Event</button>
+                    <button onclick="showMainSub('subApplication')" class="bg-orange-100 hover:bg-orange-200 text-orange-800 font-bold p-3 rounded text-center">📄 B. Application</button>
+                    <button onclick="showMainSub('subLink')" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-bold p-3 rounded text-center">🔗 C. Link</button>
+                    <button onclick="showMainSub('subNotice')" class="bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold p-3 rounded text-center">📢 D. Notice Board</button>
+                </div>
+
+                <div id="mainSubContents" class="bg-white border rounded-lg p-3 min-h-[150px]">
+                    <div id="subEvent" class="sub-tab hidden space-y-2">
+                        <h3 class="font-bold text-sm text-gray-700">📅 Active Events:</h3>
+                        <div id="mainEventList" class="space-y-2 text-xs"></div>
+                    </div>
+                    <div id="subApplication" class="sub-tab hidden space-y-3">
+                        <h3 class="font-bold text-sm text-gray-700">📄 Fill Application:</h3>
+                        <div id="appFormSelector" class="space-y-2"></div>
+                        <div id="activeFormContainer" class="hidden border-t pt-3 space-y-2"></div>
+                    </div>
+                    <div id="subLink" class="sub-tab hidden space-y-2">
+                        <h3 class="font-bold text-sm text-gray-700">🔗 Published Links:</h3>
+                        <div id="mainLinkList" class="space-y-1 text-xs"></div>
+                    </div>
+                    <div id="subNotice" class="sub-tab hidden">
+                        <h3 class="font-bold text-sm text-gray-700 mb-2">📢 Active Notice:</h3>
+                        <div id="mainNoticeBox" class="bg-yellow-50 p-3 border border-yellow-200 rounded text-sm whitespace-pre-wrap"></div>
+                    </div>
+                </div>
             </div>
 
-            <div class="card">
-                <h3>🔗 3. Add Web Links</h3>
-                <input type="text" id="link-title" placeholder="লিংকের নাম বা টাইটেল">
-                <input type="text" id="link-url" placeholder="http:// বা https:// সহ সম্পূর্ণ URL লিংক">
-                <button onclick="uploadLink()">Add Link</button>
-                <div id="office-links-list" style="margin-top:10px;"></div>
+            <div id="toolsTab" class="tab-content hidden space-y-4">
+                <h2 class="text-lg font-bold text-amber-600 border-b pb-1">🛠️ Offline Live Tools Engine</h2>
+                <div id="toolsListContainer" class="space-y-6"></div>
             </div>
 
-            <div class="card">
-                <h3>📢 4. Add Scroll Tag (একক একটিভ ট্যাগ)</h3>
-                <input type="text" id="scroll-input" placeholder="নতুন স্ক্রোল টেক্সট দিন (পুরানোটি মুছে যাবে)">
-                <button onclick="updateScrollTag()">Update Scroll Tag</button>
-                <button class="btn-danger btn-sm" onclick="deleteScrollTag()">মুছে ফেলুন</button>
+            <div id="listPadTab" class="tab-content hidden space-y-4">
+                <h2 class="text-lg font-bold text-purple-600 border-b pb-1">📝 Member List Pad</h2>
+                <div class="space-y-2">
+                    <input type="text" id="padPageSearch" oninput="searchPadPages()" placeholder="🔍 শিরোনাম বা পেজ খুঁজুন..." class="w-full border rounded px-3 py-1.5 text-sm">
+                    <div class="flex gap-2">
+                        <input type="text" id="newPageTitle" placeholder="নতুন পেজের নাম..." class="flex-grow border rounded px-3 py-1.5 text-sm">
+                        <button onclick="createNewPadPage()" class="bg-purple-600 text-white px-4 py-1.5 rounded text-sm font-semibold">Create ➕</button>
+                    </div>
+                </div>
+                <div id="padPageTabs" class="flex gap-2 overflow-x-auto pb-2 border-b text-xs font-bold"></div>
+                <div id="activePadPageArea" class="hidden space-y-3 bg-gray-50 p-3 rounded-lg border">
+                    <div class="flex justify-between items-center">
+                        <h3 id="activePageHeaderTitle" class="font-bold text-purple-700"></h3>
+                        <div class="flex gap-2">
+                            <button onclick="copyFullPadPage()" class="bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded">Copy 📋</button>
+                            <button onclick="deleteFullPadPage()" class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">Delete 🗑️</button>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="padItemSearch" oninput="searchPadItems()" placeholder="🔍 পেজের লাইন খুঁজুন..." class="flex-grow border rounded px-2 py-1 text-xs">
+                    </div>
+                    <div class="flex gap-2">
+                        <textarea id="newPadLineInput" rows="1" placeholder="নতুন লাইন লিখুন (Ctrl+Enter সাবমিট)..." class="flex-grow border rounded px-2 py-1 text-xs resize-none"></textarea>
+                        <button onclick="addPadLine()" class="bg-green-600 text-white text-xs font-bold px-3 py-1 rounded">Add ➕</button>
+                    </div>
+                    <div id="duplicateWarning" class="hidden text-red-600 font-extrabold text-lg bg-red-100 p-2 rounded text-center animate-pulse">⚠️ আগেই উপস্থিত আছে!</div>
+                    <ul id="padItemsList" class="space-y-1.5 max-h-60 overflow-y-auto"></ul>
+                </div>
             </div>
 
-            <div class="card">
-                <h3>📌 5. Add Notice Board</h3>
-                <textarea id="notice-input" rows="3" placeholder="নোটিশ বোর্ডের নতুন লেখা দিন (নতুন দিলে পুরানোটি যাবে)"></textarea>
-                <button onclick="updateNoticeBoard()">Update Notice</button>
-                <button class="btn-danger btn-sm" onclick="deleteNoticeBoard()">মুছে ফেলুন</button>
+            <div id="officeRoomTab" class="tab-content hidden space-y-6">
+                <h2 class="text-lg font-bold text-rose-600 border-b pb-1">🏢 Office Administration Room</h2>
+
+                <div class="bg-white p-3 border rounded-lg space-y-2">
+                    <h3 class="font-bold text-sm text-gray-700">1. Add Live Tool Engine (HTML/JS/Tailwind Code) 🛠️</h3>
+                    <input type="text" id="toolTitle" placeholder="টুলের নাম (যেমন: ক্যালকুলেটর, বয়স মাপার টুল)..." class="w-full border rounded px-2 py-1 text-xs">
+                    <textarea id="toolCode" rows="6" maxlength="10000" placeholder="এখানে পূর্ণাঙ্গ HTML, সিএসএস স্ক্রিপ্টসহ ডিজাইন পেস্ট করুন (Ctrl+Enter পাবলিশ)..." class="w-full border rounded px-2 py-1 text-xs font-mono bg-gray-900 text-green-400"></textarea>
+                    <button onclick="addCustomTool()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Tool Engine 🚀</button>
+                </div>
+
+                <div class="bg-white p-3 border rounded-lg space-y-2">
+                    <h3 class="font-bold text-sm text-gray-700">2. Add Application Form 📄</h3>
+                    <input type="text" id="formTitle" placeholder="ফর্মের শিরোনাম..." class="w-full border rounded px-2 py-1 text-xs">
+                    <div class="space-y-1 bg-gray-50 p-2 rounded border text-xs">
+                        <p class="font-semibold text-gray-600">পূরণ করার শর্তসমূহ:</p>
+                        <label class="flex items-center gap-1.5"><input type="radio" name="formCondition" value="user" checked> ইউজার কিবোর্ড দিয়ে টাইপ করবে</label>
+                        <label class="flex items-center gap-1.5"><input type="radio" name="formCondition" value="office"> শুধু Office Room থেকে পূরণ হবে (অটো ডিউ ডেট)</label>
+                    </div>
+                    <div id="officeFormDaysConfig" class="hidden bg-amber-50 p-2 rounded border text-xs space-y-1">
+                        <label class="block font-semibold">কতদিন পর ফর্ম নিজে নিজেই ডিলিট হবে?</label>
+                        <input type="number" id="formExpiryDays" min="1" value="7" class="border rounded px-2 py-0.5 w-20"> দিন
+                    </div>
+                    <textarea id="formDescription" rows="2" placeholder="বক্তব্য লেখার জায়গা (ঐচ্ছিক)..." class="w-full border rounded px-2 py-1 text-xs"></textarea>
+                    <button onclick="createApplicationForm()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Create Form 🚀</button>
+                </div>
+
+                <div class="bg-white p-3 border rounded-lg space-y-2">
+                    <h3 class="font-bold text-sm text-gray-700">3. Add Link 🔗</h3>
+                    <input type="text" id="linkTitle" placeholder="লিংকের নাম..." class="w-full border rounded px-2 py-1 text-xs">
+                    <input type="url" id="linkUrl" placeholder="https://example.com" class="w-full border rounded px-2 py-1 text-xs">
+                    <button onclick="publishLink()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Link 🔗</button>
+                </div>
+
+                <div class="bg-white p-3 border rounded-lg space-y-2">
+                    <h3 class="font-bold text-sm text-gray-700">4. Add Scroll Tag 📢</h3>
+                    <input type="text" id="scrollTagInput" placeholder="নতুন স্ক্রোল মেসেজ..." class="w-full border rounded px-2 py-1 text-xs">
+                    <button onclick="updateScrollTag()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Set Active Tag 🔁</button>
+                </div>
+
+                <div class="bg-white p-3 border rounded-lg space-y-2">
+                    <h3 class="font-bold text-sm text-gray-700">5. Add Notice Board 📋</h3>
+                    <textarea id="noticeInput" rows="2" placeholder="নোটিশ বোর্ড এর লেখা..." class="w-full border rounded px-2 py-1 text-xs"></textarea>
+                    <button onclick="updateNoticeBoard()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Update Notice 🔁</button>
+                </div>
+
+                <div class="bg-white p-3 border rounded-lg space-y-2">
+                    <h3 class="font-bold text-sm text-gray-700">6. Add Event 📅</h3>
+                    <input type="text" id="eventTitle" placeholder="ইভেন্টের নাম..." class="w-full border rounded px-2 py-1 text-xs">
+                    <input type="text" id="eventDescription" placeholder="সংক্ষিপ্ত বিবরণ বা লিংক জেনারেটর..." class="w-full border rounded px-2 py-1 text-xs">
+                    <div class="text-xs">
+                        <label class="block font-semibold">শেষ তারিখ (Last Date):</label>
+                        <input type="date" id="eventLastDate" class="border rounded px-2 py-1">
+                    </div>
+                    <button onclick="publishEvent()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Event 📅</button>
+                </div>
+
+                <div class="bg-white p-3 border rounded-lg space-y-3">
+                    <h3 class="font-bold text-sm text-red-700">7. Receive Application & Processing 📨</h3>
+                    <div id="receiveAppsDashboard" class="space-y-4 text-xs"></div>
+                </div>
+
+                <div class="bg-red-50 p-3 border-2 border-red-500 rounded-lg space-y-2">
+                    <h3 class="font-bold text-sm text-red-700">8. Emergency Force Stop System 🛑</h3>
+                    <div class="text-xs space-y-1">
+                        <label class="block font-semibold">কত ঘণ্টা বন্ধ রাখতে চান? (সর্বোচ্চ ২৪ ঘণ্টা):</label>
+                        <input type="number" id="forceStopHours" min="1" max="24" value="1" class="border rounded px-2 py-1 w-20"> ঘণ্টা
+                    </div>
+                    <button onclick="triggerForceStop()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded shadow">Activate Force Stop NOW 🛑</button>
+                </div>
             </div>
 
-            <div class="card">
-                <h3>📅 6. Add Events & Deadlines</h3>
-                <input type="text" id="event-title" placeholder="ইভেন্টের নাম বা বিষয়">
-                <input type="date" id="event-end-date">
-                <button onclick="uploadEvent()">Publish Event</button>
-                <div id="office-events-list" style="margin-top:10px;"></div>
-            </div>
+        </main>
 
-            <div class="card">
-                <h3>📥 7. Receive & Handle Filled Applications</h3>
-                <div id="office-received-apps-container">কোনো জমা পড়া আবেদনপত্র নেই।</div>
-            </div>
-
-        </div>
+        <footer class="bg-gray-800 text-gray-400 text-center py-2 text-xs font-bold border-t">
+            &lt;Your Choice Application&gt;
+        </footer>
     </div>
 
-    <script>
-        // Firebase Configuration
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, push, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
         const firebaseConfig = {
             apiKey: "AIzaSyAVNKYEONsmJQYvNQZLrsDFjWRIFS9Iupk",
             authDomain: "your-choice-application-3f40a.firebaseapp.com",
+            databaseURL: "https://your-choice-application-3f40a-default-rtdb.firebaseio.com",
             projectId: "your-choice-application-3f40a",
             storageBucket: "your-choice-application-3f40a.firebasestorage.app",
             messagingSenderId: "149984268715",
             appId: "1:149984268715:web:669e5fe20dcf5bce5c82ee",
             measurementId: "G-DPFE88RN21"
         };
-        
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
 
-        const MEMBER_CODE = "20091307";
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-        // Auto Retention Session System on Launch
-        window.addEventListener('load', () => {
-            if (localStorage.getItem('office_auth_token') === MEMBER_CODE) {
-                activateMemberAccess();
+        window.db = db;
+        window.currentTab = 'mainTab';
+        window.isOfficeMember = false;
+        window.activePadPageKey = null;
+        window.activeListeners = {}; 
+        window.isForceStopped = false;
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
+        }
+
+        // ENTER KEY HANDLERS FIXED
+        document.getElementById('usernameInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); handleLogin(); } });
+        document.getElementById('newPadLineInput').addEventListener('keydown', e => { if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); addPadLine(); } });
+        document.getElementById('toolCode').addEventListener('keydown', e => { if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); addCustomTool(); } });
+
+        window.switchTab = function(tabId) {
+            if(window.isForceStopped && !window.isOfficeMember) return;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            window.currentTab = tabId;
+        };
+
+        window.showMainSub = function(subId) {
+            if(window.isForceStopped && !window.isOfficeMember) return;
+            document.querySelectorAll('.sub-tab').forEach(el => el.classList.add('hidden'));
+            document.getElementById(subId).classList.remove('hidden');
+        };
+
+        function initAppSync() {
+            if(localStorage.getItem('_office_token') === 'auth_v1_8cf7a2') {
+                activateOfficePrivileges();
+                return;
             }
-            startRealtimeListeners();
-            checkAndHandleWebLinkQuery();
-        });
 
-        // Navigation Management
-        function switchTab(tabId) {
-            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            event.target.classList.add('active');
-        }
-
-        // Authentication Control
-        function handleAuthentication() {
-            const val = document.getElementById('user-name-input').value.trim();
-            if (val === MEMBER_CODE) {
-                localStorage.setItem('office_auth_token', MEMBER_CODE);
-                activateMemberAccess();
-                document.getElementById('user-name-input').value = "";
-            } else {
-                alert("নাম/কোড প্রসেসড। কোনো প্রোফাইল ডেটাবেসে সেভ করা হয়নি।");
-            }
-        }
-
-        function activateMemberAccess() {
-            document.getElementById('auth-logged-out').style.display = 'none';
-            document.getElementById('auth-logged-in').style.display = 'block';
-            document.getElementById('listpad-nav').classList.remove('hidden-room');
-            document.getElementById('office-lock-screen').classList.add('hidden-room');
-            document.getElementById('office-content-area').classList.remove('hidden-room');
-        }
-
-        function logOutOffice() {
-            localStorage.removeItem('office_auth_token');
-            document.getElementById('auth-logged-out').style.display = 'block';
-            document.getElementById('auth-logged-in').style.display = 'none';
-            document.getElementById('listpad-nav').classList.add('hidden-room');
-            document.getElementById('office-lock-screen').classList.remove('hidden-room');
-            document.getElementById('office-content-area').classList.add('hidden-room');
-            switchTab('main-tab');
-        }
-
-        // URL Query Processor
-        function checkAndHandleWebLinkQuery() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const viewFormId = urlParams.get('viewFormInstance');
-            const viewEventId = urlParams.get('viewEventInstance');
-            
-            if (viewFormId) {
-                setTimeout(() => { switchTab('office-tab'); }, 1000);
-            }
-            if (viewEventId) {
-                setTimeout(() => { switchTab('main-tab'); }, 1000);
-            }
-        }
-
-        function linkify(text) {
-            var urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
-            return text.replace(urlRegex, function(url) {
-                return '<a class="text-link" href="' + url + '" target="_blank">' + url + '</a>';
-            });
-        }
-
-        // ================= REALTIME ENGINE SYNC =================
-        function startRealtimeListeners() {
-            // Scroll Tag
-            db.ref('scroll_tag').on('value', snapshot => {
+            onValue(ref(db, 'system_control/force_stop'), (snapshot) => {
                 const data = snapshot.val();
-                document.getElementById('scroll-text').innerText = data ? data.text : "স্বাগতম! কোনো সচল স্ক্রোল বার্তা নেই।";
-            });
-
-            // Notice Board
-            db.ref('notice_board').on('value', snapshot => {
-                const data = snapshot.val();
-                if(data && data.text) {
-                    document.getElementById('notice-board-section').style.display = 'block';
-                    document.getElementById('notice-board-content').innerHTML = linkify(data.text);
+                if(data && data.untilTimestamp > Date.now()) {
+                    window.isForceStopped = true;
+                    document.getElementById('forceStopScreen').classList.remove('hidden');
+                    document.getElementById('appContainer').classList.add('hidden');
+                    if(!window.isOfficeMember) {
+                        detachAllActiveListeners();
+                        return; 
+                    }
                 } else {
-                    document.getElementById('notice-board-section').style.display = 'none';
+                    window.isForceStopped = false;
+                    document.getElementById('forceStopScreen').classList.add('hidden');
+                    document.getElementById('appContainer').classList.remove('hidden');
                 }
             });
 
-            // Links Tracker
-            db.ref('links').on('value', snapshot => {
+            setupLiveListeners();
+        }
+
+        function setupLiveListeners() {
+            if(window.isForceStopped && !window.isOfficeMember) return;
+
+            onValue(ref(db, 'system_control/scroll_tag'), (snapshot) => {
+                const text = snapshot.val();
+                const container = document.getElementById('globalScrollTagContainer');
+                if(text) {
+                    document.getElementById('globalScrollTag').innerText = text;
+                    container.classList.remove('hidden');
+                } else {
+                    container.classList.add('hidden');
+                }
+            });
+
+            onValue(ref(db, 'system_control/notice_board'), (snapshot) => {
+                document.getElementById('mainNoticeBox').innerText = snapshot.val() || "কোনো নোটিশ নেই।";
+            });
+
+            onValue(ref(db, 'links'), (snapshot) => {
                 const data = snapshot.val();
-                let mainHtml = ''; let officeHtml = '';
+                const container = document.getElementById('mainLinkList');
+                container.innerHTML = '';
                 if(data) {
                     Object.keys(data).forEach(key => {
-                        let dynamicUrl = data[key].url.startsWith('http') ? data[key].url : 'http://' + data[key].url;
-                        mainHtml += `<div style="margin-bottom:8px;">🔗 <a class="text-link" href="${dynamicUrl}" target="_blank">${data[key].title}</a></div>`;
-                        officeHtml += `<div class="list-item"><strong>${data[key].title}</strong><button class="delete-item-btn" onclick="deleteItem('links/${key}')">❌</button></div>`;
+                        const item = data[key];
+                        container.innerHTML += `
+                            <div class="flex justify-between items-center bg-gray-50 p-2 rounded my-1 border">
+                                <a href="${escapeHTML(item.url)}" target="_blank" class="text-blue-600 font-bold underline break-all">${escapeHTML(item.title)} 🔗</a>
+                                ${window.isOfficeMember ? `<button onclick="deleteData('links/${key}')" class="text-red-500 font-bold ml-2">🗑️</button>` : ''}
+                            </div>`;
                     });
                 }
-                document.getElementById('main-links-container').innerHTML = mainHtml || 'কোনো লিংক যুক্ত করা হয়নি।';
-                document.getElementById('office-links-list').innerHTML = officeHtml || '';
             });
 
-            // Events Tracker & Auto-Expiry
-            db.ref('events').on('value', snapshot => {
+            onValue(ref(db, 'events'), (snapshot) => {
                 const data = snapshot.val();
-                let mainHtml = ''; let officeHtml = '';
-                const todayStr = new Date().toISOString().split('T')[0];
-
+                const container = document.getElementById('mainEventList');
+                container.innerHTML = '';
                 if(data) {
                     Object.keys(data).forEach(key => {
-                        const ev = data[key];
-                        if (ev.endDate && todayStr > ev.endDate) {
-                            db.ref(`events/${key}`).remove();
+                        const item = data[key];
+                        if(!item.lastDate) return;
+                        const expiryDate = new Date(item.lastDate + 'T23:59:59').getTime();
+                        if (isNaN(expiryDate) || expiryDate < Date.now()) {
+                            remove(ref(db, `events/${key}`)); 
                             return;
                         }
-                        let appPathLink = window.location.href.split('?')[0] + `?viewEventInstance=${key}`;
-                        mainHtml += `<div class="list-item" style="border-left: 4px solid #1e3a8a;">
-                            <strong>${ev.title}</strong><br>📅 শেষ তারিখ: <span style="color:#dc2626; font-weight:bold;">${ev.endDate || 'নির্ধারিত নেই'}</span><br>
-                            🔗 লিংক: <span class="text-link" onclick="window.open('${appPathLink}','_blank')">${appPathLink}</span>
-                        </div>`;
-                        officeHtml += `<div class="list-item"><strong>${ev.title}</strong><button class="delete-item-btn" onclick="deleteItem('events/${key}')">❌</button></div>`;
+                        container.innerHTML += `
+                            <div class="bg-gray-50 p-2.5 border rounded space-y-1">
+                                <div class="flex justify-between font-bold text-gray-800">
+                                    <span>${escapeHTML(item.title)}</span>
+                                    ${window.isOfficeMember ? `<button onclick="deleteData('events/${key}')" class="text-red-500">🗑️</button>` : ''}
+                                </div>
+                                <p class="text-gray-600">${escapeHTML(item.description)}</p>
+                                <span class="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold">শেষ তারিখ: ${escapeHTML(item.lastDate)}</span>
+                            </div>`;
                     });
                 }
-                document.getElementById('main-events-container').innerHTML = mainHtml || 'কোনো ইভেন্ট নেই।';
-                document.getElementById('office-events-list').innerHTML = officeHtml || '';
             });
 
-            // Tools Runtime Loader
-            db.ref('tools').on('value', snapshot => {
+            onValue(ref(db, 'form_structures'), (snapshot) => {
                 const data = snapshot.val();
-                let runtimeHtml = ''; let officeHtml = '';
+                const selector = document.getElementById('appFormSelector');
+                const adminDashboard = document.getElementById('receiveAppsDashboard');
+                
+                selector.innerHTML = '';
+                adminDashboard.innerHTML = '';
+
                 if(data) {
                     Object.keys(data).forEach(key => {
-                        const tool = data[key];
-                        runtimeHtml += `<div class="card"><h4>🛠️ ${tool.name}</h4><iframe srcdoc="${tool.htmlCode.replace(/"/g, '&quot;')}" sandbox="allow-scripts"></iframe></div>`;
-                        officeHtml += `<div class="list-item"><strong>${tool.name}</strong> <button class="delete-item-btn" onclick="deleteItem('tools/${key}')">❌</button></div>`;
-                    });
-                }
-                document.getElementById('tools-runtime-container').innerHTML = runtimeHtml || 'কোনো অফলাইন টুল লোড করা নেই।';
-                document.getElementById('office-tools-list').innerHTML = officeHtml || '';
-            });
-
-            // Template Layout Modules
-            db.ref('app_templates').on('value', snapshot => {
-                const templates = snapshot.val() || {};
-                renderApplicationForms(templates);
-                
-                db.ref('submitted_applications').on('value', subSnapshot => {
-                    const submissions = subSnapshot.val() || {};
-                    let officeReceiveHtml = '';
-
-                    Object.keys(templates).forEach(tKey => {
-                        const template = templates[tKey];
-                        if(template.condition === 'office_only_expiry' && template.expiryTimestamp) {
-                            if(Date.now() > template.expiryTimestamp) {
-                                db.ref(`app_templates/${tKey}`).remove();
-                                db.ref(`submitted_applications/${tKey}`).remove();
-                                return;
-                            }
+                        const form = data[key];
+                        if(form.expiryTimestamp && form.expiryTimestamp < Date.now()){
+                            remove(ref(db, `form_structures/${key}`));
+                            remove(ref(db, `submitted_applications/${key}`));
+                            return;
                         }
 
-                        officeReceiveHtml += `<div style="margin-top:15px; padding:10px; background:#f1f5f9; border-radius:6px;"><h4>📂 ক্যাটাগরি: ${template.title}</h4>`;
-                        
-                        if(template.condition === 'office_only_expiry') {
-                            officeReceiveHtml += `<textarea id="office-fill-text-${tKey}" placeholder="অফিস মেম্বার মন্তব্য লিখুন..."></textarea><button class="btn-sm" onclick="submitOfficeOnlyData('${tKey}')">সেভ বিবরণ</button>`;
-                        }
+                        selector.innerHTML += `<button onclick="renderActiveForm('${key}')" class="w-full bg-gray-100 hover:bg-gray-200 p-2 rounded text-left font-bold border flex justify-between"><span>📄 ${escapeHTML(form.title)}</span> ➡️</button>`;
 
-                        if(submissions[tKey]) {
-                            Object.keys(submissions[tKey]).forEach(sKey => {
-                                const response = submissions[tKey][sKey];
-                                let linkActiveStatus = "Active";
-                                if(response.createdTimestamp && (Date.now() - response.createdTimestamp > 100 * 24 * 60 * 60 * 1000)){
-                                    linkActiveStatus = "Expired";
-                                }
-                                let uniqueShareableUrl = window.location.href.split('?')[0] + `?viewFormInstance=${sKey}`;
-                                officeReceiveHtml += `<div class="list-item" style="background:#fff;">
-                                    <p style="white-space:pre-wrap;">${linkify(response.content)}</p>
-                                    <span class="info-tag">🔗 ইউনিক লিংক (${linkActiveStatus}): <span class="text-link" onclick="window.open('${uniqueShareableUrl}','_blank')">${uniqueShareableUrl}</span></span>
-                                    <button class="delete-item-btn" onclick="deleteItem('submitted_applications/${tKey}/${sKey}')">❌</button>
+                        if(window.isOfficeMember) {
+                            adminDashboard.innerHTML += `
+                                <div class="bg-white p-2 rounded border-2 border-gray-200 space-y-2 shadow-sm">
+                                    <div class="flex justify-between items-center bg-gray-200 p-1.5 rounded">
+                                        <h4 class="font-bold text-gray-800 uppercase">${escapeHTML(form.title)}</h4>
+                                        <button onclick="deleteFormStructure('${key}')" class="text-red-600 font-bold">Delete Form 🗑️</button>
+                                    </div>
+                                    ${form.condition === 'office' ? `
+                                        <div class="p-2 bg-amber-50 border rounded space-y-1">
+                                            <p class="font-bold text-amber-800 text-[11px]">🏢 Office Fill Actions:</p>
+                                            <textarea id="officeFillInput_${key}" class="w-full border p-1 text-xs" placeholder="মتابت/ডাটা লিখুন..."></textarea>
+                                            <button onclick="submitOfficeApplication('${key}', ${form.expiryTimestamp || null})" class="bg-amber-600 text-white px-2 py-0.5 rounded font-bold">Submit Office Update</button>
+                                        </div>
+                                    ` : ''}
+                                    <div id="submissions_for_${key}" class="space-y-1.5 pt-2"></div>
                                 </div>`;
-                            });
-                        } else {
-                            officeReceiveHtml += `<p style="font-size:12px; color:#94a3b8;">কোনো ডাটা নেই।</p>`;
+                            syncSubmissions(key);
                         }
-                        officeReceiveHtml += `</div>`;
                     });
-                    document.getElementById('office-received-apps-container').innerHTML = officeReceiveHtml || 'কোনো ফর্ম উপলব্ধ নেই।';
-                });
-            });
-
-            // List Pad Sync
-            db.ref('listpad_pages').on('value', snapshot => {
-                window.listPadGlobalData = snapshot.val() || {};
-                renderListPadPages();
-            });
-        }
-
-        function deleteItem(path) {
-            if(confirm("ডিলিট করতে চান?")) { db.ref(path).remove(); }
-        }
-
-        // ================= OPERATIONAL FUNCTIONS =================
-        function uploadTool() {
-            const name = document.getElementById('tool-name').value.trim();
-            const code = document.getElementById('tool-html-code').value.trim();
-            if(!name || !code) return alert("সব ঘর পূরণ করুন!");
-            db.ref('tools').push({ name: name, htmlCode: code }).then(() => {
-                document.getElementById('tool-name').value = ''; document.getElementById('tool-html-code').value = '';
-            });
-        }
-
-        function createApplicationForm() {
-            const title = document.getElementById('app-form-title').value.trim();
-            const desc = document.getElementById('app-form-desc').value.trim();
-            const condition = document.getElementById('app-form-condition').value;
-            const expiryDays = parseInt(document.getElementById('app-expiry-days').value) || 7;
-
-            if(!title) return alert("শিরোনাম আবশ্যক!");
-            const payload = { title: title, description: desc, condition: condition, createdTimestamp: Date.now() };
-            if(condition === 'office_only_expiry') {
-                payload.expiryTimestamp = Date.now() + (expiryDays * 24 * 60 * 60 * 1000);
-            }
-            db.ref('app_templates').push(payload).then(() => {
-                document.getElementById('app-form-title').value = ''; document.getElementById('app-form-desc').value = '';
-            });
-        }
-
-        function renderApplicationForms(templates) {
-            let html = '';
-            Object.keys(templates).forEach(key => {
-                const form = templates[key];
-                html += `<div class="card" style="border-left: 4px solid #16a34a;"><h4>${form.title}</h4>`;
-                if(form.description) { html += `<p style="font-size:13px; color:#4b5563; margin:5px 0;">${linkify(form.description)}</p>`; }
-                if(form.condition === 'user_typing') {
-                    html += `<textarea id="client-submission-text-${key}" rows="3" placeholder="আপনার বক্তব্য এখানে টাইপ করুন..."></textarea><button onclick="submitClientApplication('${key}')">📤 Send Application</button>`;
-                } else {
-                    html += `<p style="color:#dc2626; font-size:12px; font-weight:bold;">🔒 শুধুমাত্র মেম্বারদের ফিল্ড</p>`;
                 }
-                html += `</div>`;
             });
-            document.getElementById('main-apps-container').innerHTML = html || 'কোনো ফর্ম উপলব্ধ নেই।';
-        }
 
-        function submitClientApplication(templateKey) {
-            const text = document.getElementById(`client-submission-text-${templateKey}`).value.trim();
-            if(!text) return alert("ফাঁকা ফাইল পাঠানো যাবে না!");
-            db.ref(`submitted_applications/${templateKey}`).push({ content: text, createdTimestamp: Date.now() }).then(() => {
-                document.getElementById(`client-submission-text-${templateKey}`).value = '';
-                alert("সফলভাবে পাঠানো হয়েছে!");
-            });
-        }
-
-        function submitOfficeOnlyData(templateKey) {
-            const text = document.getElementById(`office-fill-text-${templateKey}`).value.trim();
-            if(!text) return alert("বিবরণ দিন!");
-            db.ref(`submitted_applications/${templateKey}`).push({ content: text, createdTimestamp: Date.now() }).then(() => {
-                document.getElementById(`office-fill-text-${templateKey}`).value = '';
-            });
-        }
-
-        function uploadLink() {
-            const title = document.getElementById('link-title').value.trim();
-            const url = document.getElementById('link-url').value.trim();
-            if(!title || !url) return alert("সম্পূর্ণ তথ্য দিন!");
-            db.ref('links').push({ title: title, url: url }).then(() => {
-                document.getElementById('link-title').value = ''; document.getElementById('link-url').value = '';
-            });
-        }
-
-        function updateScrollTag() {
-            const text = document.getElementById('scroll-input').value.trim();
-            if(!text) return alert("টেক্সট দিন!");
-            db.ref('scroll_tag').set({ text: text });
-        }
-        function deleteScrollTag() { db.ref('scroll_tag').remove(); }
-
-        function updateNoticeBoard() {
-            const text = document.getElementById('notice-input').value.trim();
-            if(!text) return alert("বিবরণ দিন!");
-            db.ref('notice_board').set({ text: text });
-        }
-        function deleteNoticeBoard() { db.ref('notice_board').remove(); }
-
-        function uploadEvent() {
-            const title = document.getElementById('event-title').value.trim();
-            const date = document.getElementById('event-end-date').value;
-            if(!title) return alert("শিরোনাম দিন!");
-            db.ref('events').push({ title: title, endDate: date }).then(() => {
-                document.getElementById('event-title').value = ''; document.getElementById('event-end-date').value = '';
-            });
-        }
-
-        // ================= LIST PAD MANAGEMENT =================
-        function createNewListPage() {
-            const title = document.getElementById('lp-new-page-title').value.trim();
-            if(!title) return alert("শিরোনাম দিন!");
-
-            let isDuplicate = false;
-            if(window.listPadGlobalData) {
-                Object.keys(window.listPadGlobalData).forEach(k => {
-                    if(window.listPadGlobalData[k].title.toLowerCase() === title.toLowerCase()) isDuplicate = true;
-                });
-            }
-            if(isDuplicate) { triggerListPadError(); return; }
-
-            db.ref('listpad_pages').push({ title: title, lines: '' }).then(() => {
-                document.getElementById('lp-new-page-title').value = '';
-            });
-        }
-
-        function triggerListPadError() {
-            const err = document.getElementById('listpad-error');
-            err.style.display = 'block'; setTimeout(() => { err.style.display = 'none'; }, 3000);
-        }
-
-        function renderListPadPages() {
-            const searchPageQuery = document.getElementById('lp-search-page').value.toLowerCase();
-            const container = document.getElementById('listpad-pages-render');
-            container.innerHTML = ''; if(!window.listPadGlobalData) return;
-
-            Object.keys(window.listPadGlobalData).forEach(pKey => {
-                const page = window.listPadGlobalData[pKey];
-                if(page.title.toLowerCase().indexOf(searchPageQuery) === -1) return;
-
-                let lineArray = [];
-                if(page.lines) {
-                    lineArray = Object.keys(page.lines).map(lKey => ({ id: lKey, text: page.lines[lKey].text }));
+            // FIXED TOOLS ENGINE: Renders running tools inside safe Sandbox frames
+            onValue(ref(db, 'tools'), (snapshot) => {
+                const data = snapshot.val();
+                if(data) {
+                    localStorage.setItem('offline_tools_cache', JSON.stringify(data));
+                    renderToolsUI(data);
                 }
+            });
 
-                let pageBox = document.createElement('div'); pageBox.className = 'card';
-                let rawFullTextToCopy = lineArray.map(l => l.text).join('\n');
-                let linesRenderHtml = '';
+            if(!navigator.onLine) {
+                const localTools = localStorage.getItem('offline_tools_cache');
+                if(localTools) renderToolsUI(JSON.parse(localTools));
+            }
+        }
 
-                lineArray.forEach(line => {
-                    linesRenderHtml += `<div class="list-item"><span>${linkify(line.text)}</span><span class="delete-item-btn" onclick="deleteListPadLine('${pKey}', '${line.id}')">❌</span></div>`;
-                });
+        function detachAllActiveListeners() {
+            Object.keys(window.activeListeners).forEach(key => {
+                if(window.activeListeners[key]) {
+                    window.activeListeners[key]();
+                    delete window.activeListeners[key];
+                }
+            });
+        }
 
-                pageBox.innerHTML = `
-                    <div style="background:#eff6ff; padding:8px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-                        <h4>📄 পৃষ্ঠা: ${page.title}</h4>
-                        <div>
-                            <button class="btn-sm" onclick="copyEntireListPadPage(\`${rawFullTextToCopy.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)">📋 Copy</button>
-                            <button class="btn-sm btn-danger" onclick="deleteItem('listpad_pages/${pKey}')">🗑️ Delete</button>
-                        </div>
+        // FULL ENGINE LOGIC FOR INTERACTIVE/LIVE CODE EXECUTION
+        window.renderToolsUI = function(data) {
+            const container = document.getElementById('toolsListContainer');
+            container.innerHTML = '';
+            
+            Object.keys(data).forEach(key => {
+                const item = data[key];
+                
+                // 1. Tool Frame Wrapper Building 
+                const toolCard = document.createElement('div');
+                toolCard.className = "bg-white border rounded-xl p-3 shadow-md space-y-3 flex flex-col";
+                
+                toolCard.innerHTML = `
+                    <div class="flex justify-between items-center border-b pb-1.5">
+                        <span class="font-bold text-amber-700 flex items-center gap-1.5">🛠️ ${escapeHTML(item.title)}</span>
+                        ${window.isOfficeMember ? `<button onclick="deleteData('tools/${key}')" class="text-red-500 font-bold text-xs bg-red-50 px-2 py-0.5 rounded border border-red-200">Delete Tool 🗑️</button>` : ''}
                     </div>
-                    <div style="margin-bottom:10px;">
-                        <input type="text" id="lp-search-line-${pKey}" placeholder="🔍 লাইন খুঁজুন..." oninput="filterInternalLines('${pKey}')">
-                        <input type="text" id="lp-new-line-input-${pKey}" placeholder="নতুন লাইন লিখুন...">
-                        <button class="btn-sm" onclick="addCommandLineToListPad('${pKey}', ${JSON.stringify(lineArray).replace(/"/g, '&quot;')})">➕ Add Line</button>
+                    <div class="w-full bg-gray-50 rounded-lg border border-gray-200 overflow-hidden" style="min-h: 280px;">
+                        <iframe class="w-full h-full border-none min-h-[280px]" sandbox="allow-scripts"></iframe>
                     </div>
-                    <div id="lp-lines-holder-${pKey}">${linesRenderHtml}</div>
                 `;
-                container.appendChild(pageBox);
+
+                // 2. Realtime Code Execution Processing inside sandbox without global impact
+                const iframe = toolCard.querySelector('iframe');
+                
+                // Automatic CSS and Structure injection layout configuration
+                const executionTemplate = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <script src="https://cdn.tailwindcss.com"><\/script>
+                        <style>body { font-family: system-ui, sans-serif; padding: 12px; background: #fdfdfd; }</style>
+                    </head>
+                    <body>
+                        ${item.code}
+                    </body>
+                    </html>
+                `;
+                
+                container.appendChild(toolCard);
+                iframe.srcdoc = executionTemplate; // Directly initialising application sandbox architecture live
             });
+        };
+
+        function syncSubmissions(formKey) {
+            const refPath = `submitted_applications/${formKey}`;
+            if(window.activeListeners[formKey]) window.activeListeners[formKey]();
+            
+            const listener = onValue(ref(db, refPath), (snapshot) => {
+                const data = snapshot.val();
+                const container = document.getElementById(`submissions_for_${formKey}`);
+                if(!container) return;
+                container.innerHTML = '';
+                if(data){
+                    Object.keys(data).forEach(subKey => {
+                        const sub = data[subKey];
+                        if(sub.uniqueExpiry && sub.uniqueExpiry < Date.now()){
+                            remove(ref(db, `submitted_applications/${formKey}/${subKey}`));
+                            return;
+                        }
+                        container.innerHTML += `
+                            <div class="bg-white p-2 border rounded shadow-xs space-y-1 relative">
+                                <p class="whitespace-pre-wrap text-gray-700 font-medium">${escapeHTML(sub.content)}</p>
+                                <div class="flex justify-between items-center text-[10px] text-gray-400 border-t pt-1">
+                                    <span>🕒 Sub ID: ${subKey}</span>
+                                    <div class="flex gap-2">
+                                        <button onclick="generateUniqueShareLink('${formKey}', '${subKey}')" class="text-blue-500 font-bold">Share Link 🔗</button>
+                                        <button onclick="deleteData('submitted_applications/${formKey}/${subKey}')" class="text-red-500 font-bold">🗑️</button>
+                                    </div>
+                                </div>
+                            </div>`;
+                    });
+                } else {
+                    container.innerHTML = `<p class="text-gray-400 text-[10px] italic">কোনো সাবমিশন নেই</p>`;
+                }
+            });
+            window.activeListeners[formKey] = listener;
         }
 
-        function addCommandLineToListPad(pageKey, lineArray) {
-            const inputField = document.getElementById(`lp-new-line-input-${pageKey}`);
-            const lineText = inputField.value.trim();
-            if(!lineText) return alert("লাইন ফাঁকা রাখা যাবে না!");
+        window.renderActiveForm = function(formKey) {
+            get(ref(db, `form_structures/${formKey}`)).then((snapshot) => {
+                const form = snapshot.val();
+                const container = document.getElementById('activeFormContainer');
+                container.classList.remove('hidden');
+                if(!form) { container.classList.add('hidden'); return; }
 
-            if(lineArray.some(item => item.text.trim() === lineText)) { triggerListPadError(); return; }
-            db.ref(`listpad_pages/${pageKey}/lines`).push({ text: lineText }).then(() => { inputField.value = ''; });
-        }
+                if(form.condition === 'office') {
+                    container.innerHTML = `
+                        <div class="bg-amber-50 p-2.5 rounded border text-center text-xs">
+                            <p class="font-bold text-amber-700">🔒 এটি কেবল Office Room থেকে পূরণ করা সম্ভব!</p>
+                            <p class="mt-1 text-gray-600">${escapeHTML(form.description) || ''}</p>
+                        </div>`;
+                } else {
+                    container.innerHTML = `
+                        <div class="space-y-2">
+                            <p class="text-xs font-semibold text-gray-600">${escapeHTML(form.description) || 'বক্তব্য সাবমিট করুন:'}</p>
+                            <textarea id="userFormSubmissionInput" rows="3" class="w-full border rounded p-2 text-xs" placeholder="আপনার বক্তব্য টাইপ করুন..."></textarea>
+                            <button onclick="submitUserApplication('${formKey}')" class="w-full bg-orange-500 text-white font-bold py-1.5 rounded text-xs shadow">Send Application ✉️</button>
+                        </div>`;
+                }
+            });
+        };
 
-        document.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter' && e.target.id && e.target.id.startsWith('lp-new-line-input-')) {
-                e.preventDefault();
-                const pageKey = e.target.id.replace('lp-new-line-input-', '');
-                db.ref(`listpad_pages/${pageKey}/lines`).once('value', snap => {
-                    let lineArray = []; const data = snap.val();
-                    if(data) { lineArray = Object.keys(data).map(k => ({ id: k, text: data[k].text })); }
-                    addCommandLineToListPad(pageKey, lineArray);
-                });
+        window.submitUserApplication = function(formKey) {
+            const val = document.getElementById('userFormSubmissionInput').value.trim();
+            if(!val || val.length > 5000) return;
+            push(ref(db, `submitted_applications/${formKey}`), { content: val, timestamp: Date.now() }).then(() => {
+                alert('✓ অ্যাপ্লিকেশনটি সফলভাবে পাঠানো হয়েছে!');
+                document.getElementById('userFormSubmissionInput').value = '';
+            });
+        };
+
+        window.submitOfficeApplication = function(formKey, expiryTimestamp) {
+            if(!window.isOfficeMember) return;
+            const val = document.getElementById(`officeFillInput_${formKey}`).value.trim();
+            if(!val || val.length > 5000) return;
+            push(ref(db, `submitted_applications/${formKey}`), { content: val, timestamp: Date.now(), expiryTimestamp: expiryTimestamp || null }).then(() => {
+                alert('✓ অফিস এন্ট্রি সফল!');
+                document.getElementById(`officeFillInput_${formKey}`).value = '';
+            });
+        };
+
+        window.handleLogin = function() {
+            const input = document.getElementById('usernameInput').value.trim();
+            if(input === '20091307') {
+                localStorage.setItem('_office_token', 'auth_v1_8cf7a2');
+                activateOfficePrivileges();
+                alert('🔑 Office Room অ্যাক্সেস গ্র্যান্টেড!');
+            } else {
+                alert('স্বাগতম, ' + (escapeHTML(input) || 'ইউজার') + '!');
+                document.getElementById('usernameInput').value = '';
             }
+        };
+
+        window.handleLogout = function() {
+            localStorage.removeItem('_office_token');
+            window.isOfficeMember = false;
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('logoutForm').classList.add('hidden');
+            document.getElementById('navListPad').classList.add('hidden');
+            document.getElementById('navOfficeRoom').classList.add('hidden');
+            document.getElementById('activePadPageArea').classList.add('hidden');
+            switchTab('mainTab');
+            detachAllActiveListeners();
+            initAppSync(); 
+        };
+
+        function activateOfficePrivileges() {
+            window.isOfficeMember = true;
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('logoutForm').classList.remove('hidden');
+            document.getElementById('navListPad').classList.remove('hidden');
+            document.getElementById('navOfficeRoom').classList.remove('hidden');
+            setupLiveListeners();
+            syncListPadTabs();
+        }
+
+        window.deleteData = function(path) {
+            if(!window.isOfficeMember) return;
+            if(confirm('আপনি কি নিশ্চিত এটি ডিলিট করতে চান?')) remove(ref(db, path));
+        };
+
+        window.deleteFormStructure = function(key) {
+            if(!window.isOfficeMember) return;
+            if(confirm('নিশ্চিত ডিলিট করবেন?')) {
+                if(window.activeListeners[key]) delete window.activeListeners[key];
+                remove(ref(db, `form_structures/${key}`));
+                remove(ref(db, `submitted_applications/${key}`));
+            }
+        };
+
+        window.addCustomTool = function() {
+            if(!window.isOfficeMember) return;
+            const title = document.getElementById('toolTitle').value.trim();
+            const code = document.getElementById('toolCode').value.trim();
+            if(!title || !code) return;
+            push(ref(db, 'tools'), { title, code }).then(() => {
+                alert('🚀 Live Web Tool Published Effectively!');
+                document.getElementById('toolTitle').value = '';
+                document.getElementById('toolCode').value = '';
+            });
+        };
+
+        window.createApplicationForm = function() {
+            if(!window.isOfficeMember) return;
+            const title = document.getElementById('formTitle').value.trim();
+            const condition = document.querySelector('input[name="formCondition"]:checked').value;
+            const desc = document.getElementById('formDescription').value.trim();
+            let expiryTimestamp = null;
+            if(condition === 'office') {
+                const days = parseInt(document.getElementById('formExpiryDays').value) || 7;
+                expiryTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
+            }
+            if(!title) return;
+            push(ref(db, 'form_structures'), { title, condition, description: desc, expiryTimestamp });
+            alert('Form Created!');
+            document.getElementById('formTitle').value = '';
+            document.getElementById('formDescription').value = '';
+        };
+
+        document.querySelectorAll('input[name="formCondition"]').forEach(radio => {
+            radio.addEventListener('change', e => {
+                const box = document.getElementById('officeFormDaysConfig');
+                if(e.target.value === 'office') box.classList.remove('hidden'); else box.classList.add('hidden');
+            });
         });
 
-        function deleteListPadLine(pageKey, lineKey) { db.ref(`listpad_pages/${pageKey}/lines/${lineKey}`).remove(); }
+        window.publishLink = function() {
+            if(!window.isOfficeMember) return;
+            const title = document.getElementById('linkTitle').value.trim();
+            const url = document.getElementById('linkUrl').value.trim();
+            if(!title || !url) return;
+            push(ref(db, 'links'), { title, url });
+            document.getElementById('linkTitle').value = '';
+            document.getElementById('linkUrl').value = '';
+        };
 
-        function filterInternalLines(pageKey) {
-            const query = document.getElementById(`lp-search-line-${pageKey}`).value.toLowerCase();
-            const holder = document.getElementById(`lp-lines-holder-${pageKey}`);
-            const items = holder.getElementsByClassName('list-item');
-            for (let i = 0; i < items.length; i++) {
-                let txt = items[i].getElementsByTagName('span')[0].textContent || items[i].getElementsByTagName('span')[0].innerText;
-                items[i].style.display = (txt.toLowerCase().indexOf(query) > -1) ? "" : "none";
+        window.updateScrollTag = function() {
+            if(!window.isOfficeMember) return;
+            const txt = document.getElementById('scrollTagInput').value.trim();
+            set(ref(db, 'system_control/scroll_tag'), txt);
+            document.getElementById('scrollTagInput').value = '';
+        };
+
+        window.updateNoticeBoard = function() {
+            if(!window.isOfficeMember) return;
+            const txt = document.getElementById('noticeInput').value.trim();
+            set(ref(db, 'system_control/notice_board'), txt);
+            document.getElementById('noticeInput').value = '';
+        };
+
+        window.publishEvent = function() {
+            if(!window.isOfficeMember) return;
+            const title = document.getElementById('eventTitle').value.trim();
+            const desc = document.getElementById('eventDescription').value.trim();
+            const ldate = document.getElementById('eventLastDate').value;
+            if(!title || !ldate) return;
+            push(ref(db, 'events'), { title, description: desc, lastDate: ldate });
+            document.getElementById('eventTitle').value = '';
+            document.getElementById('eventDescription').value = '';
+        };
+
+        window.triggerForceStop = function() {
+            if(!window.isOfficeMember) return;
+            const hrs = Math.min(24, Math.max(1, parseInt(document.getElementById('forceStopHours').value) || 1));
+            set(ref(db, 'system_control/force_stop'), { untilTimestamp: Date.now() + (hrs * 60 * 60 * 1000) });
+            alert(`🛑 অ্যাপটি ${hrs} ঘণ্টার জন্য বন্ধ করা হয়েছে।`);
+        };
+
+        window.generateUniqueShareLink = function(formKey, subKey) {
+            if(!window.isOfficeMember) return;
+            const expiryTarget = Date.now() + (100 * 24 * 60 * 60 * 1000);
+            update(ref(db, `submitted_applications/${formKey}/${subKey}`), { uniqueExpiry: expiryTarget });
+            const deepLink = `${window.location.origin}${window.location.pathname}?form=${formKey}&sub=${subKey}`;
+            navigator.clipboard.writeText(deepLink);
+            alert(`🔗 ইউনিক লিংক কপি হয়েছে:\n${deepLink}`);
+        };
+
+        function syncListPadTabs() {
+            if(!window.isOfficeMember) return;
+            onValue(ref(db, 'listpad'), (snapshot) => {
+                const data = snapshot.val();
+                const tabs = document.getElementById('padPageTabs');
+                tabs.innerHTML = '';
+                if(data) {
+                    Object.keys(data).forEach(key => {
+                        tabs.innerHTML += `<button data-pagekey="${key}" onclick="selectPadPage('${key}')" class="px-3 py-1 rounded bg-purple-100 text-purple-800 hover:bg-purple-200 shrink-0">📄 ${escapeHTML(data[key].title)}</button>`;
+                    });
+                }
+            });
+        }
+
+        window.createNewPadPage = function() {
+            if(!window.isOfficeMember) return;
+            const title = document.getElementById('newPageTitle').value.trim();
+            if(!title) return;
+            push(ref(db, 'listpad'), { title: title, items: {} });
+            document.getElementById('newPageTitle').value = '';
+        };
+
+        window.selectPadPage = function(pageKey) {
+            if(!window.isOfficeMember) return;
+            window.activePadPageKey = pageKey;
+            document.getElementById('activePadPageArea').classList.remove('hidden');
+            onValue(ref(db, `listpad/${pageKey}`), (snapshot) => {
+                const page = snapshot.val();
+                if(!page) { document.getElementById('activePadPageArea').classList.add('hidden'); return; }
+                document.getElementById('activePageHeaderTitle').innerText = `📄 ${page.title}`;
+                renderPadItems(page.items || {});
+            });
+        };
+
+        function renderPadItems(items) {
+            const list = document.getElementById('padItemsList');
+            list.innerHTML = '';
+            Object.keys(items).forEach(key => {
+                list.innerHTML += `
+                    <li class="flex justify-between items-center bg-white p-1.5 rounded border text-xs gap-2">
+                        <span class="break-all list-line-text"></span>
+                        <button onclick="deleteData('listpad/${window.activePadPageKey}/items/${key}')" class="text-red-500 font-bold shrink-0">❌</button>
+                    </li>`;
+                list.lastElementChild.querySelector('.list-line-text').textContent = items[key].text;
+            });
+        }
+
+        window.addPadLine = function() {
+            if(!window.isOfficeMember || !window.activePadPageKey) return;
+            const text = document.getElementById('newPadLineInput').value.trim();
+            if(!text || text.length > 2000) return;
+            get(ref(db, `listpad/${window.activePadPageKey}/items`)).then((snapshot) => {
+                const items = snapshot.val() || {};
+                let matchExists = false;
+                Object.keys(items).forEach(k => { if(items[k].text.toLowerCase() === text.toLowerCase()) matchExists = true; });
+                if(matchExists) {
+                    const warning = document.getElementById('duplicateWarning');
+                    warning.classList.remove('hidden');
+                    setTimeout(() => warning.classList.add('hidden'), 4000);
+                } else {
+                    push(ref(db, `listpad/${window.activePadPageKey}/items`), { text: text });
+                    document.getElementById('newPadLineInput').value = '';
+                }
+            });
+        };
+
+        window.copyFullPadPage = function() {
+            const visibleLines = document.querySelectorAll('#padItemsList li:not(.hidden) .list-line-text');
+            let buffer = [];
+            visibleLines.forEach(el => buffer.push(el.innerText));
+            navigator.clipboard.writeText(buffer.join('\n'));
+            alert('✓ দৃশ্যমান লাইনগুলি কপি করা হয়েছে!');
+        };
+
+        window.deleteFullPadPage = function() {
+            if(window.activePadPageKey && window.isOfficeMember) {
+                if(confirm('পুরো পেজটি কি মুছে ফেলতে চান?')) {
+                    remove(ref(db, `listpad/${window.activePadPageKey}`)).then(() => {
+                        window.activePadPageKey = null;
+                        document.getElementById('activePadPageArea').classList.add('hidden');
+                    });
+                }
             }
+        };
+
+        window.searchPadItems = function() {
+            const q = document.getElementById('padItemSearch').value.toLowerCase();
+            document.querySelectorAll('#padItemsList li').forEach(li => {
+                const txt = li.querySelector('.list-line-text').textContent.toLowerCase();
+                if(txt.includes(q)) li.classList.remove('hidden'); else li.classList.add('hidden');
+            });
+        };
+
+        window.searchPadPages = function() {
+            const q = document.getElementById('padPageSearch').value.toLowerCase();
+            document.querySelectorAll('#padPageTabs button').forEach(btn => {
+                if(btn.innerText.toLowerCase().includes(q)) btn.classList.remove('hidden'); else {
+                    btn.classList.add('hidden');
+                    if(window.activePadPageKey === btn.getAttribute('data-pagekey')) document.getElementById('activePadPageArea').classList.add('hidden');
+                }
+            });
+        };
+
+        function checkIncomingDeepLinks() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const fKey = urlParams.get('form');
+                const sKey = urlParams.get('sub');
+                if(fKey && sKey) {
+                    get(ref(db, `submitted_applications/${fKey}/${sKey}`)).then((snapshot) => {
+                        const data = snapshot.val();
+                        if(data) {
+                            document.getElementById('appContainer').classList.add('hidden');
+                            document.getElementById('deepLinkContainer').classList.remove('hidden');
+                            document.getElementById('deepLinkContent').textContent = data.content;
+                        } else alert('⚠️ লিংকটির মেয়াদ শেষ হয়ে গেছে!');
+                    });
+                }
+            } catch (e) { console.error(e); }
         }
 
-        function copyEntireListPadPage(textStr) {
-            if(!textStr) return alert("কোনো লাইন নেই!");
-            navigator.clipboard.writeText(textStr).then(() => alert("কপি সম্পন্ন হয়েছে! 📋"));
-        }
+        window.closeDeepLinkView = function() {
+            document.getElementById('deepLinkContainer').classList.add('hidden');
+            document.getElementById('appContainer').classList.remove('hidden');
+            window.history.pushState({}, document.title, window.location.pathname);
+        };
+
+        initAppSync();
+        checkIncomingDeepLinks();
     </script>
 </body>
 </html>
