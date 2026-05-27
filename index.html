@@ -31,7 +31,7 @@
     <div id="appContainer" class="max-w-md mx-auto bg-white min-h-screen shadow-lg flex flex-col justify-between">
         
         <header class="bg-blue-600 text-white p-4 text-center font-bold text-xl shadow-md">
-            📱 Your Choice Application
+             Your Choice Application
         </header>
 
         <div id="globalScrollTagContainer" class="bg-red-600 text-white overflow-hidden py-1 text-sm font-semibold hidden">
@@ -62,9 +62,9 @@
                 
                 <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
                     <div id="loginForm">
-                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">User Name:</label>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">User Name :</label>
                         <div class="flex gap-2">
-                            <input type="text" id="usernameInput" placeholder="এখানে নাম লিখুন..." class="flex-grow border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <input type="text" id="usernameInput" placeholder="এখানে নাম  লিখুন..." class="flex-grow border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <button onclick="handleLogin()" class="bg-blue-600 text-white px-4 py-1.5 rounded text-sm font-semibold">Enter ➡️</button>
                         </div>
                     </div>
@@ -149,18 +149,18 @@
 
                 <div class="bg-white p-3 border rounded-lg space-y-2">
                     <h3 class="font-bold text-sm text-gray-700">2. Add Application Form 📄</h3>
-                    <input type="text" id="formTitle" placeholder="ফর্মের শিরোনাম..." class="w-full border rounded px-2 py-1 text-xs">
-                    <div class="space-y-1 bg-gray-50 p-2 rounded border text-xs">
-                        <p class="font-semibold text-gray-600">পূরণ করার শর্তসমূহ:</p>
-                        <label class="flex items-center gap-1.5"><input type="radio" name="formCondition" value="user" checked> ইউজার কিবোর্ড দিয়ে টাইপ করবে</label>
-                        <label class="flex items-center gap-1.5"><input type="radio" name="formCondition" value="office"> শুধু Office Room থেকে পূরণ হবে (অটো ডিউ ডেট)</label>
+                    <input type="text" id="formTitle" placeholder="অ্যাপ্লিকেশন ফর্মের শিরোনাম..." class="w-full border rounded px-2 py-1 text-xs">
+                    
+                    <input type="text" id="formUserFields" placeholder="সবাই পূরণ করবে (কমা দিয়ে লিখুন যেমন: নাম, ক্লাস, রোল)..." class="w-full border rounded px-2 py-1 text-xs bg-emerald-50">
+                    <input type="text" id="formOfficeFields" placeholder="শুধুমাত্র Receive Application থেকে পূরণ হবে (যেমন: স্ট্যাটাস, রিমার্কস)..." class="w-full border rounded px-2 py-1 text-xs bg-amber-50">
+                    
+                    <div class="text-xs">
+                        <label class="block font-semibold text-gray-600">ফর্ম এক্সপায়ারি ডেট (Expiry Date):</label>
+                        <input type="date" id="formExpiryDate" class="border rounded px-2 py-1 mt-0.5">
                     </div>
-                    <div id="officeFormDaysConfig" class="hidden bg-amber-50 p-2 rounded border text-xs space-y-1">
-                        <label class="block font-semibold">কতদিন পর ফর্ম নিজে নিজেই ডিলিট হবে?</label>
-                        <input type="number" id="formExpiryDays" min="1" value="7" class="border rounded px-2 py-0.5 w-20"> দিন
-                    </div>
-                    <textarea id="formDescription" rows="2" placeholder="বক্তব্য লেখার জায়গা (ঐচ্ছিক)..." class="w-full border rounded px-2 py-1 text-xs"></textarea>
-                    <button onclick="createApplicationForm()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Create Form 🚀</button>
+
+                    <textarea id="formDescription" rows="2" placeholder="বিবৃতি বা নির্দেশনাবলী লেখার জায়গা (ঐচ্ছিক)..." class="w-full border rounded px-2 py-1 text-xs"></textarea>
+                    <button onclick="createApplicationForm()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Application Form 🚀</button>
                 </div>
 
                 <div class="bg-white p-3 border rounded-lg space-y-2">
@@ -349,6 +349,7 @@
                 }
             });
 
+            // FIXED: RENDER APPLICATION DASHBOARD & STRUCTURES WITH DYNAMIC COMMA SEPARATORS
             onValue(ref(db, 'form_structures'), (snapshot) => {
                 const data = snapshot.val();
                 const selector = document.getElementById('appFormSelector');
@@ -360,37 +361,33 @@
                 if(data) {
                     Object.keys(data).forEach(key => {
                         const form = data[key];
-                        if(form.expiryTimestamp && form.expiryTimestamp < Date.now()){
-                            remove(ref(db, `form_structures/${key}`));
-                            remove(ref(db, `submitted_applications/${key}`));
-                            return;
+                        // Auto delete on expiry date match
+                        if(form.expiryDate){
+                            const expTime = new Date(form.expiryDate + 'T23:59:59').getTime();
+                            if(!isNaN(expTime) && expTime < Date.now()){
+                                remove(ref(db, `form_structures/${key}`));
+                                remove(ref(db, `submitted_applications/${key}`));
+                                return;
+                            }
                         }
 
                         selector.innerHTML += `<button onclick="renderActiveForm('${key}')" class="w-full bg-gray-100 hover:bg-gray-200 p-2 rounded text-left font-bold border flex justify-between"><span>📄 ${escapeHTML(form.title)}</span> ➡️</button>`;
 
                         if(window.isOfficeMember) {
                             adminDashboard.innerHTML += `
-                                <div class="bg-white p-2 rounded border-2 border-gray-200 space-y-2 shadow-sm">
-                                    <div class="flex justify-between items-center bg-gray-200 p-1.5 rounded">
-                                        <h4 class="font-bold text-gray-800 uppercase">${escapeHTML(form.title)}</h4>
-                                        <button onclick="deleteFormStructure('${key}')" class="text-red-600 font-bold">Delete Form 🗑️</button>
+                                <div class="bg-white p-3 rounded border-2 border-purple-300 space-y-2 shadow-sm">
+                                    <div class="flex justify-between items-center bg-purple-100 p-1.5 rounded">
+                                        <h4 class="font-bold text-purple-900 uppercase">${escapeHTML(form.title)}</h4>
+                                        <button onclick="deleteFormStructure('${key}')" class="text-red-600 font-bold text-xs">Delete Form 🗑️</button>
                                     </div>
-                                    ${form.condition === 'office' ? `
-                                        <div class="p-2 bg-amber-50 border rounded space-y-1">
-                                            <p class="font-bold text-amber-800 text-[11px]">🏢 Office Fill Actions:</p>
-                                            <textarea id="officeFillInput_${key}" class="w-full border p-1 text-xs" placeholder="মتابت/ডাটা লিখুন..."></textarea>
-                                            <button onclick="submitOfficeApplication('${key}', ${form.expiryTimestamp || null})" class="bg-amber-600 text-white px-2 py-0.5 rounded font-bold">Submit Office Update</button>
-                                        </div>
-                                    ` : ''}
-                                    <div id="submissions_for_${key}" class="space-y-1.5 pt-2"></div>
+                                    <div id="submissions_for_${key}" class="space-y-2 pt-1"></div>
                                 </div>`;
-                            syncSubmissions(key);
+                            syncSubmissions(key, form.officeFields);
                         }
                     });
                 }
             });
 
-            // FIXED TOOLS ENGINE: Renders running tools inside safe Sandbox frames
             onValue(ref(db, 'tools'), (snapshot) => {
                 const data = snapshot.val();
                 if(data) {
@@ -414,18 +411,13 @@
             });
         }
 
-        // FULL ENGINE LOGIC FOR INTERACTIVE/LIVE CODE EXECUTION
         window.renderToolsUI = function(data) {
             const container = document.getElementById('toolsListContainer');
             container.innerHTML = '';
-            
             Object.keys(data).forEach(key => {
                 const item = data[key];
-                
-                // 1. Tool Frame Wrapper Building 
                 const toolCard = document.createElement('div');
                 toolCard.className = "bg-white border rounded-xl p-3 shadow-md space-y-3 flex flex-col";
-                
                 toolCard.innerHTML = `
                     <div class="flex justify-between items-center border-b pb-1.5">
                         <span class="font-bold text-amber-700 flex items-center gap-1.5">🛠️ ${escapeHTML(item.title)}</span>
@@ -433,33 +425,16 @@
                     </div>
                     <div class="w-full bg-gray-50 rounded-lg border border-gray-200 overflow-hidden" style="min-h: 280px;">
                         <iframe class="w-full h-full border-none min-h-[280px]" sandbox="allow-scripts"></iframe>
-                    </div>
-                `;
-
-                // 2. Realtime Code Execution Processing inside sandbox without global impact
+                    </div>`;
                 const iframe = toolCard.querySelector('iframe');
-                
-                // Automatic CSS and Structure injection layout configuration
-                const executionTemplate = `
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <meta charset="UTF-8">
-                        <script src="https://cdn.tailwindcss.com"><\/script>
-                        <style>body { font-family: system-ui, sans-serif; padding: 12px; background: #fdfdfd; }</style>
-                    </head>
-                    <body>
-                        ${item.code}
-                    </body>
-                    </html>
-                `;
-                
+                const executionTemplate = `<!DOCTYPE html><html><head><meta charset="UTF-8"><script src="https://cdn.tailwindcss.com"><\/script><style>body { font-family: system-ui, sans-serif; padding: 12px; background: #fdfdfd; }</style></head><body>${item.code}</body></html>`;
                 container.appendChild(toolCard);
-                iframe.srcdoc = executionTemplate; // Directly initialising application sandbox architecture live
+                iframe.srcdoc = executionTemplate;
             });
         };
 
-        function syncSubmissions(formKey) {
+        // FIXED: DYNAMIC SYNC AND OFFICE FILL FIELDS LOGIC
+        function syncSubmissions(formKey, officeFieldsStr) {
             const refPath = `submitted_applications/${formKey}`;
             if(window.activeListeners[formKey]) window.activeListeners[formKey]();
             
@@ -468,6 +443,7 @@
                 const container = document.getElementById(`submissions_for_${formKey}`);
                 if(!container) return;
                 container.innerHTML = '';
+                
                 if(data){
                     Object.keys(data).forEach(subKey => {
                         const sub = data[subKey];
@@ -475,14 +451,48 @@
                             remove(ref(db, `submitted_applications/${formKey}/${subKey}`));
                             return;
                         }
+
+                        // Parse out User Submitted Key-Values
+                        let userAnswersHtml = '';
+                        if(sub.userData) {
+                            Object.keys(sub.userData).forEach(fName => {
+                                userAnswersHtml += `<p><b>${escapeHTML(fName)}:</b> ${escapeHTML(sub.userData[fName])}</p>`;
+                            });
+                        } else {
+                            userAnswersHtml = `<p class="text-gray-500">${escapeHTML(sub.content || '')}</p>`;
+                        }
+
+                        // Generate Dynamic Inputs for Admin/Office Only fields
+                        let officeInputsHtml = '';
+                        if(officeFieldsStr) {
+                            const oFields = officeFieldsStr.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                            oFields.forEach(fName => {
+                                const currentVal = (sub.officeData && sub.officeData[fName]) ? sub.officeData[fName] : '';
+                                officeInputsHtml += `
+                                    <div class="mt-1">
+                                        <label class="block text-[10px] font-bold text-amber-800">${escapeHTML(fName)}:</label>
+                                        <input type="text" data-field="${escapeHTML(fName)}" value="${escapeHTML(currentVal)}" class="office-input-${subKey} w-full border rounded px-2 py-0.5 text-xs bg-amber-50">
+                                    </div>`;
+                            });
+                        }
+
                         container.innerHTML += `
-                            <div class="bg-white p-2 border rounded shadow-xs space-y-1 relative">
-                                <p class="whitespace-pre-wrap text-gray-700 font-medium">${escapeHTML(sub.content)}</p>
+                            <div class="bg-gray-50 p-2.5 border rounded shadow-xs space-y-2 relative">
+                                <div class="text-gray-700 bg-white p-2 rounded border text-xs space-y-0.5">${userAnswersHtml}</div>
+                                
+                                ${officeInputsHtml ? `
+                                    <div class="p-2 bg-amber-100/60 border border-amber-300 rounded">
+                                        <p class="font-bold text-amber-900 text-[11px] mb-1">🏢 Office Fill Items:</p>
+                                        ${officeInputsHtml}
+                                        <button onclick="submitOfficeApplication('${formKey}', '${subKey}')" class="mt-2 bg-amber-600 text-white text-[10px] px-2 py-1 rounded font-bold">Update Admin Data</button>
+                                    </div>
+                                ` : ''}
+
                                 <div class="flex justify-between items-center text-[10px] text-gray-400 border-t pt-1">
-                                    <span>🕒 Sub ID: ${subKey}</span>
+                                    <span>🕒 Date: ${sub.timestamp ? new Date(sub.timestamp).toLocaleDateString() : ''}</span>
                                     <div class="flex gap-2">
-                                        <button onclick="generateUniqueShareLink('${formKey}', '${subKey}')" class="text-blue-500 font-bold">Share Link 🔗</button>
-                                        <button onclick="deleteData('submitted_applications/${formKey}/${subKey}')" class="text-red-500 font-bold">🗑️</button>
+                                        <button onclick="generateUniqueShareLink('${formKey}', '${subKey}')" class="text-blue-500 font-bold">Share 🔗</button>
+                                        <button onclick="deleteData('submitted_applications/${formKey}/${subKey}')" class="text-red-500 font-bold">Delete 🗑️</button>
                                     </div>
                                 </div>
                             </div>`;
@@ -494,6 +504,7 @@
             window.activeListeners[formKey] = listener;
         }
 
+        // FIXED: GENERATING SEPARATE TEXT BOXES FOR USERS IN THE MAIN TAB
         window.renderActiveForm = function(formKey) {
             get(ref(db, `form_structures/${formKey}`)).then((snapshot) => {
                 const form = snapshot.val();
@@ -501,39 +512,101 @@
                 container.classList.remove('hidden');
                 if(!form) { container.classList.add('hidden'); return; }
 
-                if(form.condition === 'office') {
-                    container.innerHTML = `
-                        <div class="bg-amber-50 p-2.5 rounded border text-center text-xs">
-                            <p class="font-bold text-amber-700">🔒 এটি কেবল Office Room থেকে পূরণ করা সম্ভব!</p>
-                            <p class="mt-1 text-gray-600">${escapeHTML(form.description) || ''}</p>
-                        </div>`;
-                } else {
-                    container.innerHTML = `
-                        <div class="space-y-2">
-                            <p class="text-xs font-semibold text-gray-600">${escapeHTML(form.description) || 'বক্তব্য সাবমিট করুন:'}</p>
-                            <textarea id="userFormSubmissionInput" rows="3" class="w-full border rounded p-2 text-xs" placeholder="আপনার বক্তব্য টাইপ করুন..."></textarea>
-                            <button onclick="submitUserApplication('${formKey}')" class="w-full bg-orange-500 text-white font-bold py-1.5 rounded text-xs shadow">Send Application ✉️</button>
-                        </div>`;
+                let inputFieldsHtml = '';
+                if(form.userFields) {
+                    const fields = form.userFields.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                    fields.forEach(field => {
+                        inputFieldsHtml += `
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 mb-1">${escapeHTML(field)}:</label>
+                                <input type="text" data-userfield="${escapeHTML(field)}" class="user-dynamic-input w-full border rounded px-3 py-1.5 text-xs focus:ring-2 focus:ring-orange-400 focus:outline-none">
+                            </div>`;
+                    });
                 }
+
+                container.innerHTML = `
+                    <div class="space-y-3 bg-orange-50/50 p-3 rounded-lg border border-orange-200">
+                        <h3 class="font-bold text-sm text-orange-800">${escapeHTML(form.title)}</h3>
+                        ${form.description ? `<p class="text-xs text-gray-600 bg-white p-2 rounded border italic">${escapeHTML(form.description)}</p>` : ''}
+                        
+                        <div id="dynamicInputsWrapper" class="space-y-2">${inputFieldsHtml || '<p class="text-xs text-gray-400">কোনো ইনপুট ফিল্ড নেই।</p>'}</div>
+                        
+                        ${form.expiryDate ? `<p class="text-[10px] text-red-600 font-bold">⏳ শেষ তারিখ: ${escapeHTML(form.expiryDate)}</p>` : ''}
+                        
+                        <button onclick="submitUserApplication('${formKey}')" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 rounded text-xs shadow transition">Submit Application ✉️</button>
+                    </div>`;
             });
         };
 
         window.submitUserApplication = function(formKey) {
-            const val = document.getElementById('userFormSubmissionInput').value.trim();
-            if(!val || val.length > 5000) return;
-            push(ref(db, `submitted_applications/${formKey}`), { content: val, timestamp: Date.now() }).then(() => {
-                alert('✓ অ্যাপ্লিকেশনটি সফলভাবে পাঠানো হয়েছে!');
-                document.getElementById('userFormSubmissionInput').value = '';
+            const inputs = document.querySelectorAll('.user-dynamic-input');
+            let dataPayload = {};
+            let hasData = false;
+
+            inputs.forEach(input => {
+                const fName = input.getAttribute('data-userfield');
+                const fVal = input.value.trim();
+                if(fVal) {
+                    dataPayload[fName] = fVal;
+                    hasData = true;
+                }
+            });
+
+            if(!hasData) { alert('দয়া করে অন্তত একটি ফিল্ড পূরণ করুন!'); return; }
+
+            push(ref(db, `submitted_applications/${formKey}`), { 
+                userData: dataPayload, 
+                timestamp: Date.now() 
+            }).then(() => {
+                alert('✓ অ্যাপ্লিকেশনটি সফলভাবে মেইন পেজ থেকে সাবমিট হয়েছে!');
+                inputs.forEach(i => i.value = '');
             });
         };
 
-        window.submitOfficeApplication = function(formKey, expiryTimestamp) {
+        window.submitOfficeApplication = function(formKey, subKey) {
             if(!window.isOfficeMember) return;
-            const val = document.getElementById(`officeFillInput_${formKey}`).value.trim();
-            if(!val || val.length > 5000) return;
-            push(ref(db, `submitted_applications/${formKey}`), { content: val, timestamp: Date.now(), expiryTimestamp: expiryTimestamp || null }).then(() => {
-                alert('✓ অফিস এন্ট্রি সফল!');
-                document.getElementById(`officeFillInput_${formKey}`).value = '';
+            const inputs = document.querySelectorAll(`.office-input-${subKey}`);
+            let officePayload = {};
+
+            inputs.forEach(input => {
+                const fName = input.getAttribute('data-field');
+                officePayload[fName] = input.value.trim();
+            });
+
+            update(ref(db, `submitted_applications/${formKey}/${subKey}`), { 
+                officeData: officePayload 
+            }).then(() => {
+                alert('✓ অফিস ডাটা আপডেট সফল হয়েছে!');
+            });
+        };
+
+        // FIXED: CREATE FORM STRUCTURE DATA WITH EXPIRY & SEPARATOR FIELDS
+        window.createApplicationForm = function() {
+            if(!window.isOfficeMember) return;
+            const title = document.getElementById('formTitle').value.trim();
+            const userFields = document.getElementById('formUserFields').value.trim();
+            const officeFields = document.getElementById('formOfficeFields').value.trim();
+            const expiryDate = document.getElementById('formExpiryDate').value;
+            const desc = document.getElementById('formDescription').value.trim();
+            
+            if(!title || !userFields) {
+                alert('শিরোনাম এবং সবার জন্য পূরণ করার অপশনগুলো দেওয়া বাধ্যতামূলক!');
+                return;
+            }
+
+            push(ref(db, 'form_structures'), { 
+                title, 
+                userFields, 
+                officeFields: officeFields || null, 
+                expiryDate: expiryDate || null,
+                description: desc || null 
+            }).then(() => {
+                alert('🚀 নতুন অ্যাপ্লিকেশন ফর্ম সফলভাবে লাইভ পাবলিশ হয়েছে!');
+                document.getElementById('formTitle').value = '';
+                document.getElementById('formUserFields').value = '';
+                document.getElementById('formOfficeFields').value = '';
+                document.getElementById('formExpiryDate').value = '';
+                document.getElementById('formDescription').value = '';
             });
         };
 
@@ -597,30 +670,6 @@
                 document.getElementById('toolCode').value = '';
             });
         };
-
-        window.createApplicationForm = function() {
-            if(!window.isOfficeMember) return;
-            const title = document.getElementById('formTitle').value.trim();
-            const condition = document.querySelector('input[name="formCondition"]:checked').value;
-            const desc = document.getElementById('formDescription').value.trim();
-            let expiryTimestamp = null;
-            if(condition === 'office') {
-                const days = parseInt(document.getElementById('formExpiryDays').value) || 7;
-                expiryTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
-            }
-            if(!title) return;
-            push(ref(db, 'form_structures'), { title, condition, description: desc, expiryTimestamp });
-            alert('Form Created!');
-            document.getElementById('formTitle').value = '';
-            document.getElementById('formDescription').value = '';
-        };
-
-        document.querySelectorAll('input[name="formCondition"]').forEach(radio => {
-            radio.addEventListener('change', e => {
-                const box = document.getElementById('officeFormDaysConfig');
-                if(e.target.value === 'office') box.classList.remove('hidden'); else box.classList.add('hidden');
-            });
-        });
 
         window.publishLink = function() {
             if(!window.isOfficeMember) return;
@@ -787,7 +836,20 @@
                         if(data) {
                             document.getElementById('appContainer').classList.add('hidden');
                             document.getElementById('deepLinkContainer').classList.remove('hidden');
-                            document.getElementById('deepLinkContent').textContent = data.content;
+                            
+                            let deepHtml = '';
+                            if(data.userData){
+                                Object.keys(data.userData).forEach(k => {
+                                    deepHtml += `${k}: ${data.userData[k]}\n`;
+                                });
+                            }
+                            if(data.officeData){
+                                deepHtml += `\n[🏢 Office Updates]\n`;
+                                Object.keys(data.officeData).forEach(k => {
+                                    deepHtml += `${k}: ${data.officeData[k]}\n`;
+                                });
+                            }
+                            document.getElementById('deepLinkContent').textContent = deepHtml || data.content;
                         } else alert('⚠️ লিংকটির মেয়াদ শেষ হয়ে গেছে!');
                     });
                 }
