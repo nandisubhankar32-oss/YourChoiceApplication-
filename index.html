@@ -5,593 +5,192 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Choice Application</title>
     <style>
-        :root {
-            --primary-color: #2563eb;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-color: #1e293b;
-            --accent-red: #ef4444;
-            --accent-green: #22c55e;
-            --border-color: #e2e8f0;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* Top Red Scroll Tag */
-        #global-scroll-banner {
-            background-color: var(--accent-red);
-            color: white;
-            padding: 10px 0;
-            font-weight: bold;
-            overflow: hidden;
-            white-space: nowrap;
-            position: relative;
-            display: none;
-        }
-
-        #global-scroll-banner marquee {
-            font-size: 16px;
-        }
-
-        /* Header */
-        header {
-            background-color: var(--card-bg);
-            padding: 15px;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        header h1 {
-            font-size: 20px;
-            color: var(--primary-color);
-        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #f0f2f5; color: #333; padding-bottom: 30px; }
+        header { background-color: #1e3a8a; color: white; padding: 15px; text-align: center; font-size: 20px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        
+        /* Red Scroll Tag */
+        #scroll-container { background-color: #dc2626; color: white; overflow: hidden; white-space: nowrap; padding: 8px 0; font-weight: bold; font-size: 14px; }
+        #scroll-text { display: inline-block; padding-left: 100%; animation: marquee 25s linear infinite; }
+        @keyframes marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
 
         /* Navigation Tabs */
-        .nav-tabs {
-            display: flex;
-            background-color: var(--card-bg);
-            border-bottom: 1px solid var(--border-color);
-            overflow-x: auto;
-        }
+        .tab-bar { display: table; width: 100%; background-color: #ffffff; border-bottom: 2px solid #e5e7eb; }
+        .tab-btn { display: table-cell; text-align: center; padding: 12px 5px; font-size: 13px; font-weight: 600; color: #4b5563; cursor: pointer; border-bottom: 3px solid transparent; }
+        .tab-btn.active { color: #1e3a8a; border-bottom-color: #1e3a8a; background-color: #eff6ff; }
 
-        .tab-btn {
-            flex: 1;
-            padding: 15px 10px;
-            border: none;
-            background: none;
-            font-size: 15px;
-            font-weight: 600;
-            color: #64748b;
-            cursor: pointer;
-            text-align: center;
-            white-space: nowrap;
-            transition: all 0.2s;
-            border-bottom: 3px solid transparent;
-        }
+        /* Containers */
+        .container { padding: 15px; display: none; }
+        .container.active { display: block; }
+        .card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: relative; word-wrap: break-word; }
+        .card h3 { margin-bottom: 10px; color: #1e3a8a; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
 
-        .tab-btn.active {
-            color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
-            background-color: rgba(37, 99, 245, 0.05);
-        }
+        /* Form elements & Buttons */
+        input, textarea, select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; resize: vertical; }
+        button { background-color: #1e3a8a; color: white; padding: 10px 15px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; display: inline-block; margin-right: 5px; margin-bottom: 5px; }
+        button:hover { background-color: #1d4ed8; }
+        .btn-danger { background-color: #dc2626; }
+        .btn-danger:hover { background-color: #b91c1c; }
+        .btn-sm { padding: 5px 10px; font-size: 12px; }
 
-        /* Main Content Container */
-        .content-container {
-            flex: 1;
-            padding: 15px;
-            max-width: 800px;
-            width: 100%;
-            margin: 0 auto;
-        }
-
-        .app-section {
-            display: none;
-        }
-
-        .app-section.active {
-            display: block;
-        }
-
-        /* Cards & UI Blocks */
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 15px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-        }
-
-        .card-title {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #334155;
-            border-bottom: 2px solid var(--bg-color);
-            padding-bottom: 6px;
-        }
-
-        /* Form elements & Inputs */
-        input, textarea, select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            margin-top: 6px;
-            margin-bottom: 12px;
-            font-size: 15px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        input:focus, textarea:focus, select:focus {
-            border-color: var(--primary-color);
-        }
-
-        .btn {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: background-color 0.2s;
-        }
-
-        .btn:hover {
-            background-color: #1d4ed8;
-        }
-
-        .btn-danger {
-            background-color: var(--accent-red);
-        }
-        .btn-danger:hover {
-            background-color: #b91c1c;
-        }
-
-        .btn-secondary {
-            background-color: #64748b;
-        }
-        .btn-secondary:hover {
-            background-color: #475569;
-        }
-
-        /* Main View Inner Grid Buttons */
-        .main-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-
-        .menu-action-btn {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 20px 10px;
-            border-radius: 12px;
-            text-align: center;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            transition: transform 0.1s, border-color 0.2s;
-        }
-
-        .menu-action-btn:active {
-            transform: scale(0.98);
-        }
-
-        .menu-action-btn.active {
-            border-color: var(--primary-color);
-            background-color: rgba(37, 99, 245, 0.03);
-        }
-
-        /* Checkbox lists */
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            font-size: 15px;
-        }
-
-        .checkbox-group input[type="checkbox"], .checkbox-group input[type="radio"] {
-            width: auto;
-            margin: 0;
-            transform: scale(1.2);
-        }
-
-        /* Duplicate Warning Area */
-        .duplicate-alert {
-            display: none;
-            background-color: var(--accent-red);
-            color: white;
-            padding: 15px;
-            font-size: 20px;
-            font-weight: bold;
-            text-align: center;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            animation: shake 0.3s;
-        }
-
-        @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
-            100% { transform: translateX(0); }
-        }
-
-        /* Data Lists Display Styles */
-        .data-item {
-            border-left: 4px solid var(--primary-color);
-            background: #f1f5f9;
-            padding: 12px;
-            border-radius: 0 8px 8px 0;
-            margin-bottom: 10px;
-            position: relative;
-        }
-
-        .data-item .delete-node-btn {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            background: none;
-            border: none;
-            color: var(--accent-red);
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        /* Custom Iframe Container for Tools Module */
-        .tools-frame-wrapper {
-            width: 100%;
-            height: 450px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background: #fff;
-            margin-top: 10px;
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        /* Utility classes */
-        .hidden { display: none !important; }
-        .text-muted { color: #64748b; font-size: 13px; }
-        .flex-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-
-        /* Deep-link view overlay modal */
-        #deeplink-modal {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            padding: 20px;
-        }
-        #deeplink-modal .modal-box {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 500px;
-            max-height: 85vh;
-            overflow-y: auto;
-        }
-
+        /* System Styles */
+        .notice-box { background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 10px; margin-bottom: 15px; border-radius: 4px; }
+        .list-item { display: block; padding: 8px; background: #f9fafb; border: 1px solid #e5e7eb; margin-bottom: 5px; border-radius: 4px; position: relative; padding-right: 40px; }
+        .delete-item-btn { position: absolute; right: 8px; top: 8px; color: #dc2626; font-weight: bold; cursor: pointer; background: none; border: none; font-size: 16px; }
+        .error-popup { background-color: #fee2e2; color: #991b1b; padding: 12px; border-radius: 6px; margin-bottom: 10px; font-weight: bold; border: 1px solid #fca5a5; display: none; font-size: 16px; text-align: center; }
+        
+        /* Utilities */
+        .text-link { color: #2563eb; text-decoration: underline; cursor: pointer; word-break: break-all; }
+        .hidden-room { display: none !important; }
+        .info-tag { font-size: 11px; color: #6b7280; margin-top: 5px; display: block; }
+        iframe { width: 100%; border: 1px solid #ccc; border-radius: 6px; background: #fff; margin-top: 10px; min-height: 200px; }
     </style>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
-    <div id="global-scroll-banner">
-        <marquee id="scroll-marquee-text" behavior="scroll" direction="left">Your Choice Application এ স্বাগত!</marquee>
+    <header>🏠 <span id="app-title">Your Choice Application</span></header>
+
+    <div id="scroll-container">
+        <div id="scroll-text">স্বাগতম! কোনো সচল স্ক্রোল বার্তা নেই।</div>
     </div>
 
-    <header>
-        <h1 id="app-display-title">&lt;Your Choice Application&gt;</h1>
-    </header>
-
-    <div class="nav-tabs">
-        <button class="tab-btn active" id="tab-main" onclick="switchSection('main-sec')">🏠 Main</button>
-        <button class="tab-btn" id="tab-tools" onclick="switchSection('tools-sec')">🛠️ Tools</button>
-        <button class="tab-btn hidden" id="tab-listpad" onclick="switchSection('listpad-sec')">📝 List pad</button>
-        <button class="tab-btn hidden" id="tab-officeroom" onclick="switchSection('office-sec')">🔐 Office room</button>
+    <div class="tab-bar">
+        <div class="tab-btn active" onclick="switchTab('main-tab')">🚀 Main</div>
+        <div class="tab-btn" onclick="switchTab('tools-tab')">🧰 Tools</div>
+        <div class="tab-btn hidden-room" id="listpad-nav" onclick="switchTab('listpad-tab')">📝 List Pad</div>
+        <div class="tab-btn" id="office-nav" onclick="switchTab('office-tab')">🏢 Office Room</div>
     </div>
 
-    <div class="content-container">
+    <div id="main-tab" class="container active">
+        <div class="card">
+            <h3>👤 User Profile / Access Authentication</h3>
+            <div id="auth-logged-out">
+                <input type="text" id="user-name-input" placeholder="এখানে নাম লিখুন... ">
+                <button onclick="handleAuthentication()">🔓 Enter / Verify</button>
+            </div>
+            <div id="auth-logged-in" style="display:none;">
+                <p style="font-weight: bold; color: #16a34a; margin-bottom: 8px;">🟢 আপনি একজন মেম্বার হিসেবে যুক্ত আছেন (Office Room Active)</p>
+                <button class="btn-danger" onclick="logOutOffice()">🔒 Log Out</button>
+            </div>
+        </div>
 
-        <div id="main-sec" class="app-section active">
+        <div id="notice-board-section" class="notice-box" style="display:none;">
+            <strong>📌 নোটিশ বোর্ড:</strong>
+            <div id="notice-board-content" style="white-space: pre-wrap; margin-top: 5px;"></div>
+        </div>
+
+        <div class="card">
+            <h3>📅 Events (চলতি ইভেন্টসমূহ)</h3>
+            <div id="main-events-container">কোনো ইভেন্ট নেই।</div>
+        </div>
+
+        <div class="card">
+            <h3>📄 Applications (আবেদনপত্র ফর্ম)</h3>
+            <div id="main-apps-container">কোনো ফর্ম উপলব্ধ নেই।</div>
+        </div>
+
+        <div class="card">
+            <h3>🔗 Published Links (গুরুত্বপূর্ণ লিংক)</h3>
+            <div id="main-links-container">কোনো লিংক যুক্ত করা হয়নি।</div>
+        </div>
+    </div>
+
+    <div id="tools-tab" class="container">
+        <div class="card">
+            <h3>🧰 Offline Functional Tools</h3>
+            <p class="info-tag" style="margin-bottom:10px;">* এই টুলসগুলো সম্পূর্ণ অফলাইনে কাজ করতে সক্ষম।</p>
+            <div id="tools-runtime-container">কোনো অফলাইন টুল লোড করা নেই।</div>
+        </div>
+    </div>
+
+    <div id="listpad-tab" class="container">
+        <div class="error-popup" id="listpad-error">আগেই উপস্থিত আছে ❌</div>
+        
+        <div class="card">
+            <h3>📝 List Pad (মেম্বার স্পেশাল)</h3>
+            <input type="text" id="lp-search-page" placeholder="🔍 শিরোনাম বা পৃষ্ঠা খুঁজুন..." oninput="renderListPadPages()">
+            <input type="text" id="lp-new-page-title" placeholder="নতুন পৃষ্ঠার শিরোনাম দিন...">
+            <button onclick="createNewListPage()">➕ নতুন পৃষ্ঠা তৈরি করুন</button>
+        </div>
+
+        <div id="listpad-pages-render"></div>
+    </div>
+
+    <div id="office-tab" class="container">
+        <div id="office-lock-screen" class="card">
+            <h3 style="color:#dc2626;">🔒 সংরক্ষিত এলাকা</h3>
+            <p>এই বিভাগে প্রবেশ করতে অনুগ্রহ করে 'Main' ট্যাবে গিয়ে সঠিক মেম্বার কোড ভেরিফাই করুন Suspended।</p>
+        </div>
+
+        <div id="office-content-area" class="hidden-room">
             
-            <div class="card" id="user-auth-card">
-                <div class="card-title">👤 User Profile System</div>
-                <div id="normal-user-input-zone">
-                    <label> User Name:</label>
-                    <input type="text" id="main-username-input" placeholder="আপনার নাম দিন...">
-                </div>
-                <div id="logged-in-zone" class="hidden">
-                    <div class="flex-row">
-                        <span style="font-weight: bold; color: var(--accent-green);">⚙️ Office Room মেম্বার হিসেবে যুক্ত আছেন</span>
-                        <button class="btn btn-danger" style="width: auto; padding: 6px 12px; font-size: 13px;" id="logout-trigger-btn">🚪 Log out</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="main-grid">
-                <div class="menu-action-btn active" id="btn-sub-event" onclick="switchMainSubView('sub-event')">📅 Event</div>
-                <div class="menu-action-btn" id="btn-sub-apply" onclick="switchMainSubView('sub-apply')">📝 Application</div>
-                <div class="menu-action-btn" id="btn-sub-links" onclick="switchMainSubView('sub-links')">🔗 Links</div>
-                <div class="menu-action-btn" id="btn-sub-notice" onclick="switchMainSubView('sub-notice')">📢 Notice Board</div>
-            </div>
-
-            <div id="sub-view-event" class="main-sub-content">
-                <div class="card">
-                    <div class="card-title">📅 অ্যাক্টিভ ইভেন্ট সমূহ</div>
-                    <div id="main-events-render-area">কোনো ইভেন্ট লোড করা নেই বা মেয়াদ শেষ হয়ে গেছে।</div>
-                </div>
-            </div>
-
-            <div id="sub-view-apply" class="main-sub-content hidden">
-                <div class="card">
-                    <div class="card-title">📝 কাজের ফর্ম সমূহ</div>
-                    <div id="available-forms-list">অফিস রুম থেকে কোনো ফর্ম পাবলিশ করা হয়নি।</div>
-                </div>
-                
-                <div id="form-execution-card" class="card hidden">
-                    <div class="card-title" id="execution-form-title">ফরম পূরণ করুন</div>
-                    <form id="dynamic-user-form">
-                        <div id="dynamic-fields-area"></div>
-                        
-                        <div id="optional-statement-area" class="hidden">
-                            <label>অতিরিক্ত বক্তব্য (ঐচ্ছিক):</label>
-                            <textarea id="form-user-statement" placeholder="এখানে আপনার বক্তব্য লিখুন..."></textarea>
-                        </div>
-                        
-                        <button type="button" class="btn" id="submit-application-btn">📤 Send Application</button>
-                    </form>
-                </div>
-            </div>
-
-            <div id="sub-view-links" class="main-sub-content hidden">
-                <div class="card">
-                    <div class="card-title">🔗 গুরুত্বপূর্ণ লিংক</div>
-                    <div id="main-links-render-area">কোনো লিংক উপলব্ধ নেই।</div>
-                </div>
-            </div>
-
-            <div id="sub-view-notice" class="main-sub-content hidden">
-                <div class="card">
-                    <div class="card-title">📢 অফিস নোটিশ বোর্ড</div>
-                    <div id="main-notice-render-area" style="background: #fffdf5; padding: 15px; border-radius: 8px; border: 1px dashed #f59e0b; min-height: 100px; white-space: pre-wrap;">কোনো নোটিশ দেওয়া নেই।</div>
-                </div>
-            </div>
-
-        </div>
-
-        <div id="tools-sec" class="app-section">
             <div class="card">
-                <div class="card-title">🛠️ অফলাইন টুলস বক্স</div>
-                <label>টুল নির্বাচন করুন:</label>
-                <select id="tools-selector-dropdown" onchange="runSelectedTool()">
-                    <option value="">-- একটি টুল সিলেক্ট করুন --</option>
+                <h3>🧰 1. Add Tools (HTML/JS Logic)</h3>
+                <input type="text" id="tool-name" placeholder="টুলের নাম (যেমন- Calculator)">
+                <textarea id="tool-html-code" rows="5" placeholder="সর্বোচ্চ ৫০০০ লাইনের ফুল লজিক HTML/JS কোড এখানে দিন..."></textarea>
+                <button onclick="uploadTool()">Publish Tool</button>
+                <div id="office-tools-list" style="margin-top:10px;"></div>
+            </div>
+
+            <div class="card">
+                <h3>📄 2. Add Application Forms</h3>
+                <input type="text" id="app-form-title" placeholder="আবেদনপত্রের শিরোনাম">
+                <textarea id="app-form-desc" placeholder="আবেদনপত্র বা বক্তব্যের বিবরণ লিখুন (ঐচ্ছিক)"></textarea>
+                <select id="app-form-condition">
+                    <option value="user_typing">১. সাধারণ ইউজার কিবোর্ড টাইপিং এর মাধ্যমে পূরণ করবে</option>
+                    <option value="office_only_expiry">২. শুধুমাত্র Office Room থেকে টেক্সট টাইপিং হবে + অটো ডিলিট</option>
                 </select>
-                
-                <div id="tool-runtime-container" class="hidden">
-                    <div class="flex-row" style="margin-top: 10px; margin-bottom: 5px;">
-                        <span id="active-tool-title-label" style="font-weight: bold;">টুল প্রভিউ</span>
-                        <button class="btn btn-secondary" style="width:auto; padding:4px 10px; font-size:12px;" onclick="runSelectedTool()">🔄 Reload Tool</button>
-                    </div>
-                    <div class="tools-frame-wrapper">
-                        <iframe id="tool-sandbox-iframe" sandbox="allow-scripts allow-modals allow-same-origin"></iframe>
-                    </div>
+                <div id="expiry-days-container">
+                    <label class="info-tag">ফর্মটি কতদিন পর অটো ডিলিট হবে (দিন সংখ্যা লিখুন):</label>
+                    <input type="number" id="app-expiry-days" value="7" min="1">
                 </div>
+                <button onclick="createApplicationForm()">Create Layout Form</button>
+                <div id="office-forms-config-list" style="margin-top:10px;"></div>
             </div>
-        </div>
 
-        <div id="listpad-sec" class="app-section">
-            <div id="listpad-allowed-zone">
-                <div class="card">
-                    <div class="card-title">📝 মাল্টি-পেজ লিস্ট প্যাড</div>
-                    
-                    <div class="flex-row" style="margin-bottom: 12px;">
-                        <button class="btn" style="background:#0284c7;" onclick="createNewListPagePrompt()">➕ নতুন পেজ তৈরি করুন</button>
-                        <button class="btn btn-danger" onclick="deleteAllListPages()">🗑️ সব পেজ মুছুন</button>
-                    </div>
-
-                    <label>পেজ খুঁজুন (শিরোনাম দিয়ে):</label>
-                    <input type="text" id="search-list-page-input" placeholder="পেজের শিরোনাম লিখে সার্চ করুন...">
-
-                    <label>অ্যাক্টিভ পেজ সিলেক্ট করুন:</label>
-                    <select id="list-active-page-dropdown" onchange="loadActivePageLines()"></select>
-                </div>
-
-                <div class="card hidden" id="list-lines-management-box">
-                    <div class="flex-row" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px;">
-                        <span id="current-page-display-name" style="font-weight: bold; font-size: 16px;">শিরোনাম</span>
-                        <button class="btn" style="width: auto; padding: 6px 12px; font-size: 13px; background-color: #059669;" onclick="copyEntireActivePage()">📋 কপি করুন (সব লাইন)</button>
-                    </div>
-
-                    <div id="list-duplicate-ticker" class="duplicate-alert">আগেই উপস্থিত আছে ❌</div>
-
-                    <label>নতুন লাইন যোগ করুন:</label>
-                    <textarea id="new-line-item-input" placeholder="এখানে তথ্য লিখুন... (এন্টার দিলে ইনপুট হবে বা নতুন লাইন শুরু হবে)"></textarea>
-                    <button class="btn" onclick="addNewLineItemToList()">➕ লাইন যুক্ত করুন</button>
-
-                    <div style="margin-top: 15px;">
-                        <label>এই পেজের লাইন খুঁজুন:</label>
-                        <input type="text" id="search-lines-inside-page" placeholder="লাইন সার্চ করুন..." oninput="filterLinesInsidePage()">
-                    </div>
-
-                    <div id="lines-render-stack" style="margin-top: 12px;"></div>
-                </div>
+            <div class="card">
+                <h3>🔗 3. Add Web Links</h3>
+                <input type="text" id="link-title" placeholder="লিংকের নাম বা টাইটেল">
+                <input type="text" id="link-url" placeholder="http:// বা https:// সহ সম্পূর্ণ URL লিংক">
+                <button onclick="uploadLink()">Add Link</button>
+                <div id="office-links-list" style="margin-top:10px;"></div>
             </div>
-        </div>
 
-        <div id="office-sec" class="app-section">
-            <div id="office-allowed-zone">
-                <div class="card" style="background: #eff6ff; border-color: #bfdbfe;">
-                    <div class="card-title" style="color: var(--primary-color);">⚙️ Office Room কন্ট্রোল প্যানেল</div>
-                    <p style="font-size: 13px;">এখান থেকে অ্যাপ্লিকেশনের সমস্ত তথ্য ও ডাইনামিক ডেটা রিয়েল-টাইমে নিয়ন্ত্রণ করতে পারবেন।</p>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">🛠️ 1. Add Tools (অফলাইন সমর্থিত)</div>
-                    <label>টুলস এর নাম:</label>
-                    <input type="text" id="office-tool-name" placeholder="যেমন: Calculator">
-                    <label>সম্পূর্ণ লজিক HTML / JS কোড (সর্বোচ্চ ৫০০০ লাইন):</label>
-                    <textarea id="office-tool-code" style="font-family: monospace; min-height: 150px;" placeholder="<html>\n<body>\n... কোড লিখুন\n</body>\n</html>"></textarea>
-                    <button class="btn" onclick="publishCustomTool()">🚀 টুল পাবলিশ করুন</button>
-                    
-                    <div style="margin-top:10px;" id="admin-tools-delete-list"></div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">📝 2. Add Application (ফর্ম বিল্ডার)</div>
-                    <label>ফর্মের নাম / শিরোনাম:</label>
-                    <input type="text" id="office-form-title" placeholder="যেমন: Scholarship Application">
-                    
-                    <label>ফর্মের বিবরণ বা নির্দেশনাবলী:</label>
-                    <textarea id="office-form-description" placeholder="ফর্মের উপরে এই টেক্সট বক্তব্যটি শো করবে..."></textarea>
-
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="office-form-enable-statement">
-                        <label for="office-form-enable-statement">ইউজারদের জন্য অতিরিক্ত বক্তব্য লেখার অপশন যুক্ত করুন</label>
-                    </div>
-
-                    <div style="background: #f1f5f9; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
-                        <span style="font-weight: 600; font-size:14px; display:block; margin-bottom:6px;">শর্তাবলী ও ডাইনামিক ফিল্ড সেটআপ:</span>
-                        
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="field-setup-typing" checked disabled>
-                            <label>১. ইউজার কিবোর্ড টাইপিং ইনপুট (ডিফল্ট যুক্ত থাকবে - যেমন: Name)</label>
-                        </div>
-
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="field-setup-gender">
-                            <label>২. জেন্ডার সিলেকশন অপশন (Male ⬜ / Female ⬜ বক্স)</label>
-                        </div>
-
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="field-setup-officeroonly" onchange="toggleOfficeOnlyFieldConfig(this)">
-                            <label>৩. শুধুমাত্র Office Room থেকে পূরণযোগ্য ফিল্ড</label>
-                        </div>
-                        <div id="office-only-field-config" class="hidden" style="padding-left: 20px;">
-                            <label>অফিস ফিল্ড লেবেল:</label>
-                            <input type="text" id="office-only-field-label" placeholder="যেমন: Form number">
-                            <label>ডিফল্ট ভ্যালু / টেক্সট:</label>
-                            <input type="text" id="office-only-field-value" placeholder="যেমন: 2X2">
-                        </div>
-                    </div>
-
-                    <label>অটো ডিলিট সিস্টেম (ফর্মের মেয়াদ শেষ হওয়ার তারিখ):</label>
-                    <input type="datetime-local" id="office-form-expiry-time">
-                    
-                    <button class="btn" onclick="publishCustomForm()">📋 ফর্মটি চালু করুন</button>
-
-                    <div style="margin-top:10px;" id="admin-forms-delete-list"></div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">🔗 3. Add Link</div>
-                    <label>লিংক এর নাম:</label>
-                    <input type="text" id="office-link-title" placeholder="যেমন: Official Website">
-                    <label>সম্পূর্ণ URL ঠিকানা:</label>
-                    <input type="url" id="office-link-url" placeholder="https://example.com">
-                    <button class="btn" onclick="publishCustomLink()">🔗 লিংক যুক্ত করুন</button>
-                    
-                    <div style="margin-top:10px;" id="admin-links-delete-list"></div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">📢 4. Add Scroll Tag</div>
-                    <p class="text-muted" style="margin-bottom: 6px;">এখানে নতুন কিছু দিলে পূর্বের স্ক্রোল ট্যাগটি স্বয়ংক্রিয়ভাবে মুছে যাবে।</p>
-                    <label>স্ক্রোলিং টেক্সট:</label>
-                    <textarea id="office-scroll-input" placeholder="লাল ব্যানারে চলমান লেখাটি দিন..."></textarea>
-                    <button class="btn" onclick="publishScrollTag()">📢 স্ক্রোল আপডেট করুন</button>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">📢 5. Add Notice</div>
-                    <p class="text-muted" style="margin-bottom: 6px;">এখানে নতুন নোটিশ দিলে পূর্বেরটি স্বয়ংক্রিয়ভাবে মুছে যাবে।</p>
-                    <label>নোটিশ কন্টেন্ট:</label>
-                    <textarea id="office-notice-input" placeholder="নোটিশ বোর্ডের বিস্তারিত এখানে লিখুন..."></textarea>
-                    <button class="btn" onclick="publishNotice()">📢 নোটিশ বোর্ড আপডেট করুন</button>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">📅 6. Add Event</div>
-                    <label>ইভেন্টের শিরোনাম:</label>
-                    <input type="text" id="office-event-title" placeholder="যেমন: বার্ষিক সাধারণ সভা">
-                    <label>ইভেন্টের বিবরণ:</label>
-                    <textarea id="office-event-description" placeholder="ইভেন্টের স্থান, সময় ও অন্যান্য বিবরণ..."></textarea>
-                    <label>শেষ তারিখ (Last Date - এরপর অটো ডিলিট হবে):</label>
-                    <input type="date" id="office-event-lastdate">
-                    <button class="btn" onclick="publishCustomEvent()">📅 ইভেন্ট যুক্ত করুন</button>
-                    
-                    <div style="margin-top:10px;" id="admin-events-delete-list"></div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">📥 7. Receive Application (জমা পড়া ফর্ম সমূহ)</div>
-                    <div id="admin-received-applications-panel">ইউজারদের পাঠানো কোনো অ্যাপ্লিকেশন ডেটাবেসে নেই।</div>
-                </div>
-
+            <div class="card">
+                <h3>📢 4. Add Scroll Tag (একক একটিভ ট্যাগ)</h3>
+                <input type="text" id="scroll-input" placeholder="নতুন স্ক্রোল টেক্সট দিন (পুরানোটি মুছে যাবে)">
+                <button onclick="updateScrollTag()">Update Scroll Tag</button>
+                <button class="btn-danger btn-sm" onclick="deleteScrollTag()">মুছে ফেলুন</button>
             </div>
-        </div>
 
-    </div>
-
-    <div id="deeplink-modal" class="hidden">
-        <div class="modal-box">
-            <div class="flex-row" style="border-bottom: 2px solid var(--border-color); padding-bottom:8px; margin-bottom:15px;">
-                <span id="modal-view-header-title" style="font-weight: bold; color: var(--primary-color);">🔎 তথ্য ভিউয়ার</span>
-                <button class="btn btn-danger" style="width:auto; padding:4px 10px;" onclick="closeDeepLinkModal()">❌ বন্ধ করুন</button>
+            <div class="card">
+                <h3>📌 5. Add Notice Board</h3>
+                <textarea id="notice-input" rows="3" placeholder="নোটিশ বোর্ডের নতুন লেখা দিন (নতুন দিলে পুরানোটি যাবে)"></textarea>
+                <button onclick="updateNoticeBoard()">Update Notice</button>
+                <button class="btn-danger btn-sm" onclick="deleteNoticeBoard()">মুছে ফেলুন</button>
             </div>
-            <div id="modal-view-payload-body"></div>
+
+            <div class="card">
+                <h3>📅 6. Add Events & Deadlines</h3>
+                <input type="text" id="event-title" placeholder="ইভেন্টের নাম বা বিষয়">
+                <input type="date" id="event-end-date">
+                <button onclick="uploadEvent()">Publish Event</button>
+                <div id="office-events-list" style="margin-top:10px;"></div>
+            </div>
+
+            <div class="card">
+                <h3>📥 7. Receive & Handle Filled Applications</h3>
+                <div id="office-received-apps-container">কোনো জমা পড়া আবেদনপত্র নেই।</div>
+            </div>
+
         </div>
     </div>
 
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
+    <script>
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAVNKYEONsmJQYvNQZLrsDFjWRIFS9Iupk",
             authDomain: "your-choice-application-3f40a.firebaseapp.com",
@@ -601,587 +200,405 @@
             appId: "1:149984268715:web:669e5fe20dcf5bce5c82ee",
             measurementId: "G-DPFE88RN21"
         };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+        const MEMBER_CODE = "20091307";
 
-        let isOfficeMember = false;
-        const SECRET_PASSPHRASE_KEY = "20091307";
-        let activeSelectedFormIdForUser = null;
-        let globalFormsDataCache = {};
-
-        window.addEventListener('DOMContentLoaded', () => {
-            setupEnterKeyInteractions();
-            evaluateLocalAuthorizationCache();
-            initializeRealtimeDataSyncListeners();
-            evaluateUrlDeepLinkRoutes();
+        // Auto Retention Session System on Launch
+        window.addEventListener('load', () => {
+            if (localStorage.getItem('office_auth_token') === MEMBER_CODE) {
+                activateMemberAccess();
+            }
+            startRealtimeListeners();
+            checkAndHandleWebLinkQuery();
         });
 
-        function setupEnterKeyInteractions() {
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    const target = e.target;
-                    if (target.id === 'new-line-item-input') {
-                        e.preventDefault();
-                        addNewLineItemToList();
-                    }
-                }
-            });
+        // Navigation Management
+        function switchTab(tabId) {
+            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
         }
 
-        // Section Toggling Engine (Handles Button Activity Classes)
-        window.switchSection = function(sectionId) {
-            document.querySelectorAll('.app-section').forEach(sec => sec.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            
-            const targetedSection = document.getElementById(sectionId);
-            if(targetedSection) targetedSection.classList.add('active');
-            
-            // Re-highlight the clicked button
-            if(sectionId === 'main-sec') document.getElementById('tab-main').classList.add('active');
-            else if(sectionId === 'tools-sec') document.getElementById('tab-tools').classList.add('active');
-            else if(sectionId === 'listpad-sec') document.getElementById('tab-listpad').classList.add('active');
-            else if(sectionId === 'office-sec') document.getElementById('tab-officeroom').classList.add('active');
-        };
-
-        window.switchMainSubView = function(viewKey) {
-            document.querySelectorAll('.menu-action-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.main-sub-content').forEach(c => c.classList.add('hidden'));
-
-            if(viewKey === 'sub-event') {
-                document.getElementById('btn-sub-event').classList.add('active');
-                document.getElementById('sub-view-event').classList.remove('hidden');
-            } else if(viewKey === 'sub-apply') {
-                document.getElementById('btn-sub-apply').classList.add('active');
-                document.getElementById('sub-view-apply').classList.remove('hidden');
-            } else if(viewKey === 'sub-links') {
-                document.getElementById('btn-sub-links').classList.add('active');
-                document.getElementById('sub-view-links').classList.remove('hidden');
-            } else if(viewKey === 'sub-notice') {
-                document.getElementById('btn-sub-notice').classList.add('active');
-                document.getElementById('sub-view-notice').classList.remove('hidden');
-            }
-        };
-
-        // Authentication & Role Management Engine
-        const nameInputField = document.getElementById('main-username-input');
-        nameInputField.addEventListener('input', (e) => {
-            if(e.target.value.trim() === SECRET_PASSPHRASE_KEY) {
-                grantOfficeAccessPrivileges();
-            }
-        });
-
-        document.getElementById('logout-trigger-btn').addEventListener('click', () => {
-            revokeOfficeAccessPrivileges();
-        });
-
-        function grantOfficeAccessPrivileges() {
-            isOfficeMember = true;
-            localStorage.setItem('office_auth_token', SECRET_PASSPHRASE_KEY);
-            nameInputField.value = '';
-            
-            // Swap login field to logged-in badge
-            document.getElementById('normal-user-input-zone').classList.add('hidden');
-            document.getElementById('logged-in-zone').classList.remove('hidden');
-            
-            // UNHIDE THE TABS COMPLETELY
-            document.getElementById('tab-listpad').classList.remove('hidden');
-            document.getElementById('tab-officeroom').classList.remove('hidden');
-        }
-
-        function revokeOfficeAccessPrivileges() {
-            isOfficeMember = false;
-            localStorage.removeItem('office_auth_token');
-            
-            // Revert back to input field
-            document.getElementById('normal-user-input-zone').classList.remove('hidden');
-            document.getElementById('logged-in-zone').classList.add('hidden');
-            
-            // HIDE THE TABS AGAIN
-            document.getElementById('tab-listpad').classList.add('hidden');
-            document.getElementById('tab-officeroom').classList.add('hidden');
-            
-            // Force user back to Main screen if they were in protected tabs
-            switchSection('main-sec');
-        }
-
-        function evaluateLocalAuthorizationCache() {
-            if(localStorage.getItem('office_auth_token') === SECRET_PASSPHRASE_KEY) {
-                grantOfficeAccessPrivileges();
-            }
-        }
-
-
-        // ================= DATABASE WRITE ACTIONS =================
-        window.publishCustomTool = function() {
-            const title = document.getElementById('office-tool-name').value.trim();
-            const rawHtml = document.getElementById('office-tool-code').value.trim();
-            if(!title || !rawHtml) return alert('টুলস এর নাম এবং কোড উভয়ই প্রদান করুন! ❌');
-            const referenceNode = push(ref(db, 'tools'));
-            set(referenceNode, { id: referenceNode.key, title: title, code: rawHtml }).then(() => {
-                document.getElementById('office-tool-name').value = '';
-                document.getElementById('office-tool-code').value = '';
-            });
-        };
-
-        window.publishCustomForm = function() {
-            const title = document.getElementById('office-form-title').value.trim();
-            const desc = document.getElementById('office-form-description').value.trim();
-            const enableStatement = document.getElementById('office-form-enable-statement').checked;
-            const hasGender = document.getElementById('field-setup-gender').checked;
-            const hasOfficeOnly = document.getElementById('field-setup-officeroonly').checked;
-            const expiryTimeStr = document.getElementById('office-form-expiry-time').value;
-
-            if(!title || !expiryTimeStr) return alert('ফর্মের শিরোনাম এবং ডিলিট হওয়ার সময় দিন! ❌');
-
-            const expiryTimestamp = new Date(expiryTimeStr).getTime();
-            const formSchema = {
-                title, desc, enableStatement, hasGender, hasOfficeOnly, expiryTimestamp,
-                officeFieldLabel: hasOfficeOnly ? document.getElementById('office-only-field-label').value.trim() || 'Form number' : '',
-                officeFieldValue: hasOfficeOnly ? document.getElementById('office-only-field-value').value.trim() || '2X2' : ''
-            };
-
-            const nodeRef = push(ref(db, 'forms'));
-            formSchema.id = nodeRef.key;
-            set(nodeRef, formSchema).then(() => {
-                alert('নতুন অ্যাপ্লিকেশন ফর্ম সফলভাবে তৈরি হয়েছে! 📋');
-                document.getElementById('office-form-title').value = '';
-                document.getElementById('office-form-description').value = '';
-                document.getElementById('office-form-expiry-time').value = '';
-            });
-        };
-
-        window.toggleOfficeOnlyFieldConfig = function(checkbox) {
-            document.getElementById('office-only-field-config').className = checkbox.checked ? '' : 'hidden';
-        };
-
-        window.publishCustomLink = function() {
-            const title = document.getElementById('office-link-title').value.trim();
-            const url = document.getElementById('office-link-url').value.trim();
-            if(!title || !url) return alert('লিংক এবং URL দুটোই দিন! ❌');
-            const nodeRef = push(ref(db, 'links'));
-            set(nodeRef, { id: nodeRef.key, title, url }).then(() => {
-                document.getElementById('office-link-title').value = '';
-                document.getElementById('office-link-url').value = '';
-            });
-        };
-
-        window.publishScrollTag = function() {
-            const txt = document.getElementById('office-scroll-input').value.trim();
-            if(!txt) return alert('টেক্সট কন্টেন্ট ইনপুট দিন! ❌');
-            set(ref(db, 'scroll_tag'), { text: txt }).then(() => {
-                alert('স্ক্রোল ট্যাগ আপডেট হয়েছে! 📢');
-                document.getElementById('office-scroll-input').value = '';
-            });
-        };
-
-        window.publishNotice = function() {
-            const txt = document.getElementById('office-notice-input').value.trim();
-            if(!txt) return alert('নোটিশ কন্টেন্ট ইনপুট দিন! ❌');
-            set(ref(db, 'notice'), { text: txt }).then(() => {
-                alert('নোটিশ বোর্ড আপডেট হয়েছে! 📢');
-                document.getElementById('office-notice-input').value = '';
-            });
-        };
-
-        window.publishCustomEvent = function() {
-            const title = document.getElementById('office-event-title').value.trim();
-            const desc = document.getElementById('office-event-description').value.trim();
-            const lastDateStr = document.getElementById('office-event-lastdate').value;
-            if(!title || !lastDateStr) return alert('শিরোনাম এবং শেষ তারিখ দিন! ❌');
-            const nodeRef = push(ref(db, 'events'));
-            set(nodeRef, { id: nodeRef.key, title, desc, lastDateStr }).then(() => {
-                document.getElementById('office-event-title').value = '';
-                document.getElementById('office-event-description').value = '';
-                document.getElementById('office-event-lastdate').value = '';
-                alert('নতুন ইভেন্ট যুক্ত করা হয়েছে! 📅');
-            });
-        };
-
-        window.deleteFirebaseDataNode = function(nodePath, id) {
-            if(confirm('আপনি কি নিশ্চিতভাবে এই আইটেমটি চিরতরে ডিলিট করতে চান?')) {
-                remove(ref(db, `${nodePath}/${id}`));
-            }
-        };
-
-
-        // ================= SYNCHRONIZED APP SYNCING LISTENERS =================
-        function initializeRealtimeDataSyncListeners() {
-            const currentTime = Date.now();
-
-            onValue(ref(db, 'scroll_tag'), (snap) => {
-                const data = snap.val();
-                const banner = document.getElementById('global-scroll-banner');
-                if(data && data.text) {
-                    banner.style.display = 'block';
-                    document.getElementById('scroll-marquee-text').innerText = data.text;
-                } else {
-                    banner.style.display = 'none';
-                }
-            });
-
-            onValue(ref(db, 'notice'), (snap) => {
-                const data = snap.val();
-                document.getElementById('main-notice-render-area').innerText = (data && data.text) ? data.text : 'কোনো নোটিশ দেওয়া নেই।';
-            });
-
-            onValue(ref(db, 'links'), (snap) => {
-                const data = snap.val();
-                const container = document.getElementById('main-links-render-area');
-                const adminContainer = document.getElementById('admin-links-delete-list');
-                container.innerHTML = ''; adminContainer.innerHTML = '';
-                if(!data) { container.innerHTML = 'কোনো লিংক উপলব্ধ নেই।'; return; }
-                Object.values(data).forEach(lnk => {
-                    container.innerHTML += `<div class="data-item">🔗 <a href="${lnk.url}" target="_blank" style="font-weight:bold; color:var(--primary-color); text-decoration:none;">${lnk.title}</a></div>`;
-                    adminContainer.innerHTML += `<div class="data-item">${lnk.title} (${lnk.url}) <button class="delete-node-btn" onclick="deleteFirebaseDataNode('links','${lnk.id}')">❌</button></div>`;
-                });
-            });
-
-            onValue(ref(db, 'events'), (snap) => {
-                const data = snap.val();
-                const container = document.getElementById('main-events-render-area');
-                const adminContainer = document.getElementById('admin-events-delete-list');
-                container.innerHTML = ''; adminContainer.innerHTML = '';
-                if(!data) { container.innerHTML = 'কোনো ইভেন্ট লোড করা নেই বা মেয়াদ শেষ হয়ে গেছে।'; return; }
-
-                const todayStr = new Date().toISOString().split('T')[0];
-                Object.values(data).forEach(ev => {
-                    if(ev.lastDateStr && ev.lastDateStr < todayStr) {
-                        remove(ref(db, `events/${ev.id}`)); return;
-                    }
-                    const deepUrl = `${window.location.origin}${window.location.pathname}?route=event&id=${ev.id}`;
-                    container.innerHTML += `
-                        <div class="data-item" style="background:#fff;">
-                            <h3 style="font-size:15px; color:#1e293b;">📅 ${ev.title}</h3>
-                            <p style="font-size:13px; margin:4px 0; color:#475569;">${ev.desc || 'কোনো বিবরণ নেই।'}</p>
-                            <span class="text-muted" style="display:block; margin-bottom:6px;">🕒 শেষ তারিখ: ${ev.lastDateStr}</span>
-                            <button class="btn" style="padding:4px 8px; font-size:11px; width:auto; background:#475569;" onclick="copyToClipboardText('${deepUrl}')">📋 শেয়ার লিংক কপি করুন</button>
-                        </div>`;
-                    adminContainer.innerHTML += `<div class="data-item">${ev.title} [শেষ তারিখ: ${ev.lastDateStr}] <button class="delete-node-btn" onclick="deleteFirebaseDataNode('events','${ev.id}')">❌</button></div>`;
-                });
-            });
-
-            onValue(ref(db, 'forms'), (snap) => {
-                const data = snap.val();
-                const container = document.getElementById('available-forms-list');
-                const adminContainer = document.getElementById('admin-forms-delete-list');
-                container.innerHTML = ''; adminContainer.innerHTML = '';
-                globalFormsDataCache = data || {};
-                if(!data) { container.innerHTML = 'অফিস রুম থেকে কোনো ফর্ম পাবলিশ করা হয়নি।'; return; }
-
-                Object.values(data).forEach(form => {
-                    if(form.expiryTimestamp && currentTime > form.expiryTimestamp) {
-                        remove(ref(db, `forms/${form.id}`)); return;
-                    }
-                    container.innerHTML += `<button class="btn btn-secondary" style="margin-bottom:8px; text-align:left; background:#f1f5f9; color:#1e293b; border:1px solid var(--border-color);" onclick="renderFormTemplateExecution('${form.id}')">📝 ${form.title}</button>`;
-                    adminContainer.innerHTML += `<div class="data-item">${form.title} <button class="delete-node-btn" onclick="deleteFirebaseDataNode('forms','${form.id}')">❌</button></div>`;
-                });
-            });
-
-            onValue(ref(db, 'tools'), (snap) => {
-                const data = snap.val() || {};
-                localStorage.setItem('local_cached_tools', JSON.stringify(data));
-                rebuildToolsInterfaceElements(data);
-            });
-            if(!navigator.onLine) {
-                const cached = localStorage.getItem('local_cached_tools');
-                if(cached) rebuildToolsInterfaceElements(JSON.parse(cached));
-            }
-
-            onValue(ref(db, 'submitted_applications'), (snap) => {
-                const data = snap.val();
-                const container = document.getElementById('admin-received-applications-panel');
-                container.innerHTML = '';
-                if(!data) { container.innerHTML = 'ইউজারদের পাঠানো কোনো অ্যাপ্লিকেশন ডেটাবেসে নেই।'; return; }
-
-                const grouped = {};
-                Object.values(data).forEach(appItem => {
-                    if(!grouped[appItem.formTitle]) grouped[appItem.formTitle] = [];
-                    grouped[appItem.formTitle].push(appItem);
-                });
-                Object.keys(grouped).forEach(titleGroup => {
-                    let sectionBlockHtml = `<div style="margin-top:15px; border:1px solid var(--primary-color); padding:10px; border-radius:8px; background:#fff;"><h4 style="color:var(--primary-color); margin-bottom:8px; border-bottom:1px solid var(--border-color); padding-bottom:4px;">📋 ফরম গ্রুপ: ${titleGroup}</h4>`;
-                    grouped[titleGroup].forEach(item => {
-                        const uniqueShareUrl = `${window.location.origin}${window.location.pathname}?route=view_app&id=${item.id}`;
-                        sectionBlockHtml += `
-                            <div class="data-item" style="border-left-color:var(--accent-green);">
-                                <button class="delete-node-btn" onclick="deleteFirebaseDataNode('submitted_applications','${item.id}')">❌</button>
-                                <p><strong>👤 আবেদনকারী:</strong> ${item.submittedByUsername || 'Unknown'}</p>
-                                <p><strong>⌨️ ইনপুট টেক্সট:</strong> ${item.typedValue || 'N/A'}</p>
-                                ${item.genderSelected ? `<p><strong>🚻 জেন্ডার সিলেকশন:</strong> ${item.genderSelected}</p>` : ''}
-                                ${item.officeFieldLabel ? `<p><strong>🔒 ${item.officeFieldLabel}:</strong> ${item.officeFieldValue}</p>` : ''}
-                                ${item.userStatementText ? `<p><strong>💬 অতিরিক্ত বক্তব্য:</strong> ${item.userStatementText}</p>` : ''}
-                                <span class="text-muted" style="display:block; margin-top:4px;">📅 জমা: ${new Date(item.submittedAtTimestamp).toLocaleString()}</span>
-                                <button class="btn" style="padding:4px 8px; font-size:11px; margin-top:8px; width:auto; background-color:#0284c7;" onclick="copyToClipboardText('${uniqueShareUrl}')">🔗 ইউনিক শেয়ার লিংক জেনারেট করুন (১০০ দিন মেয়াদী)</button>
-                            </div>`;
-                    });
-                    sectionBlockHtml += `</div>`;
-                    container.innerHTML += sectionBlockHtml;
-                });
-            });
-
-            onValue(ref(db, 'list_pad'), (snap) => {
-                const data = snap.val() || {};
-                const dropdown = document.getElementById('list-active-page-dropdown');
-                const previousSelectedValue = dropdown.value;
-                dropdown.innerHTML = '<option value="">-- একটি পেজ সিলেক্ট করুন --</option>';
-                Object.keys(data).forEach(pageId => {
-                    dropdown.innerHTML += `<option value="${pageId}">${data[pageId].title}</option>`;
-                });
-                if(data[previousSelectedValue]) {
-                    dropdown.value = previousSelectedValue;
-                    loadActivePageLines();
-                } else {
-                    document.getElementById('list-lines-management-box').classList.add('hidden');
-                }
-            });
-        }
-
-        function rebuildToolsInterfaceElements(toolsObj) {
-            const dropdown = document.getElementById('tools-selector-dropdown');
-            const adminContainer = document.getElementById('admin-tools-delete-list');
-            dropdown.innerHTML = '<option value="">-- একটি টুল সিলেক্ট করুন --</option>';
-            adminContainer.innerHTML = '';
-            Object.values(toolsObj).forEach(tool => {
-                dropdown.innerHTML += `<option value="${tool.id}">${tool.title}</option>`;
-                adminContainer.innerHTML += `<div class="data-item">${tool.title} <button class="delete-node-btn" onclick="deleteFirebaseDataNode('tools','${tool.id}')">❌</button></div>`;
-            });
-        }
-
-        // ================= DYNAMIC FORM RENDERING ENGINE FOR END USERS =================
-        window.renderFormTemplateExecution = function(formId) {
-            const schema = globalFormsDataCache[formId];
-            if(!schema) return;
-            activeSelectedFormIdForUser = formId;
-            document.getElementById('form-execution-card').classList.remove('hidden');
-            document.getElementById('execution-form-title').innerText = `📋 ফরম পূরণ: ${schema.title}`;
-            
-            const fieldsRenderArea = document.getElementById('dynamic-fields-area');
-            fieldsRenderArea.innerHTML = '';
-            if(schema.desc) {
-                fieldsRenderArea.innerHTML += `<p style="font-size:13px; color:#475569; margin-bottom:10px; background:#f8fafc; padding:8px; border-radius:6px;">${schema.desc}</p>`;
-            }
-            fieldsRenderArea.innerHTML += `<label>আপনার ইনপুট তথ্য টাইপ করুন (যেমন:-Name - Leela Nag):</label><input type="text" id="user-form-field-typing" placeholder="এখানে টাইপ করুন..." required>`;
-            if(schema.hasGender) {
-                fieldsRenderArea.innerHTML += `
-                    <label style="margin-top:8px; display:block;">🚻 লিঙ্গ নির্বাচন করুন (Gender Selection):</label>
-                    <div style="display:flex; gap:15px; margin-top:6px; margin-bottom:12px;">
-                        <label class="checkbox-group"><input type="radio" name="user-gender-radio" value="Male"> Male ⬜</label>
-                        <label class="checkbox-group"><input type="radio" name="user-gender-radio" value="Female"> Female ⬜</label>
-                    </div>`;
-            }
-            if(schema.hasOfficeOnly) {
-                fieldsRenderArea.innerHTML += `<label>${schema.officeFieldLabel || 'Form number'}:</label><input type="text" value="${schema.officeFieldValue || '2X2'}" readonly style="background:#f1f5f9; font-weight:bold; color:#475569;">`;
-            }
-            document.getElementById('optional-statement-area').className = schema.enableStatement ? '' : 'hidden';
-        };
-
-        document.getElementById('submit-application-btn').addEventListener('click', () => {
-            if(!activeSelectedFormIdForUser) return;
-            const schema = globalFormsDataCache[activeSelectedFormIdForUser];
-            const typedVal = document.getElementById('user-form-field-typing').value.trim();
-            if(!typedVal) return alert('কিবোর্ড টাইপিং এর ইনপুট ফিল্ডটি খালি রাখা যাবে না! ❌');
-            let genderVal = '';
-            if(schema.hasGender) {
-                const selectedRadio = document.querySelector('input[name="user-gender-radio"]:checked');
-                if(!selectedRadio) return alert('অনুগ্রহ করে জেন্ডার অপশনটি সিলেক্ট করুন! 🚻');
-                genderVal = selectedRadio.value;
-            }
-
-            const payloadNode = push(ref(db, 'submitted_applications'));
-            set(payloadNode, {
-                id: payloadNode.key,
-                formTemplateId: activeSelectedFormIdForUser,
-                formTitle: schema.title,
-                submittedByUsername: typedVal.split('-')[1]?.trim() || typedVal.split(':')[1]?.trim() || typedVal || 'Anonymous User',
-                typedValue: typedVal,
-                genderSelected: genderVal,
-                officeFieldLabel: schema.hasOfficeOnly ? schema.officeFieldLabel : '',
-                officeFieldValue: schema.hasOfficeOnly ? schema.officeFieldValue : '',
-                userStatementText: schema.enableStatement ? document.getElementById('form-user-statement').value.trim() : '',
-                submittedAtTimestamp: Date.now()
-            }).then(() => {
-                alert('আপনার অ্যাপ্লিকেশনটি সফলভাবে পাঠানো হয়েছে! 📤');
-                document.getElementById('form-execution-card').classList.add('hidden');
-                document.getElementById('dynamic-user-form').reset();
-                activeSelectedFormIdForUser = null;
-            });
-        });
-
-        // ================= SANDBOX OFFLINE RUNTIME FOR TOOLS =================
-        window.runSelectedTool = function() {
-            const toolId = document.getElementById('tools-selector-dropdown').value;
-            const runtimeBox = document.getElementById('tool-runtime-container');
-            const iframe = document.getElementById('tool-sandbox-iframe');
-            if(!toolId) { runtimeBox.classList.add('hidden'); return; }
-            runtimeBox.classList.remove('hidden');
-            
-            const cachedTools = JSON.parse(localStorage.getItem('local_cached_tools') || '{}');
-            const targetedTool = cachedTools[toolId];
-            if(targetedTool && targetedTool.code) {
-                document.getElementById('active-tool-title-label').innerText = `🛠️ অ্যাক্টিভ টুল: ${targetedTool.title}`;
-                iframe.srcdoc = targetedTool.code;
+        // Authentication Control
+        function handleAuthentication() {
+            const val = document.getElementById('user-name-input').value.trim();
+            if (val === MEMBER_CODE) {
+                localStorage.setItem('office_auth_token', MEMBER_CODE);
+                activateMemberAccess();
+                document.getElementById('user-name-input').value = "";
             } else {
-                iframe.srcdoc = "<p style='color:red; padding:10px;'>টুল কোডটি খুঁজে পাওয়া যায়নি।</p>";
+                alert("নাম/কোড প্রসেসড। কোনো প্রোফাইল ডেটাবেসে সেভ করা হয়নি।");
             }
-        };
+        }
 
-        // ================= MULTI-PAGE LIST PAD CONTROLLER ENGINE =================
-        window.createNewListPagePrompt = function() {
-            const title = prompt('নতুন পেজ এর শিরোনাম প্রদান করুন:');
-            if(!title || !title.trim()) return;
-            const listPageRef = push(ref(db, 'list_pad'));
-            set(listPageRef, { id: listPageRef.key, title: title.trim(), lines: {} });
-        };
+        function activateMemberAccess() {
+            document.getElementById('auth-logged-out').style.display = 'none';
+            document.getElementById('auth-logged-in').style.display = 'block';
+            document.getElementById('listpad-nav').classList.remove('hidden-room');
+            document.getElementById('office-lock-screen').classList.add('hidden-room');
+            document.getElementById('office-content-area').classList.remove('hidden-room');
+        }
 
-        window.deleteAllListPages = function() {
-            if(confirm('আপনি কি নিশ্চিতভাবে সমস্ত পেজ মুছে ফেলতে চান? ⚠️')) remove(ref(db, 'list_pad'));
-        };
+        function logOutOffice() {
+            localStorage.removeItem('office_auth_token');
+            document.getElementById('auth-logged-out').style.display = 'block';
+            document.getElementById('auth-logged-in').style.display = 'none';
+            document.getElementById('listpad-nav').classList.add('hidden-room');
+            document.getElementById('office-lock-screen').classList.remove('hidden-room');
+            document.getElementById('office-content-area').classList.add('hidden-room');
+            switchTab('main-tab');
+        }
 
-        window.loadActivePageLines = function() {
-            const pageId = document.getElementById('list-active-page-dropdown').value;
-            const linesBox = document.getElementById('list-lines-management-box');
-            if(!pageId) { linesBox.classList.add('hidden'); return; }
-            linesBox.classList.remove('hidden');
+        // URL Query Processor
+        function checkAndHandleWebLinkQuery() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewFormId = urlParams.get('viewFormInstance');
+            const viewEventId = urlParams.get('viewEventInstance');
             
-            onValue(ref(db, `list_pad/${pageId}`), (snap) => {
-                const pageData = snap.val();
-                if(!pageData) return;
-                document.getElementById('current-page-display-name').innerText = `📄 পেজ: ${pageData.title}`;
-                renderPageLineItems(pageData.lines || {});
-            });
-        };
+            if (viewFormId) {
+                setTimeout(() => { switchTab('office-tab'); }, 1000);
+            }
+            if (viewEventId) {
+                setTimeout(() => { switchTab('main-tab'); }, 1000);
+            }
+        }
 
-        function renderPageLineItems(linesObj) {
-            const stack = document.getElementById('lines-render-stack');
-            stack.innerHTML = '';
-            Object.values(linesObj).forEach(lineItem => {
-                stack.innerHTML += `
-                    <div class="data-item list-line-row-node" data-text-payload="${lineItem.text.toLowerCase()}" style="background:#fff; border-left-color:#0284c7;">
-                        <span>${lineItem.text}</span>
-                        <button class="delete-node-btn" style="top:5px;" onclick="deleteSingleLineItemNode('${lineItem.id}')">❌</button>
-                    </div>`;
+        function linkify(text) {
+            var urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+            return text.replace(urlRegex, function(url) {
+                return '<a class="text-link" href="' + url + '" target="_blank">' + url + '</a>';
             });
         }
 
-        window.addNewLineItemToList = function() {
-            const pageId = document.getElementById('list-active-page-dropdown').value;
-            const textInput = document.getElementById('new-line-item-input');
-            const lineTextStr = textInput.value.trim();
-            if(!pageId || !lineTextStr) return;
+        // ================= REALTIME ENGINE SYNC =================
+        function startRealtimeListeners() {
+            // Scroll Tag
+            db.ref('scroll_tag').on('value', snapshot => {
+                const data = snapshot.val();
+                document.getElementById('scroll-text').innerText = data ? data.text : "স্বাগতম! কোনো সচল স্ক্রোল বার্তা নেই।";
+            });
 
-            get(ref(db, `list_pad/${pageId}/lines`)).then((snap) => {
-                const existingLines = snap.val() ? Object.values(snap.val()).map(l => l.text.trim()) : [];
-                if(existingLines.includes(lineTextStr)) {
-                    const banner = document.getElementById('list-duplicate-ticker');
-                    banner.style.display = 'block'; setTimeout(() => { banner.style.display = 'none'; }, 3000);
-                    return;
+            // Notice Board
+            db.ref('notice_board').on('value', snapshot => {
+                const data = snapshot.val();
+                if(data && data.text) {
+                    document.getElementById('notice-board-section').style.display = 'block';
+                    document.getElementById('notice-board-content').innerHTML = linkify(data.text);
+                } else {
+                    document.getElementById('notice-board-section').style.display = 'none';
                 }
-                const lineRef = push(ref(db, `list_pad/${pageId}/lines`));
-                set(lineRef, { id: lineRef.key, text: lineTextStr }).then(() => {
-                    textInput.value = ''; textInput.focus();
+            });
+
+            // Links Tracker
+            db.ref('links').on('value', snapshot => {
+                const data = snapshot.val();
+                let mainHtml = ''; let officeHtml = '';
+                if(data) {
+                    Object.keys(data).forEach(key => {
+                        let dynamicUrl = data[key].url.startsWith('http') ? data[key].url : 'http://' + data[key].url;
+                        mainHtml += `<div style="margin-bottom:8px;">🔗 <a class="text-link" href="${dynamicUrl}" target="_blank">${data[key].title}</a></div>`;
+                        officeHtml += `<div class="list-item"><strong>${data[key].title}</strong><button class="delete-item-btn" onclick="deleteItem('links/${key}')">❌</button></div>`;
+                    });
+                }
+                document.getElementById('main-links-container').innerHTML = mainHtml || 'কোনো লিংক যুক্ত করা হয়নি।';
+                document.getElementById('office-links-list').innerHTML = officeHtml || '';
+            });
+
+            // Events Tracker & Auto-Expiry
+            db.ref('events').on('value', snapshot => {
+                const data = snapshot.val();
+                let mainHtml = ''; let officeHtml = '';
+                const todayStr = new Date().toISOString().split('T')[0];
+
+                if(data) {
+                    Object.keys(data).forEach(key => {
+                        const ev = data[key];
+                        if (ev.endDate && todayStr > ev.endDate) {
+                            db.ref(`events/${key}`).remove();
+                            return;
+                        }
+                        let appPathLink = window.location.href.split('?')[0] + `?viewEventInstance=${key}`;
+                        mainHtml += `<div class="list-item" style="border-left: 4px solid #1e3a8a;">
+                            <strong>${ev.title}</strong><br>📅 শেষ তারিখ: <span style="color:#dc2626; font-weight:bold;">${ev.endDate || 'নির্ধারিত নেই'}</span><br>
+                            🔗 লিংক: <span class="text-link" onclick="window.open('${appPathLink}','_blank')">${appPathLink}</span>
+                        </div>`;
+                        officeHtml += `<div class="list-item"><strong>${ev.title}</strong><button class="delete-item-btn" onclick="deleteItem('events/${key}')">❌</button></div>`;
+                    });
+                }
+                document.getElementById('main-events-container').innerHTML = mainHtml || 'কোনো ইভেন্ট নেই।';
+                document.getElementById('office-events-list').innerHTML = officeHtml || '';
+            });
+
+            // Tools Runtime Loader
+            db.ref('tools').on('value', snapshot => {
+                const data = snapshot.val();
+                let runtimeHtml = ''; let officeHtml = '';
+                if(data) {
+                    Object.keys(data).forEach(key => {
+                        const tool = data[key];
+                        runtimeHtml += `<div class="card"><h4>🛠️ ${tool.name}</h4><iframe srcdoc="${tool.htmlCode.replace(/"/g, '&quot;')}" sandbox="allow-scripts"></iframe></div>`;
+                        officeHtml += `<div class="list-item"><strong>${tool.name}</strong> <button class="delete-item-btn" onclick="deleteItem('tools/${key}')">❌</button></div>`;
+                    });
+                }
+                document.getElementById('tools-runtime-container').innerHTML = runtimeHtml || 'কোনো অফলাইন টুল লোড করা নেই।';
+                document.getElementById('office-tools-list').innerHTML = officeHtml || '';
+            });
+
+            // Template Layout Modules
+            db.ref('app_templates').on('value', snapshot => {
+                const templates = snapshot.val() || {};
+                renderApplicationForms(templates);
+                
+                db.ref('submitted_applications').on('value', subSnapshot => {
+                    const submissions = subSnapshot.val() || {};
+                    let officeReceiveHtml = '';
+
+                    Object.keys(templates).forEach(tKey => {
+                        const template = templates[tKey];
+                        if(template.condition === 'office_only_expiry' && template.expiryTimestamp) {
+                            if(Date.now() > template.expiryTimestamp) {
+                                db.ref(`app_templates/${tKey}`).remove();
+                                db.ref(`submitted_applications/${tKey}`).remove();
+                                return;
+                            }
+                        }
+
+                        officeReceiveHtml += `<div style="margin-top:15px; padding:10px; background:#f1f5f9; border-radius:6px;"><h4>📂 ক্যাটাগরি: ${template.title}</h4>`;
+                        
+                        if(template.condition === 'office_only_expiry') {
+                            officeReceiveHtml += `<textarea id="office-fill-text-${tKey}" placeholder="অফিস মেম্বার মন্তব্য লিখুন..."></textarea><button class="btn-sm" onclick="submitOfficeOnlyData('${tKey}')">সেভ বিবরণ</button>`;
+                        }
+
+                        if(submissions[tKey]) {
+                            Object.keys(submissions[tKey]).forEach(sKey => {
+                                const response = submissions[tKey][sKey];
+                                let linkActiveStatus = "Active";
+                                if(response.createdTimestamp && (Date.now() - response.createdTimestamp > 100 * 24 * 60 * 60 * 1000)){
+                                    linkActiveStatus = "Expired";
+                                }
+                                let uniqueShareableUrl = window.location.href.split('?')[0] + `?viewFormInstance=${sKey}`;
+                                officeReceiveHtml += `<div class="list-item" style="background:#fff;">
+                                    <p style="white-space:pre-wrap;">${linkify(response.content)}</p>
+                                    <span class="info-tag">🔗 ইউনিক লিংক (${linkActiveStatus}): <span class="text-link" onclick="window.open('${uniqueShareableUrl}','_blank')">${uniqueShareableUrl}</span></span>
+                                    <button class="delete-item-btn" onclick="deleteItem('submitted_applications/${tKey}/${sKey}')">❌</button>
+                                </div>`;
+                            });
+                        } else {
+                            officeReceiveHtml += `<p style="font-size:12px; color:#94a3b8;">কোনো ডাটা নেই।</p>`;
+                        }
+                        officeReceiveHtml += `</div>`;
+                    });
+                    document.getElementById('office-received-apps-container').innerHTML = officeReceiveHtml || 'কোনো ফর্ম উপলব্ধ নেই।';
                 });
             });
-        };
 
-        window.deleteSingleLineItemNode = function(lineId) {
-            const pageId = document.getElementById('list-active-page-dropdown').value;
-            if(pageId && lineId) remove(ref(db, `list_pad/${pageId}/lines/${lineId}`));
-        };
-
-        window.filterLinesInsidePage = function() {
-            const searchStr = document.getElementById('search-lines-inside-page').value.toLowerCase().trim();
-            document.querySelectorAll('.list-line-row-node').forEach(row => {
-                const payload = row.getAttribute('data-text-payload');
-                row.style.display = payload.includes(searchStr) ? 'flex' : 'none';
+            // List Pad Sync
+            db.ref('listpad_pages').on('value', snapshot => {
+                window.listPadGlobalData = snapshot.val() || {};
+                renderListPadPages();
             });
-        };
+        }
 
-        window.copyEntireActivePage = function() {
-            const pageId = document.getElementById('list-active-page-dropdown').value;
-            if(!pageId) return;
-            get(ref(db, `list_pad/${pageId}/lines`)).then((snap) => {
-                const lines = snap.val();
-                if(!lines) return alert('কপি করার মতো কোনো লাইন এই পেজে নেই! 📋');
-                copyToClipboardText(Object.values(lines).map(l => l.text).join('\n'));
-                alert('এই পেজের সমস্ত লাইন কপি করা হয়েছে! 📋');
+        function deleteItem(path) {
+            if(confirm("ডিলিট করতে চান?")) { db.ref(path).remove(); }
+        }
+
+        // ================= OPERATIONAL FUNCTIONS =================
+        function uploadTool() {
+            const name = document.getElementById('tool-name').value.trim();
+            const code = document.getElementById('tool-html-code').value.trim();
+            if(!name || !code) return alert("সব ঘর পূরণ করুন!");
+            db.ref('tools').push({ name: name, htmlCode: code }).then(() => {
+                document.getElementById('tool-name').value = ''; document.getElementById('tool-html-code').value = '';
             });
-        };
+        }
 
-        document.getElementById('search-list-page-input').addEventListener('input', (e) => {
-            const filterText = e.target.value.toLowerCase().trim();
-            const dropdown = document.getElementById('list-active-page-dropdown');
-            get(ref(db, 'list_pad')).then((snap) => {
-                const data = snap.val() || {};
-                dropdown.innerHTML = '<option value="">-- একটি পেজ সিলেক্ট করুন --</option>';
-                Object.keys(data).forEach(pageId => {
-                    if(data[pageId].title.toLowerCase().includes(filterText)) {
-                        dropdown.innerHTML += `<option value="${pageId}">${data[pageId].title}</option>`;
-                    }
+        function createApplicationForm() {
+            const title = document.getElementById('app-form-title').value.trim();
+            const desc = document.getElementById('app-form-desc').value.trim();
+            const condition = document.getElementById('app-form-condition').value;
+            const expiryDays = parseInt(document.getElementById('app-expiry-days').value) || 7;
+
+            if(!title) return alert("শিরোনাম আবশ্যক!");
+            const payload = { title: title, description: desc, condition: condition, createdTimestamp: Date.now() };
+            if(condition === 'office_only_expiry') {
+                payload.expiryTimestamp = Date.now() + (expiryDays * 24 * 60 * 60 * 1000);
+            }
+            db.ref('app_templates').push(payload).then(() => {
+                document.getElementById('app-form-title').value = ''; document.getElementById('app-form-desc').value = '';
+            });
+        }
+
+        function renderApplicationForms(templates) {
+            let html = '';
+            Object.keys(templates).forEach(key => {
+                const form = templates[key];
+                html += `<div class="card" style="border-left: 4px solid #16a34a;"><h4>${form.title}</h4>`;
+                if(form.description) { html += `<p style="font-size:13px; color:#4b5563; margin:5px 0;">${linkify(form.description)}</p>`; }
+                if(form.condition === 'user_typing') {
+                    html += `<textarea id="client-submission-text-${key}" rows="3" placeholder="আপনার বক্তব্য এখানে টাইপ করুন..."></textarea><button onclick="submitClientApplication('${key}')">📤 Send Application</button>`;
+                } else {
+                    html += `<p style="color:#dc2626; font-size:12px; font-weight:bold;">🔒 শুধুমাত্র মেম্বারদের ফিল্ড</p>`;
+                }
+                html += `</div>`;
+            });
+            document.getElementById('main-apps-container').innerHTML = html || 'কোনো ফর্ম উপলব্ধ নেই।';
+        }
+
+        function submitClientApplication(templateKey) {
+            const text = document.getElementById(`client-submission-text-${templateKey}`).value.trim();
+            if(!text) return alert("ফাঁকা ফাইল পাঠানো যাবে না!");
+            db.ref(`submitted_applications/${templateKey}`).push({ content: text, createdTimestamp: Date.now() }).then(() => {
+                document.getElementById(`client-submission-text-${templateKey}`).value = '';
+                alert("সফলভাবে পাঠানো হয়েছে!");
+            });
+        }
+
+        function submitOfficeOnlyData(templateKey) {
+            const text = document.getElementById(`office-fill-text-${templateKey}`).value.trim();
+            if(!text) return alert("বিবরণ দিন!");
+            db.ref(`submitted_applications/${templateKey}`).push({ content: text, createdTimestamp: Date.now() }).then(() => {
+                document.getElementById(`office-fill-text-${templateKey}`).value = '';
+            });
+        }
+
+        function uploadLink() {
+            const title = document.getElementById('link-title').value.trim();
+            const url = document.getElementById('link-url').value.trim();
+            if(!title || !url) return alert("সম্পূর্ণ তথ্য দিন!");
+            db.ref('links').push({ title: title, url: url }).then(() => {
+                document.getElementById('link-title').value = ''; document.getElementById('link-url').value = '';
+            });
+        }
+
+        function updateScrollTag() {
+            const text = document.getElementById('scroll-input').value.trim();
+            if(!text) return alert("টেক্সট দিন!");
+            db.ref('scroll_tag').set({ text: text });
+        }
+        function deleteScrollTag() { db.ref('scroll_tag').remove(); }
+
+        function updateNoticeBoard() {
+            const text = document.getElementById('notice-input').value.trim();
+            if(!text) return alert("বিবরণ দিন!");
+            db.ref('notice_board').set({ text: text });
+        }
+        function deleteNoticeBoard() { db.ref('notice_board').remove(); }
+
+        function uploadEvent() {
+            const title = document.getElementById('event-title').value.trim();
+            const date = document.getElementById('event-end-date').value;
+            if(!title) return alert("শিরোনাম দিন!");
+            db.ref('events').push({ title: title, endDate: date }).then(() => {
+                document.getElementById('event-title').value = ''; document.getElementById('event-end-date').value = '';
+            });
+        }
+
+        // ================= LIST PAD MANAGEMENT =================
+        function createNewListPage() {
+            const title = document.getElementById('lp-new-page-title').value.trim();
+            if(!title) return alert("শিরোনাম দিন!");
+
+            let isDuplicate = false;
+            if(window.listPadGlobalData) {
+                Object.keys(window.listPadGlobalData).forEach(k => {
+                    if(window.listPadGlobalData[k].title.toLowerCase() === title.toLowerCase()) isDuplicate = true;
                 });
+            }
+            if(isDuplicate) { triggerListPadError(); return; }
+
+            db.ref('listpad_pages').push({ title: title, lines: '' }).then(() => {
+                document.getElementById('lp-new-page-title').value = '';
             });
+        }
+
+        function triggerListPadError() {
+            const err = document.getElementById('listpad-error');
+            err.style.display = 'block'; setTimeout(() => { err.style.display = 'none'; }, 3000);
+        }
+
+        function renderListPadPages() {
+            const searchPageQuery = document.getElementById('lp-search-page').value.toLowerCase();
+            const container = document.getElementById('listpad-pages-render');
+            container.innerHTML = ''; if(!window.listPadGlobalData) return;
+
+            Object.keys(window.listPadGlobalData).forEach(pKey => {
+                const page = window.listPadGlobalData[pKey];
+                if(page.title.toLowerCase().indexOf(searchPageQuery) === -1) return;
+
+                let lineArray = [];
+                if(page.lines) {
+                    lineArray = Object.keys(page.lines).map(lKey => ({ id: lKey, text: page.lines[lKey].text }));
+                }
+
+                let pageBox = document.createElement('div'); pageBox.className = 'card';
+                let rawFullTextToCopy = lineArray.map(l => l.text).join('\n');
+                let linesRenderHtml = '';
+
+                lineArray.forEach(line => {
+                    linesRenderHtml += `<div class="list-item"><span>${linkify(line.text)}</span><span class="delete-item-btn" onclick="deleteListPadLine('${pKey}', '${line.id}')">❌</span></div>`;
+                });
+
+                pageBox.innerHTML = `
+                    <div style="background:#eff6ff; padding:8px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                        <h4>📄 পৃষ্ঠা: ${page.title}</h4>
+                        <div>
+                            <button class="btn-sm" onclick="copyEntireListPadPage(\`${rawFullTextToCopy.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)">📋 Copy</button>
+                            <button class="btn-sm btn-danger" onclick="deleteItem('listpad_pages/${pKey}')">🗑️ Delete</button>
+                        </div>
+                    </div>
+                    <div style="margin-bottom:10px;">
+                        <input type="text" id="lp-search-line-${pKey}" placeholder="🔍 লাইন খুঁজুন..." oninput="filterInternalLines('${pKey}')">
+                        <input type="text" id="lp-new-line-input-${pKey}" placeholder="নতুন লাইন লিখুন...">
+                        <button class="btn-sm" onclick="addCommandLineToListPad('${pKey}', ${JSON.stringify(lineArray).replace(/"/g, '&quot;')})">➕ Add Line</button>
+                    </div>
+                    <div id="lp-lines-holder-${pKey}">${linesRenderHtml}</div>
+                `;
+                container.appendChild(pageBox);
+            });
+        }
+
+        function addCommandLineToListPad(pageKey, lineArray) {
+            const inputField = document.getElementById(`lp-new-line-input-${pageKey}`);
+            const lineText = inputField.value.trim();
+            if(!lineText) return alert("লাইন ফাঁকা রাখা যাবে না!");
+
+            if(lineArray.some(item => item.text.trim() === lineText)) { triggerListPadError(); return; }
+            db.ref(`listpad_pages/${pageKey}/lines`).push({ text: lineText }).then(() => { inputField.value = ''; });
+        }
+
+        document.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter' && e.target.id && e.target.id.startsWith('lp-new-line-input-')) {
+                e.preventDefault();
+                const pageKey = e.target.id.replace('lp-new-line-input-', '');
+                db.ref(`listpad_pages/${pageKey}/lines`).once('value', snap => {
+                    let lineArray = []; const data = snap.val();
+                    if(data) { lineArray = Object.keys(data).map(k => ({ id: k, text: data[k].text })); }
+                    addCommandLineToListPad(pageKey, lineArray);
+                });
+            }
         });
 
-        // ================= GLOBAL ROUTER / DEEP LINKS PARSER =================
-        function evaluateUrlDeepLinkRoutes() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const routeType = urlParams.get('route');
-            const targetId = urlParams.get('id');
-            if(!routeType || !targetId) return;
+        function deleteListPadLine(pageKey, lineKey) { db.ref(`listpad_pages/${pageKey}/lines/${lineKey}`).remove(); }
 
-            if(routeType === 'event') {
-                get(ref(db, `events/${targetId}`)).then((snap) => {
-                    const ev = snap.val();
-                    if(!ev) return alert('এই ইভেন্টটি খুঁজে পাওয়া যায়নি বা মেয়াদ শেষ হয়ে গেছে! ❌');
-                    renderDeepLinkModalView(`📅 ${ev.title}`, `
-                        <div style='line-height:1.6;'>
-                            <p style='margin-bottom:10px; font-size:15px;'>${ev.desc || 'কোনো বিবরণ দেওয়া নেই।'}</p>
-                            <span style='color:var(--accent-red); font-weight:bold; display:block;'>🕒 শেষ তারিখ: ${ev.lastDateStr}</span>
-                        </div>
-                    `);
-                });
-            }
-
-            if(routeType === 'view_app') {
-                get(ref(db, `submitted_applications/${targetId}`)).then((snap) => {
-                    const appItem = snap.val();
-                    if(!appItem) return alert('আবেদনপত্রটি সিস্টেমে বিদ্যমান নেই! ❌');
-                    if(Date.now() - appItem.submittedAtTimestamp > 100 * 24 * 60 * 60 * 1000) return alert('এই লিংকটির ১০০ দিনের মেয়াদ শেষ হয়ে গেছে! ❌');
-                    
-                    renderDeepLinkModalView(`📋 অ্যাপ্লিকেশন ভিউয়ার`, `
-                        <div style='line-height:1.6; font-size:14px;'>
-                            <p style='background:#f1f5f9; padding:8px; border-radius:6px; margin-bottom:12px; font-weight:bold; color:var(--primary-color);'>📂 ফর্ম গ্রুপ: ${appItem.formTitle}</p>
-                            <p style='margin-bottom:6px;'><strong>👤 আবেদনকারী:</strong> ${appItem.submittedByUsername}</p>
-                            <p style='margin-bottom:6px;'><strong>⌨️ টাইপড তথ্য:</strong> ${appItem.typedValue}</p>
-                            ${appItem.genderSelected ? `<p style='margin-bottom:6px;'><strong>🚻 জেন্ডার:</strong> ${appItem.genderSelected}</p>` : ''}
-                            ${appItem.officeFieldLabel ? `<p style='margin-bottom:6px;'><strong>🔒 ${appItem.officeFieldLabel}:</strong> ${appItem.officeFieldValue}</p>` : ''}
-                            ${appItem.userStatementText ? `<p style='margin-top:10px; background:#fffdf5; padding:8px; border:1px solid #fef08a; border-radius:6px;'><strong>💬 বক্তব্য:</strong><br>${appItem.userStatementText}</p>` : ''}
-                            <hr style='margin:12px 0; border-top:1px solid var(--border-color);'>
-                            <span class='text-muted'>🕒 সাবমিট টাইম: ${new Date(appItem.submittedAtTimestamp).toLocaleString()}</span>
-                        </div>
-                    `);
-                });
+        function filterInternalLines(pageKey) {
+            const query = document.getElementById(`lp-search-line-${pageKey}`).value.toLowerCase();
+            const holder = document.getElementById(`lp-lines-holder-${pageKey}`);
+            const items = holder.getElementsByClassName('list-item');
+            for (let i = 0; i < items.length; i++) {
+                let txt = items[i].getElementsByTagName('span')[0].textContent || items[i].getElementsByTagName('span')[0].innerText;
+                items[i].style.display = (txt.toLowerCase().indexOf(query) > -1) ? "" : "none";
             }
         }
 
-        function renderDeepLinkModalView(title, htmlContentStr) {
-            document.getElementById('modal-view-header-title').innerText = title;
-            document.getElementById('modal-view-payload-body').innerHTML = htmlContentStr;
-            document.getElementById('deeplink-modal').classList.remove('hidden');
+        function copyEntireListPadPage(textStr) {
+            if(!textStr) return alert("কোনো লাইন নেই!");
+            navigator.clipboard.writeText(textStr).then(() => alert("কপি সম্পন্ন হয়েছে! 📋"));
         }
-
-        window.closeDeepLinkModal = function() {
-            document.getElementById('deeplink-modal').classList.add('hidden');
-            window.history.replaceState({}, document.title, window.location.pathname);
-        };
-
-        window.copyToClipboardText = function(textToCopy) {
-            const tempBox = document.createElement('textarea');
-            tempBox.value = textToCopy;
-            document.body.appendChild(tempBox); tempBox.select(); document.execCommand('copy');
-            document.body.removeChild(tempBox);
-        };
-
     </script>
 </body>
 </html>
