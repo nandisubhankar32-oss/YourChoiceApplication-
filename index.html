@@ -151,7 +151,8 @@
                     <h3 class="font-bold text-sm text-gray-700">2. Add Application Form 📄</h3>
                     <input type="text" id="formTitle" placeholder="অ্যাপ্লিকেশন ফর্মের শিরোনাম..." class="w-full border rounded px-2 py-1 text-xs">
                     
-                    <input type="text" id="formUserFields" placeholder="সবাই পূরণ করবে (কমা দিয়ে লিখুন যেমন: নাম, ক্লাস, রোল)..." class="w-full border rounded px-2 py-1 text-xs bg-emerald-50">
+                    <input type="text" id="formUserFields" placeholder="সবাই পূরণ করবে - আবশ্যিক (কমা দিয়ে লিখুন যেমন: নাম, ক্লাস, রোল)..." class="w-full border rounded px-2 py-1 text-xs bg-emerald-50">
+                    <input type="text" id="formOptionalFields" placeholder="সবাই পূরণ করবে - ঐচ্ছিক/অপশনাল (কমা দিয়ে লিখুন যেমন: ইমেইল, মন্তব্য)..." class="w-full border rounded px-2 py-1 text-xs bg-sky-50">
                     <input type="text" id="formOfficeFields" placeholder="শুধুমাত্র Receive Application থেকে পূরণ হবে (যেমন: স্ট্যাটাস, রিমার্কস)..." class="w-full border rounded px-2 py-1 text-xs bg-amber-50">
                     
                     <div class="text-xs">
@@ -504,7 +505,7 @@
             window.activeListeners[formKey] = listener;
         }
 
-        // FIXED: GENERATING SEPARATE TEXT BOXES FOR USERS IN THE MAIN TAB
+        // FIXED: GENERATING SEPARATE TEXT BOXES FOR USERS IN THE MAIN TAB (REQUIRED & OPTIONAL BOXES)
         window.renderActiveForm = function(formKey) {
             get(ref(db, `form_structures/${formKey}`)).then((snapshot) => {
                 const form = snapshot.val();
@@ -513,13 +514,27 @@
                 if(!form) { container.classList.add('hidden'); return; }
 
                 let inputFieldsHtml = '';
+                
+                // ১. আবশ্যিক ফিল্ড তৈরি (Required User Fields)
                 if(form.userFields) {
                     const fields = form.userFields.split(',').map(s => s.trim()).filter(s => s.length > 0);
                     fields.forEach(field => {
                         inputFieldsHtml += `
                             <div>
-                                <label class="block text-xs font-bold text-gray-600 mb-1">${escapeHTML(field)}:</label>
-                                <input type="text" data-userfield="${escapeHTML(field)}" class="user-dynamic-input w-full border rounded px-3 py-1.5 text-xs focus:ring-2 focus:ring-orange-400 focus:outline-none">
+                                <label class="block text-xs font-bold text-gray-600 mb-1">${escapeHTML(field)} <span class="text-red-500">*</span></label>
+                                <input type="text" data-userfield="${escapeHTML(field)}" data-required="true" class="user-dynamic-input w-full border rounded px-3 py-1.5 text-xs focus:ring-2 focus:ring-orange-400 focus:outline-none">
+                            </div>`;
+                    });
+                }
+
+                // ২. ঐচ্ছিক ফিল্ড তৈরি (Optional User Fields)
+                if(form.optionalFields) {
+                    const optFields = form.optionalFields.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                    optFields.forEach(field => {
+                        inputFieldsHtml += `
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">${escapeHTML(field)} <span class="text-gray-400 text-[10px] font-normal">(ঐচ্ছিক)</span></label>
+                                <input type="text" data-userfield="${escapeHTML(field)}" data-required="false" placeholder="না লিখলেও চলবে..." class="user-dynamic-input w-full border rounded px-3 py-1.5 text-xs bg-slate-50/50 focus:ring-2 focus:ring-blue-300 focus:outline-none">
                             </div>`;
                     });
                 }
@@ -541,18 +556,28 @@
         window.submitUserApplication = function(formKey) {
             const inputs = document.querySelectorAll('.user-dynamic-input');
             let dataPayload = {};
-            let hasData = false;
+            let missingRequired = false;
 
             inputs.forEach(input => {
                 const fName = input.getAttribute('data-userfield');
                 const fVal = input.value.trim();
-                if(fVal) {
-                    dataPayload[fName] = fVal;
-                    hasData = true;
+                const isRequired = input.getAttribute('data-required') === 'true';
+
+                if(isRequired && !fVal) {
+                    missingRequired = true;
+                    input.classList.add('border-red-500', 'bg-red-50');
+                } else {
+                    input.classList.remove('border-red-500', 'bg-red-50');
+                    if(fVal) {
+                        dataPayload[fName] = fVal;
+                    }
                 }
             });
 
-            if(!hasData) { alert('দয়া করে অন্তত একটি ফিল্ড পূরণ করুন!'); return; }
+            if(missingRequired) { 
+                alert('❌ লাল চিহ্নিত আবশ্যিক ফিল্ডগুলি পূরণ করা বাধ্যতামূলক!'); 
+                return; 
+            }
 
             push(ref(db, `submitted_applications/${formKey}`), { 
                 userData: dataPayload, 
@@ -580,33 +605,51 @@
             });
         };
 
-        // FIXED: CREATE FORM STRUCTURE DATA WITH EXPIRY & SEPARATOR FIELDS
+        // FIXED: CREATE FORM STRUCTURE DATA WITH EXPIRY, MANDATORY & OPTIONAL FIELDS + ALERT BUG FIX
         window.createApplicationForm = function() {
             if(!window.isOfficeMember) return;
             const title = document.getElementById('formTitle').value.trim();
             const userFields = document.getElementById('formUserFields').value.trim();
+            const optionalFields = document.getElementById('formOptionalFields').value.trim();
             const officeFields = document.getElementById('formOfficeFields').value.trim();
             const expiryDate = document.getElementById('formExpiryDate').value;
             const desc = document.getElementById('formDescription').value.trim();
             
             if(!title || !userFields) {
-                alert('শিরোনাম এবং সবার জন্য পূরণ করার অপশনগুলো দেওয়া বাধ্যতামূলক!');
+                alert('শিরোনাম এবং সবার জন্য আবশ্যিক পূরণ করার অপশনগুলো দেওয়া বাধ্যতামূলক!');
                 return;
             }
+
+            // Processing feedback loading text on button
+            const publishBtn = document.querySelector("button[onclick='createApplicationForm()']");
+            const originalBtnText = publishBtn.innerText;
+            publishBtn.innerText = "Processing... ⏳";
+            publishBtn.disabled = true;
 
             push(ref(db, 'form_structures'), { 
                 title, 
                 userFields, 
+                optionalFields: optionalFields || null,
                 officeFields: officeFields || null, 
                 expiryDate: expiryDate || null,
                 description: desc || null 
             }).then(() => {
-                alert('🚀 নতুন অ্যাপ্লিকেশন ফর্ম সফলভাবে লাইভ পাবলিশ হয়েছে!');
+                // 🎉 সফল হওয়ার সাথে সাথে এই অ্যালার্ট মেসেজ স্ক্রিনে ফুটে উঠবে
+                alert('✨ পাবলিস্ট হয়ে গেছে! 🚀\nআপনার তৈরি করা ফর্মটি মেইন অ্যাপ্লিকেশনে লাইভ দেখতে পাবেন।');
+                
+                // ইনপুট বক্সগুলি একদম খালি বা রিসেট করে দেওয়া
                 document.getElementById('formTitle').value = '';
                 document.getElementById('formUserFields').value = '';
+                document.getElementById('formOptionalFields').value = '';
                 document.getElementById('formOfficeFields').value = '';
                 document.getElementById('formExpiryDate').value = '';
                 document.getElementById('formDescription').value = '';
+            }).catch((error) => {
+                alert('❌ পাবলিশ করা সম্ভব হয়নি! ফায়ারবেস সিকিউরিটি চেক করুন।\nError: ' + error.message);
+            }).finally(() => {
+                // বাটনকে আবার আগের অবস্থায় ফিরিয়ে আনা
+                publishBtn.innerText = originalBtnText;
+                publishBtn.disabled = false;
             });
         };
 
