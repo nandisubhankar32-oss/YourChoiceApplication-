@@ -155,17 +155,27 @@
                     <h3 class="font-bold text-sm text-gray-700">2. Add Application Form 📄</h3>
                     <input type="text" id="formTitle" placeholder="অ্যাপ্লিকেশন ফর্মের শিরোনাম..." class="w-full border rounded px-2 py-1.5 text-xs">
                     
-                    <textarea id="formUserFields" rows="2" placeholder="সবার জন্য আবশ্যিক ফিল্ড (কমা দিয়ে লিখুন যেমন: নাম, বয়স)..." class="w-full border rounded px-2 py-1.5 text-xs bg-emerald-50"></textarea>
-                    <textarea id="formOptionalFields" rows="2" placeholder="সবার জন্য ঐচ্ছিক ফিল্ড (কমা দিয়ে লিখুন যেমন: ইমেইল)..." class="w-full border rounded px-2 py-1.5 text-xs bg-sky-50"></textarea>
-                    <textarea id="formOfficeFields" rows="2" placeholder="শুধুমাত্র Office room পূরণ করবে (যেমন: স্ট্যাটাস)..." class="w-full border rounded px-2 py-1.5 text-xs bg-amber-50"></textarea>
+                    <div class="p-2 border rounded bg-gray-50 space-y-2 mt-2">
+                        <h4 class="font-bold text-xs text-gray-600">ফর্মের অপশন তৈরি করুন (আপনার পছন্দমতো সাজান):</h4>
+                        <div id="dynamicAdminFields" class="space-y-1"></div>
+                        <div class="flex gap-2 text-xs pt-1 border-t">
+                            <input type="text" id="adminFieldName" placeholder="নতুন ফিল্ডের নাম..." class="flex-grow border rounded px-2 py-1.5">
+                            <select id="adminFieldType" class="border rounded px-2 py-1.5 bg-white">
+                                <option value="mandatory">আবশ্যিক (Mandatory)</option>
+                                <option value="optional">ঐচ্ছিক (Optional)</option>
+                                <option value="office">অফিস (Office Only)</option>
+                            </select>
+                            <button onclick="addFormField()" class="bg-blue-600 text-white px-3 py-1.5 rounded font-bold">Add</button>
+                        </div>
+                    </div>
                     
-                    <div class="text-xs">
+                    <div class="text-xs pt-1">
                         <label class="block font-semibold text-gray-600">ফর্ম ডিলিট হওয়ার তারিখ (Expiry Date):</label>
                         <input type="date" id="formExpiryDate" class="border rounded px-2 py-1.5 mt-0.5">
                     </div>
 
-                    <textarea id="formDescription" rows="3" placeholder="বিবৃতি বা নির্দেশনাবলী (ঐচ্ছিক)..." class="w-full border rounded px-2 py-1.5 text-xs"></textarea>
-                    <button onclick="createApplicationForm()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Form 🚀</button>
+                    <textarea id="formDescription" rows="3" placeholder="বিবৃতি বা নির্দেশনাবলী (ঐচ্ছিক)..." class="w-full border rounded px-2 py-1.5 text-xs mt-1"></textarea>
+                    <button onclick="createApplicationForm()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded mt-2">Publish Form 🚀</button>
                 </div>
 
                 <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
@@ -224,16 +234,16 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // Your Exact Firebase Config
+        // Updated Firebase Config
         const firebaseConfig = {
-            apiKey: "AIzaSyAVNKYEONsmJQYvNQZLrsDFjWRIFS9Iupk",
-            authDomain: "your-choice-application-3f40a.firebaseapp.com",
-            databaseURL: "https://your-choice-application-3f40a-default-rtdb.firebaseio.com",
-            projectId: "your-choice-application-3f40a",
-            storageBucket: "your-choice-application-3f40a.firebasestorage.app",
-            messagingSenderId: "149984268715",
-            appId: "1:149984268715:web:669e5fe20dcf5bce5c82ee",
-            measurementId: "G-DPFE88RN21"
+            apiKey: "AIzaSyDbFaMS-WtEYho-rUG1b1YNnfcE44u3VXI",
+            authDomain: "your-choice-4b2aa.firebaseapp.com",
+            databaseURL: "https://your-choice-4b2aa-default-rtdb.firebaseio.com",
+            projectId: "your-choice-4b2aa",
+            storageBucket: "your-choice-4b2aa.firebasestorage.app",
+            messagingSenderId: "287190219191",
+            appId: "1:287190219191:web:11eaa0f3afc82651521032",
+            measurementId: "G-RGTNKR4LZ8"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -245,15 +255,19 @@
         window.activePadPageKey = null;
         window.activeListeners = {}; 
         window.isForceStopped = false;
+        window.tempFormFields = []; // For dynamic form building
 
         function escapeHTML(str) {
             if (!str) return '';
             return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
         }
 
-        // Enter key for specific inputs (Logins, Search, etc.)
+        // Enter key for specific inputs
         document.getElementById('usernameInput').addEventListener('keydown', e => { 
             if (e.key === 'Enter') { e.preventDefault(); handleLogin(); } 
+        });
+        document.getElementById('adminFieldName').addEventListener('keydown', e => { 
+            if (e.key === 'Enter') { e.preventDefault(); addFormField(); } 
         });
 
         window.switchTab = function(tabId) {
@@ -299,7 +313,7 @@
         function setupLiveListeners() {
             if(window.isForceStopped && !window.isOfficeMember) return;
 
-            // Notice & Scroll Tag Realtime Sync
+            // Notice & Scroll Tag Sync
             onValue(ref(db, 'system_control/scroll_tag'), (snapshot) => {
                 const text = snapshot.val();
                 const container = document.getElementById('globalScrollTagContainer');
@@ -396,7 +410,7 @@
                                     </div>
                                     <div id="submissions_for_${key}" class="space-y-2 pt-1"></div>
                                 </div>`;
-                            syncSubmissions(key, form.officeFields);
+                            syncSubmissions(key, form);
                         }
                     });
                 } else {
@@ -453,7 +467,7 @@
             });
         };
 
-        function syncSubmissions(formKey, officeFieldsStr) {
+        function syncSubmissions(formKey, formObj) {
             const refPath = `submitted_applications/${formKey}`;
             if(window.activeListeners[formKey]) window.activeListeners[formKey]();
             
@@ -473,15 +487,31 @@
 
                         let userAnswersHtml = '';
                         if(sub.userData) {
-                            Object.keys(sub.userData).forEach(fName => {
-                                userAnswersHtml += `<p class="whitespace-pre-wrap"><b class="text-gray-700">${escapeHTML(fName)}:</b> ${escapeHTML(sub.userData[fName])}</p>`;
-                            });
+                            if (formObj.fields) {
+                                // Display exactly in the custom order they were built
+                                const displayFields = formObj.fields.filter(f => f.type !== 'office').map(f => f.name);
+                                displayFields.forEach(fName => {
+                                    const val = sub.userData[fName] || '';
+                                    userAnswersHtml += `<p class="whitespace-pre-wrap"><b class="text-gray-700">${escapeHTML(fName)}:</b> ${escapeHTML(val)}</p>`;
+                                });
+                            } else {
+                                // Fallback for old data
+                                Object.keys(sub.userData).forEach(fName => {
+                                    userAnswersHtml += `<p class="whitespace-pre-wrap"><b class="text-gray-700">${escapeHTML(fName)}:</b> ${escapeHTML(sub.userData[fName])}</p>`;
+                                });
+                            }
                         }
 
                         let officeInputsHtml = '';
-                        if(officeFieldsStr) {
-                            const oFields = officeFieldsStr.split(',').map(s => s.trim()).filter(s => s.length > 0);
-                            oFields.forEach(fName => {
+                        let officeFieldsArr = [];
+                        if (formObj.fields) {
+                            officeFieldsArr = formObj.fields.filter(f => f.type === 'office').map(f => f.name);
+                        } else if (formObj.officeFields) {
+                            officeFieldsArr = formObj.officeFields.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                        }
+
+                        if(officeFieldsArr.length > 0) {
+                            officeFieldsArr.forEach(fName => {
                                 const currentVal = (sub.officeData && sub.officeData[fName]) ? sub.officeData[fName] : '';
                                 officeInputsHtml += `
                                     <div class="mt-1">
@@ -528,26 +558,45 @@
 
                 let inputFieldsHtml = '';
                 
-                if(form.userFields) {
-                    const fields = form.userFields.split(',').map(s => s.trim()).filter(s => s.length > 0);
-                    fields.forEach(field => {
-                        inputFieldsHtml += `
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1">${escapeHTML(field)} <span class="text-red-500">*</span></label>
-                                <textarea data-userfield="${escapeHTML(field)}" data-required="true" rows="2" class="user-dynamic-input w-full border rounded px-3 py-1.5 text-xs focus:ring-2 focus:ring-orange-400 focus:outline-none resize-y"></textarea>
-                            </div>`;
+                // Using new dynamic fields format if available
+                if (form.fields) {
+                    form.fields.forEach(field => {
+                        if (field.type === 'mandatory') {
+                            inputFieldsHtml += `
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">${escapeHTML(field.name)} <span class="text-red-500">*</span></label>
+                                    <textarea data-userfield="${escapeHTML(field.name)}" data-required="true" rows="2" class="user-dynamic-input w-full border rounded px-3 py-1.5 text-xs focus:ring-2 focus:ring-orange-400 focus:outline-none resize-y"></textarea>
+                                </div>`;
+                        } else if (field.type === 'optional') {
+                            inputFieldsHtml += `
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 mb-1">${escapeHTML(field.name)} <span class="text-gray-400 text-[10px] font-normal">(ঐচ্ছিক)</span></label>
+                                    <textarea data-userfield="${escapeHTML(field.name)}" data-required="false" placeholder="না লিখলেও চলবে..." rows="1" class="user-dynamic-input w-full border rounded px-3 py-1.5 text-xs bg-slate-50 focus:ring-2 focus:ring-blue-300 focus:outline-none resize-y"></textarea>
+                                </div>`;
+                        }
                     });
-                }
-
-                if(form.optionalFields) {
-                    const optFields = form.optionalFields.split(',').map(s => s.trim()).filter(s => s.length > 0);
-                    optFields.forEach(field => {
-                        inputFieldsHtml += `
-                            <div>
-                                <label class="block text-xs font-bold text-gray-600 mb-1">${escapeHTML(field)} <span class="text-gray-400 text-[10px] font-normal">(ঐচ্ছিক)</span></label>
-                                <textarea data-userfield="${escapeHTML(field)}" data-required="false" placeholder="না লিখলেও চলবে..." rows="1" class="user-dynamic-input w-full border rounded px-3 py-1.5 text-xs bg-slate-50 focus:ring-2 focus:ring-blue-300 focus:outline-none resize-y"></textarea>
-                            </div>`;
-                    });
+                } else {
+                    // Fallback for older forms
+                    if(form.userFields) {
+                        const fields = form.userFields.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                        fields.forEach(field => {
+                            inputFieldsHtml += `
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">${escapeHTML(field)} <span class="text-red-500">*</span></label>
+                                    <textarea data-userfield="${escapeHTML(field)}" data-required="true" rows="2" class="user-dynamic-input w-full border rounded px-3 py-1.5 text-xs focus:ring-2 focus:ring-orange-400 focus:outline-none resize-y"></textarea>
+                                </div>`;
+                        });
+                    }
+                    if(form.optionalFields) {
+                        const optFields = form.optionalFields.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                        optFields.forEach(field => {
+                            inputFieldsHtml += `
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 mb-1">${escapeHTML(field)} <span class="text-gray-400 text-[10px] font-normal">(ঐচ্ছিক)</span></label>
+                                    <textarea data-userfield="${escapeHTML(field)}" data-required="false" placeholder="না লিখলেও চলবে..." rows="1" class="user-dynamic-input w-full border rounded px-3 py-1.5 text-xs bg-slate-50 focus:ring-2 focus:ring-blue-300 focus:outline-none resize-y"></textarea>
+                                </div>`;
+                        });
+                    }
                 }
 
                 container.innerHTML = `
@@ -621,35 +670,90 @@
             });
         };
 
+        // UI Builder Logic For Form Creation
+        window.addFormField = function() {
+            const name = document.getElementById('adminFieldName').value.trim();
+            const type = document.getElementById('adminFieldType').value;
+            if(!name) {
+                alert('দয়া করে ফিল্ডের নাম লিখুন!');
+                return;
+            }
+            window.tempFormFields.push({ name, type });
+            document.getElementById('adminFieldName').value = '';
+            renderAdminFormFields();
+        };
+
+        window.removeFormField = function(index) {
+            window.tempFormFields.splice(index, 1);
+            renderAdminFormFields();
+        };
+
+        window.moveFormField = function(index, direction) {
+            if(direction === -1 && index > 0) {
+                const temp = window.tempFormFields[index-1];
+                window.tempFormFields[index-1] = window.tempFormFields[index];
+                window.tempFormFields[index] = temp;
+            } else if (direction === 1 && index < window.tempFormFields.length - 1) {
+                const temp = window.tempFormFields[index+1];
+                window.tempFormFields[index+1] = window.tempFormFields[index];
+                window.tempFormFields[index] = temp;
+            }
+            renderAdminFormFields();
+        };
+
+        window.renderAdminFormFields = function() {
+            const container = document.getElementById('dynamicAdminFields');
+            container.innerHTML = '';
+            window.tempFormFields.forEach((field, index) => {
+                let typeColor = field.type === 'mandatory' ? 'bg-emerald-100 text-emerald-800' : (field.type === 'optional' ? 'bg-sky-100 text-sky-800' : 'bg-amber-100 text-amber-800');
+                let typeText = field.type === 'mandatory' ? 'আবশ্যিক' : (field.type === 'optional' ? 'ঐচ্ছিক' : 'অফিস');
+                container.innerHTML += `
+                    <div class="flex justify-between items-center bg-white p-2 border rounded shadow-sm text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-gray-700">${escapeHTML(field.name)}</span>
+                            <span class="${typeColor} px-1.5 py-0.5 rounded text-[10px] font-bold">${typeText}</span>
+                        </div>
+                        <div class="flex gap-1">
+                            <button onclick="moveFormField(${index}, -1)" class="bg-gray-100 hover:bg-gray-200 border px-1.5 py-1 rounded" title="উপরে তুলুন">⬆️</button>
+                            <button onclick="moveFormField(${index}, 1)" class="bg-gray-100 hover:bg-gray-200 border px-1.5 py-1 rounded" title="নিচে নামান">⬇️</button>
+                            <button onclick="removeFormField(${index})" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded shadow-sm" title="ডিলিট করুন">❌</button>
+                        </div>
+                    </div>
+                `;
+            });
+        };
+
         window.createApplicationForm = function() {
             if(!window.isOfficeMember) return;
             const title = document.getElementById('formTitle').value.trim();
-            const userFields = document.getElementById('formUserFields').value.trim();
-            const optionalFields = document.getElementById('formOptionalFields').value.trim();
-            const officeFields = document.getElementById('formOfficeFields').value.trim();
             const expiryDate = document.getElementById('formExpiryDate').value;
             const desc = document.getElementById('formDescription').value.trim();
             
-            if(!title || !userFields) {
-                alert('শিরোনাম এবং সবার জন্য আবশ্যিক পূরণ করার অপশনগুলো দেওয়া বাধ্যতামূলক!');
+            if(!title || window.tempFormFields.length === 0) {
+                alert('ফর্মের শিরোনাম এবং অন্তত একটি ফিল্ড দেওয়া বাধ্যতামূলক!');
                 return;
             }
 
+            // Fallback strings for database compatibility
+            let userFieldsArr = window.tempFormFields.filter(f => f.type === 'mandatory').map(f => f.name);
+            let optFieldsArr = window.tempFormFields.filter(f => f.type === 'optional').map(f => f.name);
+            let offFieldsArr = window.tempFormFields.filter(f => f.type === 'office').map(f => f.name);
+
             push(ref(db, 'form_structures'), { 
                 title, 
-                userFields, 
-                optionalFields: optionalFields || null,
-                officeFields: officeFields || null, 
+                fields: window.tempFormFields, // New ordered setup
+                userFields: userFieldsArr.join(','), // Fallback
+                optionalFields: optFieldsArr.join(','), // Fallback
+                officeFields: offFieldsArr.join(','), // Fallback
                 expiryDate: expiryDate || null,
                 description: desc || null 
             }).then(() => {
                 alert('✨ পাবলিস্ট হয়ে গেছে! 🚀');
                 document.getElementById('formTitle').value = '';
-                document.getElementById('formUserFields').value = '';
-                document.getElementById('formOptionalFields').value = '';
-                document.getElementById('formOfficeFields').value = '';
                 document.getElementById('formExpiryDate').value = '';
                 document.getElementById('formDescription').value = '';
+                window.tempFormFields = [];
+                renderAdminFormFields();
             });
         };
 
