@@ -11,9 +11,12 @@
             will-change: transform; 
         }
         @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        /* Scrollbar customization */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen text-gray-800">
+<body class="bg-gray-100 min-h-screen text-gray-800 font-sans">
 
     <div id="forceStopScreen" class="hidden fixed inset-0 bg-white z-50 flex flex-col justify-center items-center p-6 text-center">
         <h1 class="text-4xl font-bold text-red-600 mb-4">Your Choice Application</h1>
@@ -22,19 +25,19 @@
 
     <div id="deepLinkContainer" class="hidden max-w-md mx-auto bg-white min-h-screen shadow-xl p-6 flex flex-col justify-between">
         <div class="space-y-4">
-            <h2 class="text-xl font-bold text-blue-600 border-b pb-2">📂 Shared Secure Application Data</h2>
-            <div id="deepLinkContent" class="bg-gray-50 p-4 rounded-xl border border-gray-300 shadow-inner whitespace-pre-wrap text-sm text-gray-800 font-medium"></div>
+            <h2 id="deepLinkHeader" class="text-xl font-bold text-blue-600 border-b pb-2">📂 Shared Secure Data</h2>
+            <div id="deepLinkContent" class="bg-gray-50 p-4 rounded-xl border border-gray-300 shadow-inner whitespace-pre-wrap text-sm text-gray-800 font-medium leading-relaxed"></div>
         </div>
-        <button onclick="closeDeepLinkView()" class="w-full mt-6 bg-blue-600 text-white font-bold py-2 rounded-lg">Return to Application Home 🏠</button>
+        <button onclick="closeDeepLinkView()" class="w-full mt-6 bg-blue-600 text-white font-bold py-3 rounded-lg shadow-md">Return to Application Home 🏠</button>
     </div>
 
     <div id="appContainer" class="max-w-md mx-auto bg-white min-h-screen shadow-lg flex flex-col justify-between">
         
         <header class="bg-blue-600 text-white p-4 text-center font-bold text-xl shadow-md">
-             Your Choice Application
+             &lt;Your Choice Application&gt;
         </header>
 
-        <div id="globalScrollTagContainer" class="bg-red-600 text-white overflow-hidden py-1 text-sm font-semibold hidden">
+        <div id="globalScrollTagContainer" class="bg-red-600 text-white overflow-hidden py-1.5 text-sm font-semibold hidden">
             <div id="globalScrollTag" class="scroll-text whitespace-nowrap inline-block"></div>
         </div>
 
@@ -64,7 +67,7 @@
                     <div id="loginForm">
                         <label class="block text-xs font-bold uppercase text-gray-500 mb-1">User Name :</label>
                         <div class="flex gap-2">
-                            <input type="text" id="usernameInput" placeholder="এখানে নাম  লিখুন..." class="flex-grow border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <input type="text" id="usernameInput" placeholder="এখানে নাম লিখুন..." class="flex-grow border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <button onclick="handleLogin()" class="bg-blue-600 text-white px-4 py-1.5 rounded text-sm font-semibold">Enter ➡️</button>
                         </div>
                     </div>
@@ -97,7 +100,7 @@
                     </div>
                     <div id="subNotice" class="sub-tab hidden">
                         <h3 class="font-bold text-sm text-gray-700 mb-2">📢 Active Notice:</h3>
-                        <div id="mainNoticeBox" class="bg-yellow-50 p-3 border border-yellow-200 rounded text-sm whitespace-pre-wrap"></div>
+                        <div id="mainNoticeBox" class="bg-yellow-50 p-3 border border-yellow-200 rounded text-sm whitespace-pre-wrap leading-relaxed"></div>
                     </div>
                 </div>
             </div>
@@ -117,8 +120,9 @@
                     </div>
                 </div>
                 <div id="padPageTabs" class="flex gap-2 overflow-x-auto pb-2 border-b text-xs font-bold"></div>
+                
                 <div id="activePadPageArea" class="hidden space-y-3 bg-gray-50 p-3 rounded-lg border">
-                    <div class="flex justify-between items-center">
+                    <div class="flex justify-between items-center border-b pb-2">
                         <h3 id="activePageHeaderTitle" class="font-bold text-purple-700"></h3>
                         <div class="flex gap-2">
                             <button onclick="copyFullPadPage()" class="bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded">Copy 📋</button>
@@ -126,84 +130,84 @@
                         </div>
                     </div>
                     <div class="flex gap-2">
-                        <input type="text" id="padItemSearch" oninput="searchPadItems()" placeholder="🔍 পেজের লাইন খুঁজুন..." class="flex-grow border rounded px-2 py-1 text-xs">
+                        <input type="text" id="padItemSearch" oninput="searchPadItems()" placeholder="🔍 পেজের লাইন খুঁজুন..." class="flex-grow border rounded px-2 py-1.5 text-xs">
                     </div>
                     <div class="flex gap-2">
-                        <textarea id="newPadLineInput" rows="1" placeholder="নতুন লাইন লিখুন (Ctrl+Enter সাবমিট)..." class="flex-grow border rounded px-2 py-1 text-xs resize-none"></textarea>
-                        <button onclick="addPadLine()" class="bg-green-600 text-white text-xs font-bold px-3 py-1 rounded">Add ➕</button>
+                        <textarea id="newPadLineInput" rows="2" placeholder="নতুন লাইন লিখুন (এন্টার দিয়ে নতুন লাইন, Save বাটনে ক্লিক করে যোগ করুন)..." class="flex-grow border rounded px-2 py-1 text-xs resize-y"></textarea>
+                        <button onclick="addPadLine()" class="bg-green-600 text-white text-xs font-bold px-3 py-1 rounded">Save 💾</button>
                     </div>
                     <div id="duplicateWarning" class="hidden text-red-600 font-extrabold text-lg bg-red-100 p-2 rounded text-center animate-pulse">⚠️ আগেই উপস্থিত আছে!</div>
-                    <ul id="padItemsList" class="space-y-1.5 max-h-60 overflow-y-auto"></ul>
+                    <ul id="padItemsList" class="space-y-1.5 max-h-64 overflow-y-auto pr-1"></ul>
                 </div>
             </div>
 
             <div id="officeRoomTab" class="tab-content hidden space-y-6">
                 <h2 class="text-lg font-bold text-rose-600 border-b pb-1">🏢 Office Administration Room</h2>
 
-                <div class="bg-white p-3 border rounded-lg space-y-2">
-                    <h3 class="font-bold text-sm text-gray-700">1. Add Live Tool Engine (HTML/JS/Tailwind Code) 🛠️</h3>
-                    <input type="text" id="toolTitle" placeholder="টুলের নাম (যেমন: ক্যালকুলেটর, বয়স মাপার টুল)..." class="w-full border rounded px-2 py-1 text-xs">
-                    <textarea id="toolCode" rows="6" maxlength="10000" placeholder="এখানে পূর্ণাঙ্গ HTML, সিএসএস স্ক্রিপ্টসহ ডিজাইন পেস্ট করুন (Ctrl+Enter পাবলিশ)..." class="w-full border rounded px-2 py-1 text-xs font-mono bg-gray-900 text-green-400"></textarea>
-                    <button onclick="addCustomTool()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Tool Engine 🚀</button>
+                <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
+                    <h3 class="font-bold text-sm text-gray-700">1. Add Live Tool Engine 🛠️</h3>
+                    <input type="text" id="toolTitle" placeholder="টুলের নাম..." class="w-full border rounded px-2 py-1.5 text-xs">
+                    <textarea id="toolCode" rows="5" maxlength="5000" placeholder="এখানে পূর্ণাঙ্গ HTML/JS কোড দিন (সর্বোচ্চ 5000 লাইন)..." class="w-full border rounded px-2 py-1.5 text-xs font-mono bg-gray-900 text-green-400"></textarea>
+                    <button onclick="addCustomTool()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Tool 🚀</button>
                 </div>
 
-                <div class="bg-white p-3 border rounded-lg space-y-2">
+                <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
                     <h3 class="font-bold text-sm text-gray-700">2. Add Application Form 📄</h3>
-                    <input type="text" id="formTitle" placeholder="অ্যাপ্লিকেশন ফর্মের শিরোনাম..." class="w-full border rounded px-2 py-1 text-xs">
+                    <input type="text" id="formTitle" placeholder="অ্যাপ্লিকেশন ফর্মের শিরোনাম..." class="w-full border rounded px-2 py-1.5 text-xs">
                     
-                    <input type="text" id="formUserFields" placeholder="সবাই পূরণ করবে - আবশ্যিক (কমা দিয়ে লিখুন যেমন: নাম, ক্লাস, রোল)..." class="w-full border rounded px-2 py-1 text-xs bg-emerald-50">
-                    <input type="text" id="formOptionalFields" placeholder="সবাই পূরণ করবে - ঐচ্ছিক/অপশনাল (কমা দিয়ে লিখুন যেমন: ইমেইল, মন্তব্য)..." class="w-full border rounded px-2 py-1 text-xs bg-sky-50">
-                    <input type="text" id="formOfficeFields" placeholder="শুধুমাত্র Receive Application থেকে পূরণ হবে (যেমন: স্ট্যাটাস, রিমার্কস)..." class="w-full border rounded px-2 py-1 text-xs bg-amber-50">
+                    <textarea id="formUserFields" rows="2" placeholder="সবার জন্য আবশ্যিক ফিল্ড (কমা দিয়ে লিখুন যেমন: নাম, বয়স)..." class="w-full border rounded px-2 py-1.5 text-xs bg-emerald-50"></textarea>
+                    <textarea id="formOptionalFields" rows="2" placeholder="সবার জন্য ঐচ্ছিক ফিল্ড (কমা দিয়ে লিখুন যেমন: ইমেইল)..." class="w-full border rounded px-2 py-1.5 text-xs bg-sky-50"></textarea>
+                    <textarea id="formOfficeFields" rows="2" placeholder="শুধুমাত্র Office room পূরণ করবে (যেমন: স্ট্যাটাস)..." class="w-full border rounded px-2 py-1.5 text-xs bg-amber-50"></textarea>
                     
                     <div class="text-xs">
-                        <label class="block font-semibold text-gray-600">ফর্ম এক্সপায়ারি ডেট (Expiry Date):</label>
-                        <input type="date" id="formExpiryDate" class="border rounded px-2 py-1 mt-0.5">
+                        <label class="block font-semibold text-gray-600">ফর্ম ডিলিট হওয়ার তারিখ (Expiry Date):</label>
+                        <input type="date" id="formExpiryDate" class="border rounded px-2 py-1.5 mt-0.5">
                     </div>
 
-                    <textarea id="formDescription" rows="2" placeholder="বিবৃতি বা নির্দেশনাবলী লেখার জায়গা (ঐচ্ছিক)..." class="w-full border rounded px-2 py-1 text-xs"></textarea>
-                    <button onclick="createApplicationForm()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Application Form 🚀</button>
+                    <textarea id="formDescription" rows="3" placeholder="বিবৃতি বা নির্দেশনাবলী (ঐচ্ছিক)..." class="w-full border rounded px-2 py-1.5 text-xs"></textarea>
+                    <button onclick="createApplicationForm()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Form 🚀</button>
                 </div>
 
-                <div class="bg-white p-3 border rounded-lg space-y-2">
+                <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
                     <h3 class="font-bold text-sm text-gray-700">3. Add Link 🔗</h3>
-                    <input type="text" id="linkTitle" placeholder="লিংকের নাম..." class="w-full border rounded px-2 py-1 text-xs">
-                    <input type="url" id="linkUrl" placeholder="https://example.com" class="w-full border rounded px-2 py-1 text-xs">
+                    <input type="text" id="linkTitle" placeholder="লিংকের নাম..." class="w-full border rounded px-2 py-1.5 text-xs">
+                    <input type="url" id="linkUrl" placeholder="https://example.com" class="w-full border rounded px-2 py-1.5 text-xs">
                     <button onclick="publishLink()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Link 🔗</button>
                 </div>
 
-                <div class="bg-white p-3 border rounded-lg space-y-2">
+                <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
                     <h3 class="font-bold text-sm text-gray-700">4. Add Scroll Tag 📢</h3>
-                    <input type="text" id="scrollTagInput" placeholder="নতুন স্ক্রোল মেসেজ..." class="w-full border rounded px-2 py-1 text-xs">
+                    <textarea id="scrollTagInput" rows="2" placeholder="নতুন স্ক্রোল মেসেজ (এন্টার দিয়ে নতুন লাইন)..." class="w-full border rounded px-2 py-1.5 text-xs"></textarea>
                     <button onclick="updateScrollTag()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Set Active Tag 🔁</button>
                 </div>
 
-                <div class="bg-white p-3 border rounded-lg space-y-2">
+                <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
                     <h3 class="font-bold text-sm text-gray-700">5. Add Notice Board 📋</h3>
-                    <textarea id="noticeInput" rows="2" placeholder="নোটিশ বোর্ড এর লেখা..." class="w-full border rounded px-2 py-1 text-xs"></textarea>
+                    <textarea id="noticeInput" rows="4" placeholder="নোটিশ বোর্ড এর লেখা (এন্টার দিয়ে নতুন লাইন)..." class="w-full border rounded px-2 py-1.5 text-xs"></textarea>
                     <button onclick="updateNoticeBoard()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Update Notice 🔁</button>
                 </div>
 
-                <div class="bg-white p-3 border rounded-lg space-y-2">
+                <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
                     <h3 class="font-bold text-sm text-gray-700">6. Add Event 📅</h3>
-                    <input type="text" id="eventTitle" placeholder="ইভেন্টের নাম..." class="w-full border rounded px-2 py-1 text-xs">
-                    <input type="text" id="eventDescription" placeholder="সংক্ষিপ্ত বিবরণ বা লিংক জেনারেটর..." class="w-full border rounded px-2 py-1 text-xs">
+                    <input type="text" id="eventTitle" placeholder="ইভেন্টের নাম..." class="w-full border rounded px-2 py-1.5 text-xs">
+                    <textarea id="eventDescription" rows="3" placeholder="সংক্ষিপ্ত বিবরণ (এন্টার দিয়ে নতুন লাইন)..." class="w-full border rounded px-2 py-1.5 text-xs"></textarea>
                     <div class="text-xs">
                         <label class="block font-semibold">শেষ তারিখ (Last Date):</label>
-                        <input type="date" id="eventLastDate" class="border rounded px-2 py-1">
+                        <input type="date" id="eventLastDate" class="border rounded px-2 py-1.5">
                     </div>
                     <button onclick="publishEvent()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Event 📅</button>
                 </div>
 
-                <div class="bg-white p-3 border rounded-lg space-y-3">
+                <div class="bg-white p-3 border rounded-lg space-y-3 shadow-sm">
                     <h3 class="font-bold text-sm text-red-700">7. Receive Application & Processing 📨</h3>
                     <div id="receiveAppsDashboard" class="space-y-4 text-xs"></div>
                 </div>
 
-                <div class="bg-red-50 p-3 border-2 border-red-500 rounded-lg space-y-2">
+                <div class="bg-red-50 p-3 border-2 border-red-500 rounded-lg space-y-2 shadow-sm">
                     <h3 class="font-bold text-sm text-red-700">8. Emergency Force Stop System 🛑</h3>
                     <div class="text-xs space-y-1">
                         <label class="block font-semibold">কত ঘণ্টা বন্ধ রাখতে চান? (সর্বোচ্চ ২৪ ঘণ্টা):</label>
-                        <input type="number" id="forceStopHours" min="1" max="24" value="1" class="border rounded px-2 py-1 w-20"> ঘণ্টা
+                        <input type="number" id="forceStopHours" min="1" max="24" value="1" class="border rounded px-2 py-1.5 w-20"> ঘণ্টা
                     </div>
                     <button onclick="triggerForceStop()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded shadow">Activate Force Stop NOW 🛑</button>
                 </div>
@@ -211,7 +215,7 @@
 
         </main>
 
-        <footer class="bg-gray-800 text-gray-400 text-center py-2 text-xs font-bold border-t">
+        <footer class="bg-gray-800 text-gray-400 text-center py-2 text-xs font-bold border-t mt-auto">
             &lt;Your Choice Application&gt;
         </footer>
     </div>
@@ -220,6 +224,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // Your Exact Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyAVNKYEONsmJQYvNQZLrsDFjWRIFS9Iupk",
             authDomain: "your-choice-application-3f40a.firebaseapp.com",
@@ -246,16 +251,17 @@
             return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
         }
 
-        // ENTER KEY HANDLERS FIXED
-        document.getElementById('usernameInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); handleLogin(); } });
-        document.getElementById('newPadLineInput').addEventListener('keydown', e => { if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); addPadLine(); } });
-        document.getElementById('toolCode').addEventListener('keydown', e => { if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); addCustomTool(); } });
+        // Enter key for specific inputs (Logins, Search, etc.)
+        document.getElementById('usernameInput').addEventListener('keydown', e => { 
+            if (e.key === 'Enter') { e.preventDefault(); handleLogin(); } 
+        });
 
         window.switchTab = function(tabId) {
             if(window.isForceStopped && !window.isOfficeMember) return;
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(tabId).classList.remove('hidden');
             window.currentTab = tabId;
+            if(tabId === 'mainTab') showMainSub('subEvent'); // Default open event in main
         };
 
         window.showMainSub = function(subId) {
@@ -293,6 +299,7 @@
         function setupLiveListeners() {
             if(window.isForceStopped && !window.isOfficeMember) return;
 
+            // Notice & Scroll Tag Realtime Sync
             onValue(ref(db, 'system_control/scroll_tag'), (snapshot) => {
                 const text = snapshot.val();
                 const container = document.getElementById('globalScrollTagContainer');
@@ -308,6 +315,7 @@
                 document.getElementById('mainNoticeBox').innerText = snapshot.val() || "কোনো নোটিশ নেই।";
             });
 
+            // Links Sync
             onValue(ref(db, 'links'), (snapshot) => {
                 const data = snapshot.val();
                 const container = document.getElementById('mainLinkList');
@@ -324,6 +332,7 @@
                 }
             });
 
+            // Events Sync & Auto-delete logic
             onValue(ref(db, 'events'), (snapshot) => {
                 const data = snapshot.val();
                 const container = document.getElementById('mainEventList');
@@ -338,19 +347,24 @@
                             return;
                         }
                         container.innerHTML += `
-                            <div class="bg-gray-50 p-2.5 border rounded space-y-1">
-                                <div class="flex justify-between font-bold text-gray-800">
-                                    <span>${escapeHTML(item.title)}</span>
-                                    ${window.isOfficeMember ? `<button onclick="deleteData('events/${key}')" class="text-red-500">🗑️</button>` : ''}
+                            <div class="bg-gray-50 p-3 border rounded shadow-sm space-y-1">
+                                <div class="flex justify-between items-start font-bold text-gray-800">
+                                    <span class="text-sm">${escapeHTML(item.title)}</span>
+                                    <div class="flex gap-2">
+                                        <button onclick="shareEventLink('${key}')" class="text-blue-500 text-xs bg-blue-50 px-2 py-0.5 rounded border border-blue-200">Share 🔗</button>
+                                        ${window.isOfficeMember ? `<button onclick="deleteData('events/${key}')" class="text-red-500 text-xs bg-red-50 px-2 py-0.5 rounded border border-red-200">🗑️</button>` : ''}
+                                    </div>
                                 </div>
-                                <p class="text-gray-600">${escapeHTML(item.description)}</p>
-                                <span class="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold">শেষ তারিখ: ${escapeHTML(item.lastDate)}</span>
+                                <p class="text-gray-600 text-xs whitespace-pre-wrap">${escapeHTML(item.description)}</p>
+                                <span class="inline-block text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold mt-1">শেষ তারিখ: ${escapeHTML(item.lastDate)}</span>
                             </div>`;
                     });
+                } else {
+                    container.innerHTML = '<p class="text-gray-400 text-xs italic">কোনো ইভেন্ট নেই।</p>';
                 }
             });
 
-            // FIXED: RENDER APPLICATION DASHBOARD & STRUCTURES WITH DYNAMIC COMMA SEPARATORS
+            // Form structures Sync & Auto-delete
             onValue(ref(db, 'form_structures'), (snapshot) => {
                 const data = snapshot.val();
                 const selector = document.getElementById('appFormSelector');
@@ -362,7 +376,6 @@
                 if(data) {
                     Object.keys(data).forEach(key => {
                         const form = data[key];
-                        // Auto delete on expiry date match
                         if(form.expiryDate){
                             const expTime = new Date(form.expiryDate + 'T23:59:59').getTime();
                             if(!isNaN(expTime) && expTime < Date.now()){
@@ -372,28 +385,34 @@
                             }
                         }
 
-                        selector.innerHTML += `<button onclick="renderActiveForm('${key}')" class="w-full bg-gray-100 hover:bg-gray-200 p-2 rounded text-left font-bold border flex justify-between"><span>📄 ${escapeHTML(form.title)}</span> ➡️</button>`;
+                        selector.innerHTML += `<button onclick="renderActiveForm('${key}')" class="w-full bg-orange-50 hover:bg-orange-100 p-3 rounded-lg text-left font-bold border border-orange-200 flex justify-between shadow-sm"><span>📄 ${escapeHTML(form.title)}</span> ➡️</button>`;
 
                         if(window.isOfficeMember) {
                             adminDashboard.innerHTML += `
                                 <div class="bg-white p-3 rounded border-2 border-purple-300 space-y-2 shadow-sm">
-                                    <div class="flex justify-between items-center bg-purple-100 p-1.5 rounded">
+                                    <div class="flex justify-between items-center bg-purple-100 p-2 rounded">
                                         <h4 class="font-bold text-purple-900 uppercase">${escapeHTML(form.title)}</h4>
-                                        <button onclick="deleteFormStructure('${key}')" class="text-red-600 font-bold text-xs">Delete Form 🗑️</button>
+                                        <button onclick="deleteFormStructure('${key}')" class="text-red-600 font-bold text-xs bg-white px-2 py-1 rounded shadow-sm">Delete Form 🗑️</button>
                                     </div>
                                     <div id="submissions_for_${key}" class="space-y-2 pt-1"></div>
                                 </div>`;
                             syncSubmissions(key, form.officeFields);
                         }
                     });
+                } else {
+                    selector.innerHTML = '<p class="text-gray-400 text-xs italic">কোনো অ্যাপ্লিকেশন ফর্ম নেই।</p>';
                 }
             });
 
+            // Offline Tools Sync
             onValue(ref(db, 'tools'), (snapshot) => {
                 const data = snapshot.val();
                 if(data) {
                     localStorage.setItem('offline_tools_cache', JSON.stringify(data));
                     renderToolsUI(data);
+                } else {
+                    document.getElementById('toolsListContainer').innerHTML = '<p class="text-gray-400 text-xs italic">কোনো টুলস নেই।</p>';
+                    localStorage.removeItem('offline_tools_cache');
                 }
             });
 
@@ -422,7 +441,7 @@
                 toolCard.innerHTML = `
                     <div class="flex justify-between items-center border-b pb-1.5">
                         <span class="font-bold text-amber-700 flex items-center gap-1.5">🛠️ ${escapeHTML(item.title)}</span>
-                        ${window.isOfficeMember ? `<button onclick="deleteData('tools/${key}')" class="text-red-500 font-bold text-xs bg-red-50 px-2 py-0.5 rounded border border-red-200">Delete Tool 🗑️</button>` : ''}
+                        ${window.isOfficeMember ? `<button onclick="deleteData('tools/${key}')" class="text-red-500 font-bold text-xs bg-red-50 px-2 py-1 rounded border border-red-200">Delete Tool 🗑️</button>` : ''}
                     </div>
                     <div class="w-full bg-gray-50 rounded-lg border border-gray-200 overflow-hidden" style="min-h: 280px;">
                         <iframe class="w-full h-full border-none min-h-[280px]" sandbox="allow-scripts"></iframe>
@@ -434,7 +453,6 @@
             });
         };
 
-        // FIXED: DYNAMIC SYNC AND OFFICE FILL FIELDS LOGIC
         function syncSubmissions(formKey, officeFieldsStr) {
             const refPath = `submitted_applications/${formKey}`;
             if(window.activeListeners[formKey]) window.activeListeners[formKey]();
@@ -453,17 +471,13 @@
                             return;
                         }
 
-                        // Parse out User Submitted Key-Values
                         let userAnswersHtml = '';
                         if(sub.userData) {
                             Object.keys(sub.userData).forEach(fName => {
-                                userAnswersHtml += `<p><b>${escapeHTML(fName)}:</b> ${escapeHTML(sub.userData[fName])}</p>`;
+                                userAnswersHtml += `<p class="whitespace-pre-wrap"><b class="text-gray-700">${escapeHTML(fName)}:</b> ${escapeHTML(sub.userData[fName])}</p>`;
                             });
-                        } else {
-                            userAnswersHtml = `<p class="text-gray-500">${escapeHTML(sub.content || '')}</p>`;
                         }
 
-                        // Generate Dynamic Inputs for Admin/Office Only fields
                         let officeInputsHtml = '';
                         if(officeFieldsStr) {
                             const oFields = officeFieldsStr.split(',').map(s => s.trim()).filter(s => s.length > 0);
@@ -472,28 +486,28 @@
                                 officeInputsHtml += `
                                     <div class="mt-1">
                                         <label class="block text-[10px] font-bold text-amber-800">${escapeHTML(fName)}:</label>
-                                        <input type="text" data-field="${escapeHTML(fName)}" value="${escapeHTML(currentVal)}" class="office-input-${subKey} w-full border rounded px-2 py-0.5 text-xs bg-amber-50">
+                                        <textarea data-field="${escapeHTML(fName)}" rows="1" class="office-input-${subKey} w-full border rounded px-2 py-1 text-xs bg-amber-50 resize-y">${escapeHTML(currentVal)}</textarea>
                                     </div>`;
                             });
                         }
 
                         container.innerHTML += `
                             <div class="bg-gray-50 p-2.5 border rounded shadow-xs space-y-2 relative">
-                                <div class="text-gray-700 bg-white p-2 rounded border text-xs space-y-0.5">${userAnswersHtml}</div>
+                                <div class="text-gray-800 bg-white p-2 rounded border text-xs space-y-1">${userAnswersHtml}</div>
                                 
                                 ${officeInputsHtml ? `
-                                    <div class="p-2 bg-amber-100/60 border border-amber-300 rounded">
-                                        <p class="font-bold text-amber-900 text-[11px] mb-1">🏢 Office Fill Items:</p>
+                                    <div class="p-2 bg-amber-100/60 border border-amber-300 rounded shadow-inner">
+                                        <p class="font-bold text-amber-900 text-[11px] mb-1 border-b border-amber-200 pb-1">🏢 Office Fill Data:</p>
                                         ${officeInputsHtml}
-                                        <button onclick="submitOfficeApplication('${formKey}', '${subKey}')" class="mt-2 bg-amber-600 text-white text-[10px] px-2 py-1 rounded font-bold">Update Admin Data</button>
+                                        <button onclick="submitOfficeApplication('${formKey}', '${subKey}')" class="mt-2 bg-amber-600 hover:bg-amber-700 text-white text-[10px] px-3 py-1.5 rounded font-bold transition">Update Admin Data 💾</button>
                                     </div>
                                 ` : ''}
 
-                                <div class="flex justify-between items-center text-[10px] text-gray-400 border-t pt-1">
-                                    <span>🕒 Date: ${sub.timestamp ? new Date(sub.timestamp).toLocaleDateString() : ''}</span>
+                                <div class="flex justify-between items-center text-[10px] text-gray-500 border-t pt-1">
+                                    <span>🕒 Sub: ${sub.timestamp ? new Date(sub.timestamp).toLocaleDateString() : ''}</span>
                                     <div class="flex gap-2">
-                                        <button onclick="generateUniqueShareLink('${formKey}', '${subKey}')" class="text-blue-500 font-bold">Share 🔗</button>
-                                        <button onclick="deleteData('submitted_applications/${formKey}/${subKey}')" class="text-red-500 font-bold">Delete 🗑️</button>
+                                        <button onclick="generateUniqueShareLink('${formKey}', '${subKey}')" class="text-blue-600 bg-blue-50 px-2 py-1 rounded font-bold border border-blue-200">Share 🔗</button>
+                                        <button onclick="deleteData('submitted_applications/${formKey}/${subKey}')" class="text-red-600 bg-red-50 px-2 py-1 rounded font-bold border border-red-200">Del 🗑️</button>
                                     </div>
                                 </div>
                             </div>`;
@@ -505,7 +519,6 @@
             window.activeListeners[formKey] = listener;
         }
 
-        // FIXED: GENERATING SEPARATE TEXT BOXES FOR USERS IN THE MAIN TAB (REQUIRED & OPTIONAL BOXES)
         window.renderActiveForm = function(formKey) {
             get(ref(db, `form_structures/${formKey}`)).then((snapshot) => {
                 const form = snapshot.val();
@@ -515,40 +528,42 @@
 
                 let inputFieldsHtml = '';
                 
-                // ১. আবশ্যিক ফিল্ড তৈরি (Required User Fields)
                 if(form.userFields) {
                     const fields = form.userFields.split(',').map(s => s.trim()).filter(s => s.length > 0);
                     fields.forEach(field => {
                         inputFieldsHtml += `
                             <div>
-                                <label class="block text-xs font-bold text-gray-600 mb-1">${escapeHTML(field)} <span class="text-red-500">*</span></label>
-                                <input type="text" data-userfield="${escapeHTML(field)}" data-required="true" class="user-dynamic-input w-full border rounded px-3 py-1.5 text-xs focus:ring-2 focus:ring-orange-400 focus:outline-none">
+                                <label class="block text-xs font-bold text-gray-700 mb-1">${escapeHTML(field)} <span class="text-red-500">*</span></label>
+                                <textarea data-userfield="${escapeHTML(field)}" data-required="true" rows="2" class="user-dynamic-input w-full border rounded px-3 py-1.5 text-xs focus:ring-2 focus:ring-orange-400 focus:outline-none resize-y"></textarea>
                             </div>`;
                     });
                 }
 
-                // ২. ঐচ্ছিক ফিল্ড তৈরি (Optional User Fields)
                 if(form.optionalFields) {
                     const optFields = form.optionalFields.split(',').map(s => s.trim()).filter(s => s.length > 0);
                     optFields.forEach(field => {
                         inputFieldsHtml += `
                             <div>
-                                <label class="block text-xs font-bold text-gray-500 mb-1">${escapeHTML(field)} <span class="text-gray-400 text-[10px] font-normal">(ঐচ্ছিক)</span></label>
-                                <input type="text" data-userfield="${escapeHTML(field)}" data-required="false" placeholder="না লিখলেও চলবে..." class="user-dynamic-input w-full border rounded px-3 py-1.5 text-xs bg-slate-50/50 focus:ring-2 focus:ring-blue-300 focus:outline-none">
+                                <label class="block text-xs font-bold text-gray-600 mb-1">${escapeHTML(field)} <span class="text-gray-400 text-[10px] font-normal">(ঐচ্ছিক)</span></label>
+                                <textarea data-userfield="${escapeHTML(field)}" data-required="false" placeholder="না লিখলেও চলবে..." rows="1" class="user-dynamic-input w-full border rounded px-3 py-1.5 text-xs bg-slate-50 focus:ring-2 focus:ring-blue-300 focus:outline-none resize-y"></textarea>
                             </div>`;
                     });
                 }
 
                 container.innerHTML = `
-                    <div class="space-y-3 bg-orange-50/50 p-3 rounded-lg border border-orange-200">
-                        <h3 class="font-bold text-sm text-orange-800">${escapeHTML(form.title)}</h3>
-                        ${form.description ? `<p class="text-xs text-gray-600 bg-white p-2 rounded border italic">${escapeHTML(form.description)}</p>` : ''}
+                    <div class="space-y-3 bg-orange-50 p-4 rounded-lg border border-orange-200 shadow-sm">
+                        <div class="flex justify-between items-center border-b border-orange-200 pb-2">
+                           <h3 class="font-bold text-sm text-orange-800">${escapeHTML(form.title)}</h3>
+                           <button onclick="document.getElementById('activeFormContainer').classList.add('hidden')" class="text-gray-500 font-bold text-xs bg-gray-200 px-2 py-0.5 rounded">Close ❌</button>
+                        </div>
                         
-                        <div id="dynamicInputsWrapper" class="space-y-2">${inputFieldsHtml || '<p class="text-xs text-gray-400">কোনো ইনপুট ফিল্ড নেই।</p>'}</div>
+                        ${form.description ? `<p class="text-xs text-gray-700 bg-white p-2.5 rounded border whitespace-pre-wrap">${escapeHTML(form.description)}</p>` : ''}
                         
-                        ${form.expiryDate ? `<p class="text-[10px] text-red-600 font-bold">⏳ শেষ তারিখ: ${escapeHTML(form.expiryDate)}</p>` : ''}
+                        <div id="dynamicInputsWrapper" class="space-y-3 pt-2">${inputFieldsHtml || '<p class="text-xs text-gray-400">কোনো ইনপুট ফিল্ড নেই।</p>'}</div>
                         
-                        <button onclick="submitUserApplication('${formKey}')" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 rounded text-xs shadow transition">Submit Application ✉️</button>
+                        ${form.expiryDate ? `<p class="text-[10px] text-red-600 font-bold bg-red-50 p-1.5 rounded inline-block">⏳ শেষ তারিখ: ${escapeHTML(form.expiryDate)}</p>` : ''}
+                        
+                        <button onclick="submitUserApplication('${formKey}')" class="w-full mt-2 bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 rounded text-sm shadow transition">Submit Application ✉️</button>
                     </div>`;
             });
         };
@@ -583,8 +598,9 @@
                 userData: dataPayload, 
                 timestamp: Date.now() 
             }).then(() => {
-                alert('✓ অ্যাপ্লিকেশনটি সফলভাবে মেইন পেজ থেকে সাবমিট হয়েছে!');
+                alert('✓ অ্যাপ্লিকেশনটি সফলভাবে রিসিভ সেকশনে পাঠানো হয়েছে!');
                 inputs.forEach(i => i.value = '');
+                document.getElementById('activeFormContainer').classList.add('hidden');
             });
         };
 
@@ -605,7 +621,6 @@
             });
         };
 
-        // FIXED: CREATE FORM STRUCTURE DATA WITH EXPIRY, MANDATORY & OPTIONAL FIELDS + ALERT BUG FIX
         window.createApplicationForm = function() {
             if(!window.isOfficeMember) return;
             const title = document.getElementById('formTitle').value.trim();
@@ -620,12 +635,6 @@
                 return;
             }
 
-            // Processing feedback loading text on button
-            const publishBtn = document.querySelector("button[onclick='createApplicationForm()']");
-            const originalBtnText = publishBtn.innerText;
-            publishBtn.innerText = "Processing... ⏳";
-            publishBtn.disabled = true;
-
             push(ref(db, 'form_structures'), { 
                 title, 
                 userFields, 
@@ -634,33 +643,25 @@
                 expiryDate: expiryDate || null,
                 description: desc || null 
             }).then(() => {
-                // 🎉 সফল হওয়ার সাথে সাথে এই অ্যালার্ট মেসেজ স্ক্রিনে ফুটে উঠবে
-                alert('✨ পাবলিস্ট হয়ে গেছে! 🚀\nআপনার তৈরি করা ফর্মটি মেইন অ্যাপ্লিকেশনে লাইভ দেখতে পাবেন।');
-                
-                // ইনপুট বক্সগুলি একদম খালি বা রিসেট করে দেওয়া
+                alert('✨ পাবলিস্ট হয়ে গেছে! 🚀');
                 document.getElementById('formTitle').value = '';
                 document.getElementById('formUserFields').value = '';
                 document.getElementById('formOptionalFields').value = '';
                 document.getElementById('formOfficeFields').value = '';
                 document.getElementById('formExpiryDate').value = '';
                 document.getElementById('formDescription').value = '';
-            }).catch((error) => {
-                alert('❌ পাবলিশ করা সম্ভব হয়নি! ফায়ারবেস সিকিউরিটি চেক করুন।\nError: ' + error.message);
-            }).finally(() => {
-                // বাটনকে আবার আগের অবস্থায় ফিরিয়ে আনা
-                publishBtn.innerText = originalBtnText;
-                publishBtn.disabled = false;
             });
         };
 
         window.handleLogin = function() {
             const input = document.getElementById('usernameInput').value.trim();
+            if(!input) return;
             if(input === '20091307') {
                 localStorage.setItem('_office_token', 'auth_v1_8cf7a2');
                 activateOfficePrivileges();
                 alert('🔑 Office Room অ্যাক্সেস গ্র্যান্টেড!');
             } else {
-                alert('স্বাগতম, ' + (escapeHTML(input) || 'ইউজার') + '!');
+                alert('স্বাগতম, ' + escapeHTML(input) + '!');
                 document.getElementById('usernameInput').value = '';
             }
         };
@@ -695,7 +696,7 @@
 
         window.deleteFormStructure = function(key) {
             if(!window.isOfficeMember) return;
-            if(confirm('নিশ্চিত ডিলিট করবেন?')) {
+            if(confirm('নিশ্চিত ডিলিট করবেন? এতে এই ফর্মের সমস্ত সাবমিশনও মুছে যাবে।')) {
                 if(window.activeListeners[key]) delete window.activeListeners[key];
                 remove(ref(db, `form_structures/${key}`));
                 remove(ref(db, `submitted_applications/${key}`));
@@ -708,7 +709,7 @@
             const code = document.getElementById('toolCode').value.trim();
             if(!title || !code) return;
             push(ref(db, 'tools'), { title, code }).then(() => {
-                alert('🚀 Live Web Tool Published Effectively!');
+                alert('🚀 Live Web Tool Published!');
                 document.getElementById('toolTitle').value = '';
                 document.getElementById('toolCode').value = '';
             });
@@ -743,7 +744,7 @@
             const title = document.getElementById('eventTitle').value.trim();
             const desc = document.getElementById('eventDescription').value.trim();
             const ldate = document.getElementById('eventLastDate').value;
-            if(!title || !ldate) return;
+            if(!title || !ldate) { alert('শিরোনাম এবং শেষ তারিখ আবশ্যক!'); return; }
             push(ref(db, 'events'), { title, description: desc, lastDate: ldate });
             document.getElementById('eventTitle').value = '';
             document.getElementById('eventDescription').value = '';
@@ -758,12 +759,18 @@
 
         window.generateUniqueShareLink = function(formKey, subKey) {
             if(!window.isOfficeMember) return;
-            const expiryTarget = Date.now() + (100 * 24 * 60 * 60 * 1000);
+            const expiryTarget = Date.now() + (100 * 24 * 60 * 60 * 1000); // 100 Days validity
             update(ref(db, `submitted_applications/${formKey}/${subKey}`), { uniqueExpiry: expiryTarget });
             const deepLink = `${window.location.origin}${window.location.pathname}?form=${formKey}&sub=${subKey}`;
             navigator.clipboard.writeText(deepLink);
-            alert(`🔗 ইউনিক লিংক কপি হয়েছে:\n${deepLink}`);
+            alert(`🔗 ১০০ দিনের ভ্যালিড লিংক কপি হয়েছে:\n${deepLink}`);
         };
+
+        window.shareEventLink = function(eventKey) {
+            const deepLink = `${window.location.origin}${window.location.pathname}?event=${eventKey}`;
+            navigator.clipboard.writeText(deepLink);
+            alert(`🔗 ইভেন্ট লিংক কপি হয়েছে:\n${deepLink}`);
+        }
 
         function syncListPadTabs() {
             if(!window.isOfficeMember) return;
@@ -773,7 +780,7 @@
                 tabs.innerHTML = '';
                 if(data) {
                     Object.keys(data).forEach(key => {
-                        tabs.innerHTML += `<button data-pagekey="${key}" onclick="selectPadPage('${key}')" class="px-3 py-1 rounded bg-purple-100 text-purple-800 hover:bg-purple-200 shrink-0">📄 ${escapeHTML(data[key].title)}</button>`;
+                        tabs.innerHTML += `<button data-pagekey="${key}" onclick="selectPadPage('${key}')" class="px-3 py-1.5 rounded-lg bg-purple-100 text-purple-800 hover:bg-purple-200 shrink-0 font-bold shadow-sm border border-purple-200">📄 ${escapeHTML(data[key].title)}</button>`;
                     });
                 }
             });
@@ -804,9 +811,9 @@
             list.innerHTML = '';
             Object.keys(items).forEach(key => {
                 list.innerHTML += `
-                    <li class="flex justify-between items-center bg-white p-1.5 rounded border text-xs gap-2">
-                        <span class="break-all list-line-text"></span>
-                        <button onclick="deleteData('listpad/${window.activePadPageKey}/items/${key}')" class="text-red-500 font-bold shrink-0">❌</button>
+                    <li class="flex justify-between items-start bg-white p-2 rounded border border-gray-200 text-xs gap-2 shadow-sm">
+                        <span class="break-all list-line-text whitespace-pre-wrap"></span>
+                        <button onclick="deleteData('listpad/${window.activePadPageKey}/items/${key}')" class="text-red-500 bg-red-50 px-2 py-0.5 rounded font-bold shrink-0 border border-red-100">❌</button>
                     </li>`;
                 list.lastElementChild.querySelector('.list-line-text').textContent = items[key].text;
             });
@@ -815,7 +822,7 @@
         window.addPadLine = function() {
             if(!window.isOfficeMember || !window.activePadPageKey) return;
             const text = document.getElementById('newPadLineInput').value.trim();
-            if(!text || text.length > 2000) return;
+            if(!text) return;
             get(ref(db, `listpad/${window.activePadPageKey}/items`)).then((snapshot) => {
                 const items = snapshot.val() || {};
                 let matchExists = false;
@@ -835,8 +842,8 @@
             const visibleLines = document.querySelectorAll('#padItemsList li:not(.hidden) .list-line-text');
             let buffer = [];
             visibleLines.forEach(el => buffer.push(el.innerText));
-            navigator.clipboard.writeText(buffer.join('\n'));
-            alert('✓ দৃশ্যমান লাইনগুলি কপি করা হয়েছে!');
+            navigator.clipboard.writeText(buffer.join('\n\n')); // Separated by double newline
+            alert('✓ পেজের সমস্ত লাইন কপি করা হয়েছে!');
         };
 
         window.deleteFullPadPage = function() {
@@ -868,32 +875,54 @@
             });
         };
 
+        // Deep Link Parser (For Received Applications & Events)
         function checkIncomingDeepLinks() {
             try {
                 const urlParams = new URLSearchParams(window.location.search);
                 const fKey = urlParams.get('form');
                 const sKey = urlParams.get('sub');
+                const eKey = urlParams.get('event');
+
+                // Application Deep Link
                 if(fKey && sKey) {
                     get(ref(db, `submitted_applications/${fKey}/${sKey}`)).then((snapshot) => {
                         const data = snapshot.val();
                         if(data) {
                             document.getElementById('appContainer').classList.add('hidden');
                             document.getElementById('deepLinkContainer').classList.remove('hidden');
+                            document.getElementById('deepLinkHeader').innerHTML = '📄 Application Record';
                             
                             let deepHtml = '';
                             if(data.userData){
                                 Object.keys(data.userData).forEach(k => {
-                                    deepHtml += `${k}: ${data.userData[k]}\n`;
+                                    deepHtml += `<b class="text-blue-700">${k}:</b>\n${data.userData[k]}\n\n`;
                                 });
                             }
                             if(data.officeData){
-                                deepHtml += `\n[🏢 Office Updates]\n`;
+                                deepHtml += `\n<span class="bg-amber-100 px-2 py-1 rounded border border-amber-300">🏢 Office Updates</span>\n`;
                                 Object.keys(data.officeData).forEach(k => {
-                                    deepHtml += `${k}: ${data.officeData[k]}\n`;
+                                    deepHtml += `<b class="text-amber-800">${k}:</b>\n${data.officeData[k]}\n\n`;
                                 });
                             }
-                            document.getElementById('deepLinkContent').textContent = deepHtml || data.content;
-                        } else alert('⚠️ লিংকটির মেয়াদ শেষ হয়ে গেছে!');
+                            document.getElementById('deepLinkContent').innerHTML = deepHtml;
+                        } else alert('⚠️ লিংকটির মেয়াদ শেষ হয়ে গেছে বা ডিলিট করা হয়েছে!');
+                    });
+                } 
+                // Event Deep Link
+                else if (eKey) {
+                    get(ref(db, `events/${eKey}`)).then((snapshot) => {
+                        const data = snapshot.val();
+                        if(data) {
+                            document.getElementById('appContainer').classList.add('hidden');
+                            document.getElementById('deepLinkContainer').classList.remove('hidden');
+                            document.getElementById('deepLinkHeader').innerHTML = '📅 Event Details';
+                            
+                            let deepHtml = `<b class="text-xl text-blue-700">${escapeHTML(data.title)}</b>\n\n`;
+                            deepHtml += `${escapeHTML(data.description)}\n\n`;
+                            deepHtml += `<span class="bg-red-100 text-red-700 px-2 py-1 rounded font-bold">শেষ তারিখ: ${escapeHTML(data.lastDate)}</span>`;
+                            
+                            document.getElementById('deepLinkContent').innerHTML = deepHtml;
+                        } else alert('⚠️ এই ইভেন্টটি আর উপস্থিত নেই!');
                     });
                 }
             } catch (e) { console.error(e); }
@@ -902,7 +931,7 @@
         window.closeDeepLinkView = function() {
             document.getElementById('deepLinkContainer').classList.add('hidden');
             document.getElementById('appContainer').classList.remove('hidden');
-            window.history.pushState({}, document.title, window.location.pathname);
+            window.history.pushState({}, document.title, window.location.pathname); // Clean URL
         };
 
         initAppSync();
