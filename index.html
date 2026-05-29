@@ -44,8 +44,9 @@
         <main class="flex-grow p-4 overflow-y-auto">
             
             <div id="homeMenu" class="grid grid-cols-2 gap-4 my-4">
-                <button onclick="switchTab('mainTab')" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-2 rounded-xl shadow transition flex flex-col items-center justify-center gap-2">
+                <button onclick="switchTab('mainTab')" class="relative bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-2 rounded-xl shadow transition flex flex-col items-center justify-center gap-2">
                     🏠 <span class="text-sm">Main</span>
+                    <span id="badge_mainTab" class="hidden absolute -top-1 -right-1 bg-red-600 text-white text-[10px] px-2 py-0.5 rounded-full font-extrabold animate-pulse shadow">New</span>
                 </button>
                 <button onclick="switchTab('toolsTab')" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 px-2 rounded-xl shadow transition flex flex-col items-center justify-center gap-2">
                     🛠️ <span class="text-sm">Tools</span>
@@ -53,8 +54,9 @@
                 <button id="navListPad" onclick="switchTab('listPadTab')" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-4 px-2 rounded-xl shadow transition flex flex-col items-center justify-center gap-2 hidden">
                     📝 <span class="text-sm">List pad</span>
                 </button>
-                <button id="navOfficeRoom" onclick="switchTab('officeRoomTab')" class="bg-rose-500 hover:bg-rose-600 text-white font-bold py-4 px-2 rounded-xl shadow transition flex flex-col items-center justify-center gap-2 hidden">
+                <button id="navOfficeRoom" onclick="switchTab('officeRoomTab')" class="relative bg-rose-500 hover:bg-rose-600 text-white font-bold py-4 px-2 rounded-xl shadow transition flex flex-col items-center justify-center gap-2 hidden">
                     🏢 <span class="text-sm">Office room</span>
+                    <span id="badge_officeRoomTab" class="hidden absolute -top-1 -right-1 bg-red-600 text-white text-[10px] px-2 py-0.5 rounded-full font-extrabold animate-pulse shadow">New</span>
                 </button>
             </div>
 
@@ -78,8 +80,14 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-2 text-xs">
-                    <button onclick="showMainSub('subEvent')" class="bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold p-3 rounded text-center">📅 A. Event</button>
-                    <button onclick="showMainSub('subApplication')" class="bg-orange-100 hover:bg-orange-200 text-orange-800 font-bold p-3 rounded text-center">📄 B. Application</button>
+                    <button onclick="showMainSub('subEvent')" class="relative bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold p-3 rounded text-center">
+                        📅 A. Event
+                        <span id="badge_subEvent" class="hidden absolute -top-1 -right-1 bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded-full font-extrabold">New</span>
+                    </button>
+                    <button onclick="showMainSub('subApplication')" class="relative bg-orange-100 hover:bg-orange-200 text-orange-800 font-bold p-3 rounded text-center">
+                        📄 B. Application
+                        <span id="badge_subApplication" class="hidden absolute -top-1 -right-1 bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded-full font-extrabold">New</span>
+                    </button>
                     <button onclick="showMainSub('subLink')" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-bold p-3 rounded text-center">🔗 C. Link</button>
                     <button onclick="showMainSub('subNotice')" class="bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold p-3 rounded text-center">📢 D. Notice Board</button>
                 </div>
@@ -144,82 +152,92 @@
             <div id="officeRoomTab" class="tab-content hidden space-y-6">
                 <h2 class="text-lg font-bold text-rose-600 border-b pb-1">🏢 Office Administration Room</h2>
 
-                <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
-                    <h3 class="font-bold text-sm text-gray-700">1. Add Live Tool Engine 🛠️</h3>
-                    <input type="text" id="toolTitle" placeholder="টুলের নাম..." class="w-full border rounded px-2 py-1.5 text-xs">
-                    <textarea id="toolCode" rows="5" maxlength="5000" placeholder="এখানে পূর্ণাঙ্গ HTML/JS কোড দিন (সর্বোচ্চ 5000 লাইন)..." class="w-full border rounded px-2 py-1.5 text-xs font-mono bg-gray-900 text-green-400"></textarea>
-                    <button onclick="addCustomTool()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Tool 🚀</button>
+                <div id="filledAppsSubPage" class="hidden bg-purple-50 p-4 border-2 border-purple-400 rounded-xl space-y-3 shadow-md">
+                    <div class="flex justify-between items-center border-b border-purple-300 pb-2">
+                        <h3 id="filledAppsSubPageTitle" class="font-bold text-sm text-purple-900 uppercase">📋 Filled Applications</h3>
+                        <button onclick="closeFilledAppsSubPage()" class="bg-purple-200 text-purple-800 font-bold text-xs px-3 py-1 rounded border border-purple-300 shadow-sm">Back to Admin ⬅️</button>
+                    </div>
+                    <div id="filledAppsSubPageList" class="space-y-3 text-xs"></div>
                 </div>
 
-                <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
-                    <h3 class="font-bold text-sm text-gray-700">2. Add Application Form 📄</h3>
-                    <input type="text" id="formTitle" placeholder="অ্যাপ্লিকেশন ফর্মের শিরোনাম..." class="w-full border rounded px-2 py-1.5 text-xs">
-                    
-                    <div class="p-2 border rounded bg-gray-50 space-y-2 mt-2">
-                        <h4 class="font-bold text-xs text-gray-600">ফর্মের অপশন তৈরি করুন (আপনার পছন্দমতো সাজান):</h4>
-                        <div id="dynamicAdminFields" class="space-y-1"></div>
-                        <div class="flex gap-2 text-xs pt-1 border-t">
-                            <input type="text" id="adminFieldName" placeholder="নতুন ফিল্ডের নাম..." class="flex-grow border rounded px-2 py-1.5">
-                            <select id="adminFieldType" class="border rounded px-2 py-1.5 bg-white">
-                                <option value="mandatory">আবশ্যিক (Mandatory)</option>
-                                <option value="optional">ঐচ্ছিক (Optional)</option>
-                                <option value="office">অফিস (Office Only)</option>
-                            </select>
-                            <button onclick="addFormField()" class="bg-blue-600 text-white px-3 py-1.5 rounded font-bold">Add</button>
+                <div id="officeAdminMainArea" class="space-y-6">
+                    <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
+                        <h3 class="font-bold text-sm text-gray-700">1. Add Live Tool Engine 🛠️</h3>
+                        <input type="text" id="toolTitle" placeholder="টুলের নাম..." class="w-full border rounded px-2 py-1.5 text-xs">
+                        <textarea id="toolCode" rows="5" maxlength="5000" placeholder="এখানে পূর্ণাঙ্গ HTML/JS কোড দিন (সর্বোচ্চ 5000 লাইন)..." class="w-full border rounded px-2 py-1.5 text-xs font-mono bg-gray-900 text-green-400"></textarea>
+                        <button onclick="addCustomTool()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Tool 🚀</button>
+                    </div>
+
+                    <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
+                        <h3 class="font-bold text-sm text-gray-700">2. Add Application Form 📄</h3>
+                        <input type="text" id="formTitle" placeholder="অ্যাপ্লিকেশন ফর্মের শিরোনাম..." class="w-full border rounded px-2 py-1.5 text-xs">
+                        
+                        <div class="p-2 border rounded bg-gray-50 space-y-2 mt-2">
+                            <h4 class="font-bold text-xs text-gray-600">ফর্মের অপশন তৈরি করুন (আপনার পছন্দমতো সাজান):</h4>
+                            <div id="dynamicAdminFields" class="space-y-1"></div>
+                            <div class="flex gap-2 text-xs pt-1 border-t">
+                                <input type="text" id="adminFieldName" placeholder="নতুন ফিল্ডের নাম..." class="flex-grow border rounded px-2 py-1.5">
+                                <select id="adminFieldType" class="border rounded px-2 py-1.5 bg-white">
+                                    <option value="mandatory">আবশ্যিক (Mandatory)</option>
+                                    <option value="optional">ঐচ্ছিক (Optional)</option>
+                                    <option value="office">অফিস (Office Only)</option>
+                                </select>
+                                <button onclick="addFormField()" class="bg-blue-600 text-white px-3 py-1.5 rounded font-bold">Add</button>
+                            </div>
                         </div>
+                        
+                        <div class="text-xs pt-1">
+                            <label class="block font-semibold text-gray-600">ফর্ম ডিলিট হওয়ার তারিখ (Expiry Date):</label>
+                            <input type="date" id="formExpiryDate" class="border rounded px-2 py-1.5 mt-0.5">
+                        </div>
+
+                        <textarea id="formDescription" rows="3" placeholder="বিবৃতি বা নির্দেশনাবলী (ঐচ্ছিক)..." class="w-full border rounded px-2 py-1.5 text-xs mt-1"></textarea>
+                        <button onclick="createApplicationForm()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded mt-2">Publish Form 🚀</button>
                     </div>
-                    
-                    <div class="text-xs pt-1">
-                        <label class="block font-semibold text-gray-600">ফর্ম ডিলিট হওয়ার তারিখ (Expiry Date):</label>
-                        <input type="date" id="formExpiryDate" class="border rounded px-2 py-1.5 mt-0.5">
+
+                    <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
+                        <h3 class="font-bold text-sm text-gray-700">3. Add Link 🔗</h3>
+                        <input type="text" id="linkTitle" placeholder="লিংকের নাম..." class="w-full border rounded px-2 py-1.5 text-xs">
+                        <input type="url" id="linkUrl" placeholder="https://example.com" class="w-full border rounded px-2 py-1.5 text-xs">
+                        <button onclick="publishLink()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Link 🔗</button>
                     </div>
 
-                    <textarea id="formDescription" rows="3" placeholder="বিবৃতি বা নির্দেশনাবলী (ঐচ্ছিক)..." class="w-full border rounded px-2 py-1.5 text-xs mt-1"></textarea>
-                    <button onclick="createApplicationForm()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded mt-2">Publish Form 🚀</button>
-                </div>
-
-                <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
-                    <h3 class="font-bold text-sm text-gray-700">3. Add Link 🔗</h3>
-                    <input type="text" id="linkTitle" placeholder="লিংকের নাম..." class="w-full border rounded px-2 py-1.5 text-xs">
-                    <input type="url" id="linkUrl" placeholder="https://example.com" class="w-full border rounded px-2 py-1.5 text-xs">
-                    <button onclick="publishLink()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Link 🔗</button>
-                </div>
-
-                <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
-                    <h3 class="font-bold text-sm text-gray-700">4. Add Scroll Tag 📢</h3>
-                    <textarea id="scrollTagInput" rows="2" placeholder="নতুন স্ক্রোল মেসেজ (এন্টার দিয়ে নতুন লাইন)..." class="w-full border rounded px-2 py-1.5 text-xs"></textarea>
-                    <button onclick="updateScrollTag()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Set Active Tag 🔁</button>
-                </div>
-
-                <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
-                    <h3 class="font-bold text-sm text-gray-700">5. Add Notice Board 📋</h3>
-                    <textarea id="noticeInput" rows="4" placeholder="নোটিশ বোর্ড এর লেখা (এন্টার দিয়ে নতুন লাইন)..." class="w-full border rounded px-2 py-1.5 text-xs"></textarea>
-                    <button onclick="updateNoticeBoard()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Update Notice 🔁</button>
-                </div>
-
-                <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
-                    <h3 class="font-bold text-sm text-gray-700">6. Add Event 📅</h3>
-                    <input type="text" id="eventTitle" placeholder="ইভেন্টের নাম..." class="w-full border rounded px-2 py-1.5 text-xs">
-                    <textarea id="eventDescription" rows="3" placeholder="সংক্ষিপ্ত বিবরণ (এন্টার দিয়ে নতুন লাইন)..." class="w-full border rounded px-2 py-1.5 text-xs"></textarea>
-                    <div class="text-xs">
-                        <label class="block font-semibold">শেষ তারিখ (Last Date):</label>
-                        <input type="date" id="eventLastDate" class="border rounded px-2 py-1.5">
+                    <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
+                        <h3 class="font-bold text-sm text-gray-700">4. Add Scroll Tag 📢</h3>
+                        <textarea id="scrollTagInput" rows="2" placeholder="নতুন স্ক্রোল মেসেজ (এন্টার দিয়ে নতুন লাইন)..." class="w-full border rounded px-2 py-1.5 text-xs"></textarea>
+                        <button onclick="updateScrollTag()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Set Active Tag 🔁</button>
                     </div>
-                    <button onclick="publishEvent()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Event 📅</button>
-                </div>
 
-                <div class="bg-white p-3 border rounded-lg space-y-3 shadow-sm">
-                    <h3 class="font-bold text-sm text-red-700">7. Receive Application & Processing 📨</h3>
-                    <div id="receiveAppsDashboard" class="space-y-4 text-xs"></div>
-                </div>
-
-                <div class="bg-red-50 p-3 border-2 border-red-500 rounded-lg space-y-2 shadow-sm">
-                    <h3 class="font-bold text-sm text-red-700">8. Emergency Force Stop System 🛑</h3>
-                    <div class="text-xs space-y-1">
-                        <label class="block font-semibold">কত ঘণ্টা বন্ধ রাখতে চান? (সর্বোচ্চ ২৪ ঘণ্টা):</label>
-                        <input type="number" id="forceStopHours" min="1" max="24" value="1" class="border rounded px-2 py-1.5 w-20"> ঘণ্টা
+                    <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
+                        <h3 class="font-bold text-sm text-gray-700">5. Add Notice Board 📋</h3>
+                        <textarea id="noticeInput" rows="4" placeholder="নোটিশ বোর্ড এর লেখা (এন্টার দিয়ে নতুন লাইন)..." class="w-full border rounded px-2 py-1.5 text-xs"></textarea>
+                        <button onclick="updateNoticeBoard()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Update Notice 🔁</button>
                     </div>
-                    <button onclick="triggerForceStop()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded shadow">Activate Force Stop NOW 🛑</button>
+
+                    <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
+                        <h3 class="font-bold text-sm text-gray-700">6. Add Event 📅</h3>
+                        <input type="text" id="eventTitle" placeholder="ইভেন্টের নাম..." class="w-full border rounded px-2 py-1.5 text-xs">
+                        <textarea id="eventDescription" rows="3" placeholder="সংক্ষিপ্ত বিবরণ (এন্টার দিয়ে নতুন লাইন)..." class="w-full border rounded px-2 py-1.5 text-xs"></textarea>
+                        <div class="text-xs">
+                            <label class="block font-semibold">শেষ তারিখ (Last Date):</label>
+                            <input type="date" id="eventLastDate" class="border rounded px-2 py-1.5">
+                        </div>
+                        <button onclick="publishEvent()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Event 📅</button>
+                    </div>
+
+                    <div class="bg-white p-3 border rounded-lg space-y-3 shadow-sm">
+                        <h3 class="font-bold text-sm text-red-700">7. Receive Application & Processing 📨</h3>
+                        <div id="receiveAppsDashboard" class="space-y-4 text-xs"></div>
+                    </div>
+
+                    <div class="bg-red-50 p-3 border-2 border-red-500 rounded-lg space-y-2 shadow-sm">
+                        <h3 class="font-bold text-sm text-red-700">8. Emergency Force Stop System 🛑</h3>
+                        <div class="text-xs space-y-1">
+                            <label class="block font-semibold">কত ঘণ্টা বন্ধ রাখতে চান? (সর্বোচ্চ ২৪ ঘণ্টা):</label>
+                            <input type="number" id="forceStopHours" min="1" max="24" value="1" class="border rounded px-2 py-1.5 w-20"> ঘণ্টা
+                        </div>
+                        <button onclick="triggerForceStop()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded shadow">Activate Force Stop NOW 🛑</button>
+                    </div>
                 </div>
             </div>
 
@@ -232,7 +250,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, push, onValue, remove, update, get, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         // Updated Firebase Config
         const firebaseConfig = {
@@ -257,6 +275,14 @@
         window.isForceStopped = false;
         window.tempFormFields = []; 
 
+        // Local Storage Trackers for "New" Badges
+        const TRACK_KEYS = {
+            mainTab: '_last_view_mainTab',
+            officeRoomTab: '_last_view_officeRoomTab',
+            subEvent: '_last_view_subEvent',
+            subApplication: '_last_view_subApplication'
+        };
+
         function escapeHTML(str) {
             if (!str) return '';
             return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
@@ -275,6 +301,13 @@
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(tabId).classList.remove('hidden');
             window.currentTab = tabId;
+            
+            // Mark tab as viewed to dismiss New badge
+            if(TRACK_KEYS[tabId]) {
+                localStorage.setItem(TRACK_KEYS[tabId], Date.now());
+                updateBadgesVisibility();
+            }
+
             if(tabId === 'mainTab') showMainSub('subEvent'); 
         };
 
@@ -282,6 +315,12 @@
             if(window.isForceStopped && !window.isOfficeMember) return;
             document.querySelectorAll('.sub-tab').forEach(el => el.classList.add('hidden'));
             document.getElementById(subId).classList.remove('hidden');
+            
+            // Mark sub section as viewed
+            if(TRACK_KEYS[subId]) {
+                localStorage.setItem(TRACK_KEYS[subId], Date.now());
+                updateBadgesVisibility();
+            }
         };
 
         function initAppSync() {
@@ -310,6 +349,44 @@
             setupLiveListeners();
         }
 
+        // Global Badge logic helper
+        window.globalItemsData = { events: {}, forms: {}, receivedApps: {} };
+
+        function updateBadgesVisibility() {
+            const now = Date.now();
+            
+            // Check Events
+            const lastViewEvent = parseInt(localStorage.getItem(TRACK_KEYS.subEvent) || '0');
+            let hasNewEvent = Object.values(window.globalItemsData.events).some(item => item.createdAt > lastViewEvent);
+            document.getElementById('badge_subEvent').classList.toggle('hidden', !hasNewEvent);
+
+            // Check Application Forms
+            const lastViewApp = parseInt(localStorage.getItem(TRACK_KEYS.subApplication) || '0');
+            let hasNewForm = Object.values(window.globalItemsData.forms).some(item => item.createdAt > lastViewApp);
+            document.getElementById('badge_subApplication').classList.toggle('hidden', !hasNewForm);
+
+            // Main Tab Badge (Combined)
+            let hasNewInMain = hasNewEvent || hasNewForm;
+            document.getElementById('badge_mainTab').classList.toggle('hidden', !hasNewInMain);
+
+            // Office Room Tab Badge (If there are unviewed filled applications)
+            if(window.isOfficeMember) {
+                const lastViewOffice = parseInt(localStorage.getItem(TRACK_KEYS.officeRoomTab) || '0');
+                let hasUnviewedSubmissions = false;
+                
+                Object.values(window.globalItemsData.receivedApps).forEach(formSubs => {
+                    if(formSubs) {
+                        Object.values(formSubs).forEach(sub => {
+                            if(sub && sub.viewedByOffice === false) {
+                                hasUnviewedSubmissions = true;
+                            }
+                        });
+                    }
+                });
+                document.getElementById('badge_officeRoomTab').classList.toggle('hidden', !hasUnviewedSubmissions);
+            }
+        }
+
         function setupLiveListeners() {
             if(window.isForceStopped && !window.isOfficeMember) return;
 
@@ -329,7 +406,7 @@
                 document.getElementById('mainNoticeBox').innerText = snapshot.val() || "কোনো নোটিশ নেই।";
             });
 
-            // Links Sync
+            // Links Sync (No modification in sorting as per requirement 3)
             onValue(ref(db, 'links'), (snapshot) => {
                 const data = snapshot.val();
                 const container = document.getElementById('mainLinkList');
@@ -346,13 +423,21 @@
                 }
             });
 
-            // Events Sync
+            // Events Sync (Requirement 3: Sorted by Latest First)
             onValue(ref(db, 'events'), (snapshot) => {
-                const data = snapshot.val();
+                const data = snapshot.val() || {};
+                window.globalItemsData.events = data;
+                updateBadgesVisibility();
+
                 const container = document.getElementById('mainEventList');
                 container.innerHTML = '';
-                if(data) {
-                    Object.keys(data).forEach(key => {
+                
+                // Sort by latest createdAt timestamp
+                const sortedKeys = Object.keys(data).sort((a,b) => (data[b].createdAt || 0) - (data[a].createdAt || 0));
+
+                if(sortedKeys.length > 0) {
+                    const lastViewSubEvent = parseInt(localStorage.getItem(TRACK_KEYS.subEvent) || '0');
+                    sortedKeys.forEach(key => {
                         const item = data[key];
                         if(!item.lastDate) return;
                         const expiryDate = new Date(item.lastDate + 'T23:59:59').getTime();
@@ -360,10 +445,16 @@
                             remove(ref(db, `events/${key}`)); 
                             return;
                         }
+                        
+                        const isItemNew = item.createdAt > lastViewSubEvent;
+
                         container.innerHTML += `
-                            <div class="bg-gray-50 p-3 border rounded shadow-sm space-y-1">
+                            <div class="bg-gray-50 p-3 border ${isItemNew ? 'border-l-4 border-l-red-500 bg-red-50/40' : 'border-gray-200'} rounded shadow-sm space-y-1">
                                 <div class="flex justify-between items-start font-bold text-gray-800">
-                                    <span class="text-sm">${escapeHTML(item.title)}</span>
+                                    <span class="text-sm flex items-center gap-1">
+                                        ${escapeHTML(item.title)}
+                                        ${isItemNew ? `<span class="bg-red-600 text-white text-[9px] px-1 rounded font-extrabold animate-pulse">New</span>` : ''}
+                                    </span>
                                     <div class="flex gap-2">
                                         <button onclick="shareEventLink('${key}')" class="text-blue-500 text-xs bg-blue-50 px-2 py-0.5 rounded border border-blue-200">Share 🔗</button>
                                         ${window.isOfficeMember ? `<button onclick="deleteData('events/${key}')" class="text-red-500 text-xs bg-red-50 px-2 py-0.5 rounded border border-red-200">🗑️</button>` : ''}
@@ -378,19 +469,25 @@
                 }
             });
 
-            // Form structures Sync & Auto-delete (FIXED rendering logic)
+            // Form structures Sync & Auto-delete (Requirement 3: Latest First)
             onValue(ref(db, 'form_structures'), (snapshot) => {
-                const data = snapshot.val();
+                const data = snapshot.val() || {};
+                window.globalItemsData.forms = data;
+                updateBadgesVisibility();
+
                 const selector = document.getElementById('appFormSelector');
                 const adminDashboard = document.getElementById('receiveAppsDashboard');
                 
                 selector.innerHTML = '';
                 
-                if(data) {
-                    let adminHtmlBuilder = '';
-                    let formsToSync = [];
+                // Sort forms by latest created timestamp
+                const sortedKeys = Object.keys(data).sort((a,b) => (data[b].createdAt || 0) - (data[a].createdAt || 0));
 
-                    Object.keys(data).forEach(key => {
+                if(sortedKeys.length > 0) {
+                    let adminHtmlBuilder = '';
+                    const lastViewSubApp = parseInt(localStorage.getItem(TRACK_KEYS.subApplication) || '0');
+
+                    sortedKeys.forEach(key => {
                         const form = data[key];
                         if(form.expiryDate){
                             const expTime = new Date(form.expiryDate + 'T23:59:59').getTime();
@@ -401,25 +498,36 @@
                             }
                         }
 
-                        selector.innerHTML += `<button onclick="renderActiveForm('${key}')" class="w-full bg-orange-50 hover:bg-orange-100 p-3 rounded-lg text-left font-bold border border-orange-200 flex justify-between shadow-sm"><span>📄 ${escapeHTML(form.title)}</span> ➡️</button>`;
+                        const isFormNew = form.createdAt > lastViewSubApp;
+
+                        selector.innerHTML += `
+                            <button onclick="renderActiveForm('${key}')" class="w-full bg-orange-50 hover:bg-orange-100 p-3 rounded-lg text-left font-bold border ${isFormNew ? 'border-red-400 bg-red-50/50' : 'border-orange-200'} flex justify-between shadow-sm items-center">
+                                <span class="flex items-center gap-1.5">
+                                    📄 ${escapeHTML(form.title)}
+                                    ${isFormNew ? `<span class="bg-red-600 text-white text-[9px] px-1 rounded font-extrabold animate-pulse">New</span>` : ''}
+                                </span> 
+                                ➡️
+                            </button>`;
 
                         if(window.isOfficeMember) {
+                            // Requirement 2: Only structure can be deleted here + External Page / View sign added
                             adminHtmlBuilder += `
-                                <div class="bg-white p-3 rounded border-2 border-purple-300 space-y-2 shadow-sm">
-                                    <div class="flex justify-between items-center bg-purple-100 p-2 rounded">
-                                        <h4 class="font-bold text-purple-900 uppercase">${escapeHTML(form.title)}</h4>
-                                        <button onclick="deleteFormStructure('${key}')" class="text-red-600 font-bold text-xs bg-white px-2 py-1 rounded shadow-sm">Delete Form 🗑️</button>
+                                <div class="bg-white p-3 rounded border border-gray-300 space-y-2 shadow-sm">
+                                    <div class="flex justify-between items-center bg-slate-100 p-2 rounded">
+                                        <h4 class="font-bold text-gray-800 uppercase text-xs">📄 ${escapeHTML(form.title)}</h4>
+                                        <div class="flex gap-1.5">
+                                            <button onclick="openFilledAppsSubPage('${key}', '${escapeHTML(form.title)}')" class="bg-blue-600 hover:bg-blue-700 text-white text-[11px] px-2.5 py-1 rounded shadow font-bold flex items-center gap-1">View Filled Apps 📂 ➡️</button>
+                                            <button onclick="deleteFormStructure('${key}')" class="text-red-600 font-bold text-[11px] bg-white border border-red-200 px-2 py-1 rounded shadow-sm hover:bg-red-50">Delete Form 🗑️</button>
+                                        </div>
                                     </div>
-                                    <div id="submissions_for_${key}" class="space-y-2 pt-1"></div>
+                                    <div id="summary_count_${key}" class="text-[11px] text-gray-500 font-semibold px-1"></div>
                                 </div>`;
-                            formsToSync.push({ key, form });
                         }
                     });
 
-                    // Build DOM first, then attach listeners to prevent overwriting
                     if(window.isOfficeMember) {
                         adminDashboard.innerHTML = adminHtmlBuilder || '<p class="text-gray-400 text-xs italic">কোনো ফর্ম নেই।</p>';
-                        formsToSync.forEach(item => syncSubmissions(item.key, item.form));
+                        sortedKeys.forEach(key => syncSubmissionsCountOnly(key));
                     }
                 } else {
                     selector.innerHTML = '<p class="text-gray-400 text-xs italic">কোনো অ্যাপ্লিকেশন ফর্ম নেই।</p>';
@@ -434,7 +542,7 @@
                     localStorage.setItem('offline_tools_cache', JSON.stringify(data));
                     renderToolsUI(data);
                 } else {
-                    document.getElementById('toolsListContainer').innerHTML = '<p class="text-gray-400 text-xs italic">কোনো টুলস নেই।</p>';
+                    document.getElementById('toolsListContainer').innerHTML = '<p class="text-gray-400 text-xs italic">কোনোツールস নেই।</p>';
                     localStorage.removeItem('offline_tools_cache');
                 }
             });
@@ -476,85 +584,135 @@
             });
         };
 
-        function syncSubmissions(formKey, formObj) {
-            const refPath = `submitted_applications/${formKey}`;
-            if(window.activeListeners[formKey]) window.activeListeners[formKey]();
-            
-            const listener = onValue(ref(db, refPath), (snapshot) => {
-                const data = snapshot.val();
-                const container = document.getElementById(`submissions_for_${formKey}`);
-                if(!container) return;
-                container.innerHTML = '';
+        // Summary Tracker for Dashboard
+        function syncSubmissionsCountOnly(formKey) {
+            onValue(ref(db, `submitted_applications/${formKey}`), (snapshot) => {
+                const data = snapshot.val() || {};
+                window.globalItemsData.receivedApps[formKey] = data;
+                updateBadgesVisibility();
                 
-                if(data){
-                    Object.keys(data).forEach(subKey => {
-                        const sub = data[subKey];
-                        if(sub.uniqueExpiry && sub.uniqueExpiry < Date.now()){
-                            remove(ref(db, `submitted_applications/${formKey}/${subKey}`));
-                            return;
-                        }
+                const label = document.getElementById(`summary_count_${formKey}`);
+                if(!label) return;
+                
+                const total = Object.keys(data).length;
+                let unviewedCount = 0;
+                Object.values(data).forEach(v => { if(v.viewedByOffice === false) unviewedCount++; });
+                
+                label.innerHTML = `মোট পূরণকৃত অ্যাপ্লিকেশন: <span class="text-purple-700 font-bold">${total}টি</span> ${unviewedCount > 0 ? `| নতুন এসেছে: <span class="bg-red-600 text-white text-[10px] px-1.5 py-0.5 rounded font-bold animate-pulse">${unviewedCount}টি</span>` : ''}`;
+            });
+        }
 
-                        let userAnswersHtml = '';
-                        if(sub.userData) {
+        // Requirement 2 & 4: Sub-Page view for Filled Applications with New Status & Sorting
+        window.openFilledAppsSubPage = function(formKey, formTitle) {
+            document.getElementById('officeAdminMainArea').classList.add('hidden');
+            const subPage = document.getElementById('filledAppsSubPage');
+            subPage.classList.remove('hidden');
+            document.getElementById('filledAppsSubPageTitle').innerText = `📂 ${formTitle} - Submissions`;
+
+            const refPath = `submitted_applications/${formKey}`;
+            if(window.activeListeners['currentAdminView']) window.activeListeners['currentAdminView']();
+
+            window.activeListeners['currentAdminView'] = onValue(ref(db, refPath), (snapshot) => {
+                const data = snapshot.val() || {};
+                const container = document.getElementById('filledAppsSubPageList');
+                container.innerHTML = '';
+
+                // Requirement 3: Sorting latest submission first
+                const sortedSubKeys = Object.keys(data).sort((a,b) => (data[b].timestamp || 0) - (data[a].timestamp || 0));
+
+                if(sortedSubKeys.length > 0) {
+                    get(ref(db, `form_structures/${formKey}`)).then((formSnap) => {
+                        const formObj = formSnap.val() || {};
+
+                        sortedSubKeys.forEach(subKey => {
+                            const sub = data[subKey];
+                            
+                            // Auto trigger viewed check when office member loads it
+                            if(sub.viewedByOffice === false) {
+                                update(ref(db, `submitted_applications/${formKey}/${subKey}`), { viewedByOffice: true });
+                            }
+
+                            if(sub.uniqueExpiry && sub.uniqueExpiry < Date.now()){
+                                remove(ref(db, `submitted_applications/${formKey}/${subKey}`));
+                                return;
+                            }
+
+                            let userAnswersHtml = '';
+                            if(sub.userData) {
+                                if (formObj.fields) {
+                                    const displayFields = formObj.fields.filter(f => f.type !== 'office').map(f => f.name);
+                                    displayFields.forEach(fName => {
+                                        const val = sub.userData[fName] || '';
+                                        userAnswersHtml += `<p class="whitespace-pre-wrap"><b class="text-gray-700">${escapeHTML(fName)}:</b> ${escapeHTML(val)}</p>`;
+                                    });
+                                } else {
+                                    Object.keys(sub.userData).forEach(fName => {
+                                        userAnswersHtml += `<p class="whitespace-pre-wrap"><b class="text-gray-700">${escapeHTML(fName)}:</b> ${escapeHTML(sub.userData[fName])}</p>`;
+                                    });
+                                }
+                            }
+
+                            let officeInputsHtml = '';
+                            let officeFieldsArr = [];
                             if (formObj.fields) {
-                                const displayFields = formObj.fields.filter(f => f.type !== 'office').map(f => f.name);
-                                displayFields.forEach(fName => {
-                                    const val = sub.userData[fName] || '';
-                                    userAnswersHtml += `<p class="whitespace-pre-wrap"><b class="text-gray-700">${escapeHTML(fName)}:</b> ${escapeHTML(val)}</p>`;
-                                });
-                            } else {
-                                Object.keys(sub.userData).forEach(fName => {
-                                    userAnswersHtml += `<p class="whitespace-pre-wrap"><b class="text-gray-700">${escapeHTML(fName)}:</b> ${escapeHTML(sub.userData[fName])}</p>`;
+                                officeFieldsArr = formObj.fields.filter(f => f.type === 'office').map(f => f.name);
+                            }
+
+                            if(officeFieldsArr.length > 0) {
+                                officeFieldsArr.forEach(fName => {
+                                    const currentVal = (sub.officeData && sub.officeData[fName]) ? sub.officeData[fName] : '';
+                                    officeInputsHtml += `
+                                        <div class="mt-1">
+                                            <label class="block text-[10px] font-bold text-amber-800">${escapeHTML(fName)}:</label>
+                                            <textarea data-field="${escapeHTML(fName)}" rows="1" class="office-input-${subKey} w-full border rounded px-2 py-1 text-xs bg-amber-50 resize-y">${escapeHTML(currentVal)}</textarea>
+                                        </div>`;
                                 });
                             }
-                        }
 
-                        let officeInputsHtml = '';
-                        let officeFieldsArr = [];
-                        if (formObj.fields) {
-                            officeFieldsArr = formObj.fields.filter(f => f.type === 'office').map(f => f.name);
-                        } else if (formObj.officeFields) {
-                            officeFieldsArr = formObj.officeFields.split(',').map(s => s.trim()).filter(s => s.length > 0);
-                        }
-
-                        if(officeFieldsArr.length > 0) {
-                            officeFieldsArr.forEach(fName => {
-                                const currentVal = (sub.officeData && sub.officeData[fName]) ? sub.officeData[fName] : '';
-                                officeInputsHtml += `
-                                    <div class="mt-1">
-                                        <label class="block text-[10px] font-bold text-amber-800">${escapeHTML(fName)}:</label>
-                                        <textarea data-field="${escapeHTML(fName)}" rows="1" class="office-input-${subKey} w-full border rounded px-2 py-1 text-xs bg-amber-50 resize-y">${escapeHTML(currentVal)}</textarea>
-                                    </div>`;
-                            });
-                        }
-
-                        container.innerHTML += `
-                            <div class="bg-gray-50 p-2.5 border rounded shadow-xs space-y-2 relative">
-                                <div class="text-gray-800 bg-white p-2 rounded border text-xs space-y-1">${userAnswersHtml}</div>
-                                
-                                ${officeInputsHtml ? `
-                                    <div class="p-2 bg-amber-100/60 border border-amber-300 rounded shadow-inner">
-                                        <p class="font-bold text-amber-900 text-[11px] mb-1 border-b border-amber-200 pb-1">🏢 Office Fill Data:</p>
-                                        ${officeInputsHtml}
-                                        <button onclick="submitOfficeApplication('${formKey}', '${subKey}')" class="mt-2 bg-amber-600 hover:bg-amber-700 text-white text-[10px] px-3 py-1.5 rounded font-bold transition">Update Admin Data 💾</button>
+                            container.innerHTML += `
+                                <div class="bg-white p-3 border ${sub.viewedByOffice === false ? 'border-l-4 border-l-red-500 bg-red-50/20' : 'border-gray-200'} rounded-lg shadow-sm space-y-2 relative">
+                                    <div class="flex justify-between items-center bg-gray-100 px-2 py-1 rounded text-[11px] font-bold text-gray-700">
+                                        <span>Sl No: <span class="text-blue-600">${sub.serialNumber || 'N/A'}</span></span>
+                                        ${sub.viewedByOffice === false ? `<span class="bg-red-600 text-white px-1.5 py-0.5 rounded text-[9px] font-extrabold tracking-wide animate-pulse">NEW</span>` : ''}
                                     </div>
-                                ` : ''}
+                                    <div class="text-gray-800 bg-gray-50 p-2 rounded border text-xs space-y-1">${userAnswersHtml}</div>
+                                    
+                                    ${officeInputsHtml ? `
+                                        <div class="p-2 bg-amber-100/60 border border-amber-300 rounded shadow-inner">
+                                            <p class="font-bold text-amber-900 text-[11px] mb-1 border-b border-amber-200 pb-1">🏢 Office Fill Data:</p>
+                                            ${officeInputsHtml}
+                                            <button onclick="submitOfficeApplication('${formKey}', '${subKey}')" class="mt-2 bg-amber-600 hover:bg-amber-700 text-white text-[10px] px-3 py-1.5 rounded font-bold transition">Update Admin Data 💾</button>
+                                        </div>
+                                    ` : ''}
 
-                                <div class="flex justify-between items-center text-[10px] text-gray-500 border-t pt-1">
-                                    <span>🕒 Sub: ${sub.timestamp ? new Date(sub.timestamp).toLocaleDateString() : ''}</span>
-                                    <div class="flex gap-2">
-                                        <button onclick="generateUniqueShareLink('${formKey}', '${subKey}')" class="text-blue-600 bg-blue-50 px-2 py-1 rounded font-bold border border-blue-200">Share 🔗</button>
-                                        <button onclick="deleteData('submitted_applications/${formKey}/${subKey}')" class="text-red-600 bg-red-50 px-2 py-1 rounded font-bold border border-red-200">Del 🗑️</button>
+                                    <div class="flex justify-between items-center text-[10px] text-gray-500 border-t pt-1">
+                                        <span>🕒 Sub: ${sub.timestamp ? new Date(sub.timestamp).toLocaleDateString() : ''}</span>
+                                        <div class="flex gap-2">
+                                            <button onclick="generateUniqueShareLink('${formKey}', '${subKey}')" class="text-blue-600 bg-blue-50 px-2 py-1 rounded font-bold border border-blue-200">Share 🔗</button>
+                                            <button onclick="deleteData('submitted_applications/${formKey}/${subKey}')" class="text-red-600 bg-red-50 px-2 py-1 rounded font-bold border border-red-200">Delete Record 🗑️</button>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>`;
+                                </div>`;
+                        });
                     });
                 } else {
-                    container.innerHTML = `<p class="text-gray-400 text-[10px] italic">কোনো সাবমিশন নেই</p>`;
+                    container.innerHTML = `<p class="text-gray-400 text-xs italic text-center py-4">কোনো অ্যাপ্লিকেশন এখনও পূরণ করা হয়নি।</p>`;
                 }
             });
-            window.activeListeners[formKey] = listener;
-        }
+        };
+
+        window.closeFilledAppsSubPage = function() {
+            if(window.activeListeners['currentAdminView']) {
+                window.activeListeners['currentAdminView']();
+                delete window.activeListeners['currentAdminView'];
+            }
+            document.getElementById('filledAppsSubPage').classList.add('hidden');
+            document.getElementById('officeAdminMainArea').classList.remove('hidden');
+            
+            // Sync current state to check if office badges should remain
+            localStorage.setItem(TRACK_KEYS.officeRoomTab, Date.now());
+            updateBadgesVisibility();
+        };
 
         window.renderActiveForm = function(formKey) {
             get(ref(db, `form_structures/${formKey}`)).then((snapshot) => {
@@ -592,16 +750,6 @@
                                 </div>`;
                         });
                     }
-                    if(form.optionalFields) {
-                        const optFields = form.optionalFields.split(',').map(s => s.trim()).filter(s => s.length > 0);
-                        optFields.forEach(field => {
-                            inputFieldsHtml += `
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1">${escapeHTML(field)} <span class="text-gray-400 text-[10px] font-normal">(ঐচ্ছিক)</span></label>
-                                    <textarea data-userfield="${escapeHTML(field)}" data-required="false" placeholder="না লিখলেও চলবে..." rows="1" class="user-dynamic-input w-full border rounded px-3 py-1.5 text-xs bg-slate-50 focus:ring-2 focus:ring-blue-300 focus:outline-none resize-y"></textarea>
-                                </div>`;
-                        });
-                    }
                 }
 
                 container.innerHTML = `
@@ -622,6 +770,7 @@
             });
         };
 
+        // Requirement 4: Firebase atomic counter & Serial number generation algorithm
         window.submitUserApplication = function(formKey) {
             const inputs = document.querySelectorAll('.user-dynamic-input');
             let dataPayload = {};
@@ -637,9 +786,7 @@
                     input.classList.add('border-red-500', 'bg-red-50');
                 } else {
                     input.classList.remove('border-red-500', 'bg-red-50');
-                    if(fVal) {
-                        dataPayload[fName] = fVal;
-                    }
+                    if(fVal) dataPayload[fName] = fVal;
                 }
             });
 
@@ -648,13 +795,31 @@
                 return; 
             }
 
-            push(ref(db, `submitted_applications/${formKey}`), { 
-                userData: dataPayload, 
-                timestamp: Date.now() 
-            }).then(() => {
-                alert('✓ অ্যাপ্লিকেশনটি সফলভাবে রিসিভ সেকশনে পাঠানো হয়েছে!');
-                inputs.forEach(i => i.value = '');
-                document.getElementById('activeFormContainer').classList.add('hidden');
+            // Firebase Transaction to safely increment code sequentially
+            const counterRef = ref(db, `form_structures/${formKey}/submissionCounter`);
+            runTransaction(counterRef, (currentValue) => {
+                return (currentValue || 0) + 1;
+            }).then((transactionResult) => {
+                if(transactionResult.committed) {
+                    const newCounterVal = transactionResult.snapshot.val();
+                    // Serial formatting (Starts 001, scales cleanly to 8 digits)
+                    const serialString = String(newCounterVal).padStart(3, '0');
+
+                    const appPushRef = push(ref(db, `submitted_applications/${formKey}`));
+                    set(appPushRef, { 
+                        userData: dataPayload, 
+                        timestamp: Date.now(),
+                        serialNumber: serialString,
+                        viewedByOffice: false // Flagged false till office member views it
+                    }).then(() => {
+                        alert(`✓ অ্যাপ্লিকেশনটি সফলভাবে রিসিভ সেকশনে পাঠানো হয়েছে! আপনার ক্রমিক নং: ${serialString}`);
+                        inputs.forEach(i => i.value = '');
+                        document.getElementById('activeFormContainer').classList.add('hidden');
+                    });
+                }
+            }).catch((err) => {
+                console.error("Counter transaction failed: ", err);
+                alert("ত্রুটি ঘটেছে! আবার চেষ্টা করুন।");
             });
         };
 
@@ -739,17 +904,15 @@
             }
 
             let userFieldsArr = window.tempFormFields.filter(f => f.type === 'mandatory').map(f => f.name);
-            let optFieldsArr = window.tempFormFields.filter(f => f.type === 'optional').map(f => f.name);
-            let offFieldsArr = window.tempFormFields.filter(f => f.type === 'office').map(f => f.name);
 
             push(ref(db, 'form_structures'), { 
                 title, 
                 fields: window.tempFormFields, 
                 userFields: userFieldsArr.join(','), 
-                optionalFields: optFieldsArr.join(','), 
-                officeFields: offFieldsArr.join(','), 
                 expiryDate: expiryDate || null,
-                description: desc || null 
+                description: desc || null,
+                createdAt: Date.now(), // Tracking for New badge
+                submissionCounter: 0 // Inception of sequential numeric log
             }).then(() => {
                 alert('✨ পাবলিস্ট হয়ে গেছে! 🚀');
                 document.getElementById('formTitle').value = '';
@@ -781,6 +944,8 @@
             document.getElementById('navListPad').classList.add('hidden');
             document.getElementById('navOfficeRoom').classList.add('hidden');
             document.getElementById('activePadPageArea').classList.add('hidden');
+            document.getElementById('filledAppsSubPage').classList.add('hidden');
+            document.getElementById('officeAdminMainArea').classList.remove('hidden');
             switchTab('mainTab');
             detachAllActiveListeners();
             initAppSync(); 
@@ -803,10 +968,13 @@
 
         window.deleteFormStructure = function(key) {
             if(!window.isOfficeMember) return;
-            if(confirm('নিশ্চিত ডিলিট করবেন? এতে এই ফর্মের সমস্ত সাবমিশনও মুছে যাবে।')) {
-                if(window.activeListeners[key]) delete window.activeListeners[key];
+            // Requirement 2: Cascade Delete (Deletes structural template + all filled data forever)
+            if(confirm('নিশ্চিত ডিলিট করবেন? এতে এই ফর্মের সমস্ত সাবমিশন ডাটা এবং পূরণ হওয়া ফাইলও চিরতরে মুছে যাবে।')) {
                 remove(ref(db, `form_structures/${key}`));
-                remove(ref(db, `submitted_applications/${key}`));
+                remove(ref(db, `submitted_applications/${key}`)).then(() => {
+                    alert('✓ ফর্ম এবং এর সাথে যুক্ত সমস্ত পূরণ হওয়া অ্যাপ্লিকেশন মুছে ফেলা হয়েছে।');
+                    closeFilledAppsSubPage();
+                });
             }
         };
 
@@ -852,7 +1020,12 @@
             const desc = document.getElementById('eventDescription').value.trim();
             const ldate = document.getElementById('eventLastDate').value;
             if(!title || !ldate) { alert('শিরোনাম এবং শেষ তারিখ আবশ্যক!'); return; }
-            push(ref(db, 'events'), { title, description: desc, lastDate: ldate });
+            push(ref(db, 'events'), { 
+                title, 
+                description: desc, 
+                lastDate: ldate,
+                createdAt: Date.now() // Tracker timestamp for New Badge
+            });
             document.getElementById('eventTitle').value = '';
             document.getElementById('eventDescription').value = '';
         };
