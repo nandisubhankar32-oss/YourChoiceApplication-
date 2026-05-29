@@ -255,7 +255,7 @@
         window.activePadPageKey = null;
         window.activeListeners = {}; 
         window.isForceStopped = false;
-        window.tempFormFields = []; // For dynamic form building
+        window.tempFormFields = []; 
 
         function escapeHTML(str) {
             if (!str) return '';
@@ -275,7 +275,7 @@
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(tabId).classList.remove('hidden');
             window.currentTab = tabId;
-            if(tabId === 'mainTab') showMainSub('subEvent'); // Default open event in main
+            if(tabId === 'mainTab') showMainSub('subEvent'); 
         };
 
         window.showMainSub = function(subId) {
@@ -346,7 +346,7 @@
                 }
             });
 
-            // Events Sync & Auto-delete logic
+            // Events Sync
             onValue(ref(db, 'events'), (snapshot) => {
                 const data = snapshot.val();
                 const container = document.getElementById('mainEventList');
@@ -378,16 +378,18 @@
                 }
             });
 
-            // Form structures Sync & Auto-delete
+            // Form structures Sync & Auto-delete (FIXED rendering logic)
             onValue(ref(db, 'form_structures'), (snapshot) => {
                 const data = snapshot.val();
                 const selector = document.getElementById('appFormSelector');
                 const adminDashboard = document.getElementById('receiveAppsDashboard');
                 
                 selector.innerHTML = '';
-                adminDashboard.innerHTML = '';
-
+                
                 if(data) {
+                    let adminHtmlBuilder = '';
+                    let formsToSync = [];
+
                     Object.keys(data).forEach(key => {
                         const form = data[key];
                         if(form.expiryDate){
@@ -402,7 +404,7 @@
                         selector.innerHTML += `<button onclick="renderActiveForm('${key}')" class="w-full bg-orange-50 hover:bg-orange-100 p-3 rounded-lg text-left font-bold border border-orange-200 flex justify-between shadow-sm"><span>📄 ${escapeHTML(form.title)}</span> ➡️</button>`;
 
                         if(window.isOfficeMember) {
-                            adminDashboard.innerHTML += `
+                            adminHtmlBuilder += `
                                 <div class="bg-white p-3 rounded border-2 border-purple-300 space-y-2 shadow-sm">
                                     <div class="flex justify-between items-center bg-purple-100 p-2 rounded">
                                         <h4 class="font-bold text-purple-900 uppercase">${escapeHTML(form.title)}</h4>
@@ -410,11 +412,18 @@
                                     </div>
                                     <div id="submissions_for_${key}" class="space-y-2 pt-1"></div>
                                 </div>`;
-                            syncSubmissions(key, form);
+                            formsToSync.push({ key, form });
                         }
                     });
+
+                    // Build DOM first, then attach listeners to prevent overwriting
+                    if(window.isOfficeMember) {
+                        adminDashboard.innerHTML = adminHtmlBuilder || '<p class="text-gray-400 text-xs italic">কোনো ফর্ম নেই।</p>';
+                        formsToSync.forEach(item => syncSubmissions(item.key, item.form));
+                    }
                 } else {
                     selector.innerHTML = '<p class="text-gray-400 text-xs italic">কোনো অ্যাপ্লিকেশন ফর্ম নেই।</p>';
+                    if(window.isOfficeMember) adminDashboard.innerHTML = '<p class="text-gray-400 text-xs italic">কোনো অ্যাপ্লিকেশন ফর্ম নেই।</p>';
                 }
             });
 
@@ -488,14 +497,12 @@
                         let userAnswersHtml = '';
                         if(sub.userData) {
                             if (formObj.fields) {
-                                // Display exactly in the custom order they were built
                                 const displayFields = formObj.fields.filter(f => f.type !== 'office').map(f => f.name);
                                 displayFields.forEach(fName => {
                                     const val = sub.userData[fName] || '';
                                     userAnswersHtml += `<p class="whitespace-pre-wrap"><b class="text-gray-700">${escapeHTML(fName)}:</b> ${escapeHTML(val)}</p>`;
                                 });
                             } else {
-                                // Fallback for old data
                                 Object.keys(sub.userData).forEach(fName => {
                                     userAnswersHtml += `<p class="whitespace-pre-wrap"><b class="text-gray-700">${escapeHTML(fName)}:</b> ${escapeHTML(sub.userData[fName])}</p>`;
                                 });
@@ -558,7 +565,6 @@
 
                 let inputFieldsHtml = '';
                 
-                // Using new dynamic fields format if available
                 if (form.fields) {
                     form.fields.forEach(field => {
                         if (field.type === 'mandatory') {
@@ -576,7 +582,6 @@
                         }
                     });
                 } else {
-                    // Fallback for older forms
                     if(form.userFields) {
                         const fields = form.userFields.split(',').map(s => s.trim()).filter(s => s.length > 0);
                         fields.forEach(field => {
@@ -670,7 +675,6 @@
             });
         };
 
-        // UI Builder Logic For Form Creation
         window.addFormField = function() {
             const name = document.getElementById('adminFieldName').value.trim();
             const type = document.getElementById('adminFieldType').value;
@@ -734,17 +738,16 @@
                 return;
             }
 
-            // Fallback strings for database compatibility
             let userFieldsArr = window.tempFormFields.filter(f => f.type === 'mandatory').map(f => f.name);
             let optFieldsArr = window.tempFormFields.filter(f => f.type === 'optional').map(f => f.name);
             let offFieldsArr = window.tempFormFields.filter(f => f.type === 'office').map(f => f.name);
 
             push(ref(db, 'form_structures'), { 
                 title, 
-                fields: window.tempFormFields, // New ordered setup
-                userFields: userFieldsArr.join(','), // Fallback
-                optionalFields: optFieldsArr.join(','), // Fallback
-                officeFields: offFieldsArr.join(','), // Fallback
+                fields: window.tempFormFields, 
+                userFields: userFieldsArr.join(','), 
+                optionalFields: optFieldsArr.join(','), 
+                officeFields: offFieldsArr.join(','), 
                 expiryDate: expiryDate || null,
                 description: desc || null 
             }).then(() => {
@@ -863,7 +866,7 @@
 
         window.generateUniqueShareLink = function(formKey, subKey) {
             if(!window.isOfficeMember) return;
-            const expiryTarget = Date.now() + (100 * 24 * 60 * 60 * 1000); // 100 Days validity
+            const expiryTarget = Date.now() + (100 * 24 * 60 * 60 * 1000); 
             update(ref(db, `submitted_applications/${formKey}/${subKey}`), { uniqueExpiry: expiryTarget });
             const deepLink = `${window.location.origin}${window.location.pathname}?form=${formKey}&sub=${subKey}`;
             navigator.clipboard.writeText(deepLink);
@@ -946,7 +949,7 @@
             const visibleLines = document.querySelectorAll('#padItemsList li:not(.hidden) .list-line-text');
             let buffer = [];
             visibleLines.forEach(el => buffer.push(el.innerText));
-            navigator.clipboard.writeText(buffer.join('\n\n')); // Separated by double newline
+            navigator.clipboard.writeText(buffer.join('\n\n')); 
             alert('✓ পেজের সমস্ত লাইন কপি করা হয়েছে!');
         };
 
@@ -979,7 +982,6 @@
             });
         };
 
-        // Deep Link Parser (For Received Applications & Events)
         function checkIncomingDeepLinks() {
             try {
                 const urlParams = new URLSearchParams(window.location.search);
@@ -987,7 +989,6 @@
                 const sKey = urlParams.get('sub');
                 const eKey = urlParams.get('event');
 
-                // Application Deep Link
                 if(fKey && sKey) {
                     get(ref(db, `submitted_applications/${fKey}/${sKey}`)).then((snapshot) => {
                         const data = snapshot.val();
@@ -1012,7 +1013,6 @@
                         } else alert('⚠️ লিংকটির মেয়াদ শেষ হয়ে গেছে বা ডিলিট করা হয়েছে!');
                     });
                 } 
-                // Event Deep Link
                 else if (eKey) {
                     get(ref(db, `events/${eKey}`)).then((snapshot) => {
                         const data = snapshot.val();
@@ -1035,7 +1035,7 @@
         window.closeDeepLinkView = function() {
             document.getElementById('deepLinkContainer').classList.add('hidden');
             document.getElementById('appContainer').classList.remove('hidden');
-            window.history.pushState({}, document.title, window.location.pathname); // Clean URL
+            window.history.pushState({}, document.title, window.location.pathname); 
         };
 
         initAppSync();
