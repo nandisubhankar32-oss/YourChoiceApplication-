@@ -6,11 +6,13 @@
     <title>Your Choice Application</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .scroll-text { animation: scroll 15s linear infinite; will-change: transform; }
+        .scroll-text { 
+            animation: scroll 15s linear infinite; 
+            will-change: transform; 
+        }
         @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .new-badge { animation: pulse 2s infinite; }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen text-gray-800 font-sans">
@@ -20,15 +22,32 @@
         <p class="text-xl font-medium text-gray-600">⚠️ এখন পরিষেবা বন্ধ আছে।</p>
     </div>
 
-    <div id="deepLinkContainer" class="hidden max-w-md mx-auto bg-white min-h-screen shadow-xl p-6 flex flex-col justify-between">
-        <div class="space-y-4">
+    <div id="deepLinkContainer" class="hidden fixed inset-0 z-50 bg-white min-h-screen overflow-y-auto shadow-xl p-6 flex flex-col justify-between">
+        <div class="space-y-4 max-w-md mx-auto w-full">
             <h2 id="deepLinkHeader" class="text-xl font-bold text-blue-600 border-b pb-2">📂 Shared Secure Data</h2>
             <div id="deepLinkContent" class="bg-gray-50 p-4 rounded-xl border border-gray-300 shadow-inner whitespace-pre-wrap text-sm text-gray-800 font-medium leading-relaxed"></div>
         </div>
-        <button onclick="closeDeepLinkView()" class="w-full mt-6 bg-blue-600 text-white font-bold py-3 rounded-lg shadow-md">Return to Application Home 🏠</button>
+        <button onclick="closeDeepLinkView()" class="max-w-md mx-auto w-full mt-6 bg-blue-600 text-white font-bold py-3 rounded-lg shadow-md">Return to Application Home 🏠</button>
     </div>
 
-    <div id="appContainer" class="max-w-md mx-auto bg-white min-h-screen shadow-lg flex flex-col justify-between">
+    <div id="adminSubmissionsScreen" class="hidden fixed inset-0 z-50 bg-gray-100 min-h-screen overflow-y-auto flex flex-col">
+        <header class="bg-rose-600 text-white p-4 flex justify-between items-center shadow-md sticky top-0 z-10">
+            <h2 id="adminSubmissionsHeader" class="font-bold text-lg truncate pr-2">Submissions</h2>
+            <button onclick="closeAdminSubmissions()" class="bg-white text-rose-600 px-3 py-1 rounded font-bold text-xs shadow">Back 🔙</button>
+        </header>
+        <div id="adminSubmissionsContent" class="p-4 space-y-3 max-w-md mx-auto w-full pb-20">
+            </div>
+    </div>
+
+    <div id="fullToolScreen" class="hidden fixed inset-0 z-[60] bg-white flex flex-col">
+        <header class="bg-amber-600 text-white p-3 flex justify-between items-center shadow-md">
+            <h2 id="fullToolTitle" class="font-bold text-lg truncate">Tool Engine</h2>
+            <button onclick="closeFullTool()" class="bg-red-600 text-white px-3 py-1.5 rounded font-bold text-xs shadow">Close ❌</button>
+        </header>
+        <iframe id="fullToolIframe" class="w-full flex-grow border-none" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+    </div>
+
+    <div id="appContainer" class="max-w-md mx-auto bg-white min-h-screen shadow-lg flex flex-col justify-between relative">
         
         <header class="bg-blue-600 text-white p-4 text-center font-bold text-xl shadow-md">
              &lt;Your Choice Application&gt;
@@ -38,7 +57,7 @@
             <div id="globalScrollTag" class="scroll-text whitespace-nowrap inline-block"></div>
         </div>
 
-        <main class="flex-grow p-4 overflow-y-auto">
+        <main class="flex-grow p-4 overflow-y-auto relative">
             
             <div id="homeMenu" class="grid grid-cols-2 gap-4 my-4">
                 <button onclick="switchTab('mainTab')" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-2 rounded-xl shadow transition flex flex-col items-center justify-center gap-2">
@@ -64,7 +83,7 @@
                     <div id="loginForm">
                         <label class="block text-xs font-bold uppercase text-gray-500 mb-1">User Name :</label>
                         <div class="flex gap-2">
-                            <input type="text" id="usernameInput" placeholder="এখানে নাম লিখুন..." class="flex-grow border rounded px-3 py-1.5 text-sm">
+                            <input type="text" id="usernameInput" placeholder="এখানে নাম লিখুন..." class="flex-grow border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <button onclick="handleLogin()" class="bg-blue-600 text-white px-4 py-1.5 rounded text-sm font-semibold">Enter ➡️</button>
                         </div>
                     </div>
@@ -75,8 +94,11 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-2 text-xs">
-                    <button id="btnMainEvent" onclick="showMainSub('subEvent')" class="bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold p-3 rounded text-center relative">📅 A. Event</button>
-                    <button id="btnMainApp" onclick="showMainSub('subApplication')" class="bg-orange-100 hover:bg-orange-200 text-orange-800 font-bold p-3 rounded text-center relative">📄 B. Application</button>
+                    <button onclick="showMainSub('subEvent')" class="bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold p-3 rounded text-center relative">📅 A. Event</button>
+                    <button id="appMenuBtn" onclick="showMainSub('subApplication')" class="bg-orange-100 hover:bg-orange-200 text-orange-800 font-bold p-3 rounded text-center relative">
+                        📄 B. Application
+                        <span id="appMenuBadge" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full animate-pulse border border-white">New</span>
+                    </button>
                     <button onclick="showMainSub('subLink')" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-bold p-3 rounded text-center">🔗 C. Link</button>
                     <button onclick="showMainSub('subNotice')" class="bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold p-3 rounded text-center">📢 D. Notice Board</button>
                 </div>
@@ -89,7 +111,6 @@
                     <div id="subApplication" class="sub-tab hidden space-y-3">
                         <h3 class="font-bold text-sm text-gray-700">📄 Fill Application:</h3>
                         <div id="appFormSelector" class="space-y-2"></div>
-                        <div id="activeFormContainer" class="hidden border-t pt-3 space-y-2"></div>
                     </div>
                     <div id="subLink" class="sub-tab hidden space-y-2">
                         <h3 class="font-bold text-sm text-gray-700">🔗 Published Links:</h3>
@@ -102,9 +123,11 @@
                 </div>
             </div>
 
+            <div id="activeFormContainer" class="hidden absolute inset-0 bg-white z-20 p-4 overflow-y-auto"></div>
+
             <div id="toolsTab" class="tab-content hidden space-y-4">
                 <h2 class="text-lg font-bold text-amber-600 border-b pb-1">🛠️ Offline Live Tools Engine</h2>
-                <div id="toolsListContainer" class="space-y-4"></div>
+                <div id="toolsListContainer" class="grid grid-cols-1 gap-3"></div>
             </div>
 
             <div id="listPadTab" class="tab-content hidden space-y-4">
@@ -139,98 +162,87 @@
             </div>
 
             <div id="officeRoomTab" class="tab-content hidden space-y-6">
-                
-                <div id="officeDashboardView" class="space-y-6">
-                    <h2 class="text-lg font-bold text-rose-600 border-b pb-1">🏢 Office Administration Room</h2>
+                <h2 class="text-lg font-bold text-rose-600 border-b pb-1">🏢 Office Administration Room</h2>
 
-                    <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
-                        <h3 class="font-bold text-sm text-gray-700">1. Add Live Tool Engine 🛠️</h3>
-                        <input type="text" id="toolTitle" placeholder="টুলের নাম..." class="w-full border rounded px-2 py-1.5 text-xs">
-                        <textarea id="toolCode" rows="5" maxlength="500000" placeholder="এখানে পূর্ণাঙ্গ HTML/JS কোড দিন (সর্বোচ্চ 7000 লাইন)..." class="w-full border rounded px-2 py-1.5 text-xs font-mono bg-gray-900 text-green-400"></textarea>
-                        <button onclick="addCustomTool()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Tool 🚀</button>
-                    </div>
-
-                    <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
-                        <h3 class="font-bold text-sm text-gray-700">2. Add Application Form 📄</h3>
-                        <input type="text" id="formTitle" placeholder="অ্যাপ্লিকেশন ফর্মের শিরোনাম..." class="w-full border rounded px-2 py-1.5 text-xs">
-                        
-                        <div class="p-2 border rounded bg-gray-50 space-y-2 mt-2">
-                            <h4 class="font-bold text-xs text-gray-600">ফর্মের অপশন তৈরি করুন:</h4>
-                            <div id="dynamicAdminFields" class="space-y-1"></div>
-                            <div class="flex gap-2 text-xs pt-1 border-t">
-                                <input type="text" id="adminFieldName" placeholder="নতুন ফিল্ডের নাম..." class="flex-grow border rounded px-2 py-1.5">
-                                <select id="adminFieldType" class="border rounded px-2 py-1.5 bg-white">
-                                    <option value="mandatory">আবশ্যিক (Mandatory)</option>
-                                    <option value="optional">ঐচ্ছিক (Optional)</option>
-                                    <option value="office">অফিস (Office Only)</option>
-                                </select>
-                                <button onclick="addFormField()" class="bg-blue-600 text-white px-3 py-1.5 rounded font-bold">Add</button>
-                            </div>
-                        </div>
-                        
-                        <div class="text-xs pt-1">
-                            <label class="block font-semibold text-gray-600">ফর্ম ডিলিট হওয়ার তারিখ:</label>
-                            <input type="date" id="formExpiryDate" class="border rounded px-2 py-1.5 mt-0.5">
-                        </div>
-
-                        <textarea id="formDescription" rows="3" placeholder="বিবৃতি বা নির্দেশনাবলী (ঐচ্ছিক)..." class="w-full border rounded px-2 py-1.5 text-xs mt-1"></textarea>
-                        <button onclick="createApplicationForm()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded mt-2">Publish Form 🚀</button>
-                    </div>
-
-                    <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
-                        <h3 class="font-bold text-sm text-gray-700">3. Add Link 🔗</h3>
-                        <input type="text" id="linkTitle" placeholder="লিংকের নাম..." class="w-full border rounded px-2 py-1.5 text-xs">
-                        <input type="url" id="linkUrl" placeholder="https://example.com" class="w-full border rounded px-2 py-1.5 text-xs">
-                        <button onclick="publishLink()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Link 🔗</button>
-                    </div>
-
-                    <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
-                        <h3 class="font-bold text-sm text-gray-700">4. Add Scroll Tag 📢</h3>
-                        <textarea id="scrollTagInput" rows="2" placeholder="নতুন স্ক্রোল মেসেজ (এন্টার দিয়ে নতুন লাইন)..." class="w-full border rounded px-2 py-1.5 text-xs"></textarea>
-                        <button onclick="updateScrollTag()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Set Active Tag 🔁</button>
-                    </div>
-
-                    <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
-                        <h3 class="font-bold text-sm text-gray-700">5. Add Notice Board 📋</h3>
-                        <textarea id="noticeInput" rows="4" placeholder="নোটিশ বোর্ড এর লেখা..." class="w-full border rounded px-2 py-1.5 text-xs"></textarea>
-                        <button onclick="updateNoticeBoard()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Update Notice 🔁</button>
-                    </div>
-
-                    <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
-                        <h3 class="font-bold text-sm text-gray-700">6. Add Event 📅</h3>
-                        <input type="text" id="eventTitle" placeholder="ইভেন্টের নাম..." class="w-full border rounded px-2 py-1.5 text-xs">
-                        <textarea id="eventDescription" rows="3" placeholder="সংক্ষিপ্ত বিবরণ..." class="w-full border rounded px-2 py-1.5 text-xs"></textarea>
-                        <div class="text-xs">
-                            <label class="block font-semibold">শেষ তারিখ (Last Date):</label>
-                            <input type="date" id="eventLastDate" class="border rounded px-2 py-1.5">
-                        </div>
-                        <button onclick="publishEvent()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Event 📅</button>
-                    </div>
-
-                    <div class="bg-white p-3 border rounded-lg space-y-3 shadow-sm">
-                        <h3 class="font-bold text-sm text-red-700">7. Receive Application & Processing 📨</h3>
-                        <div id="receiveAppsDashboard" class="space-y-2 text-xs"></div>
-                    </div>
-
-                    <div class="bg-red-50 p-3 border-2 border-red-500 rounded-lg space-y-2 shadow-sm">
-                        <h3 class="font-bold text-sm text-red-700">8. Emergency Force Stop 🛑</h3>
-                        <div class="text-xs space-y-1">
-                            <label class="block font-semibold">কত ঘণ্টা বন্ধ রাখতে চান? (সর্বোচ্চ ২৪ ঘণ্টা):</label>
-                            <input type="number" id="forceStopHours" min="1" max="24" value="1" class="border rounded px-2 py-1.5 w-20"> ঘণ্টা
-                        </div>
-                        <button onclick="triggerForceStop()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded shadow">Activate Force Stop NOW 🛑</button>
-                    </div>
+                <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
+                    <h3 class="font-bold text-sm text-gray-700">1. Add Live Tool Engine 🛠️</h3>
+                    <input type="text" id="toolTitle" placeholder="টুলের নাম..." class="w-full border rounded px-2 py-1.5 text-xs">
+                    <textarea id="toolCode" rows="5" placeholder="এখানে পূর্ণাঙ্গ HTML/JS কোড দিন (যত ইচ্ছা বড় কোড দিতে পারেন)..." class="w-full border rounded px-2 py-1.5 text-xs font-mono bg-gray-900 text-green-400"></textarea>
+                    <button onclick="addCustomTool()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Tool 🚀</button>
                 </div>
 
-                <div id="adminSubmissionsView" class="hidden space-y-4">
-                    <button onclick="backToOfficeDashboard()" class="bg-gray-200 text-gray-800 font-bold px-3 py-1.5 rounded text-xs flex items-center gap-1 shadow-sm">
-                        ⬅️ Back to Office Board
-                    </button>
-                    <h2 id="adminSubmissionsTitle" class="text-lg font-bold text-purple-700 border-b pb-1"></h2>
-                    <div id="adminSubmissionsList" class="space-y-3"></div>
+                <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
+                    <h3 class="font-bold text-sm text-gray-700">2. Add Application Form 📄</h3>
+                    <input type="text" id="formTitle" placeholder="অ্যাপ্লিকেশন ফর্মের শিরোনাম..." class="w-full border rounded px-2 py-1.5 text-xs">
+                    
+                    <div class="p-2 border rounded bg-gray-50 space-y-2 mt-2">
+                        <h4 class="font-bold text-xs text-gray-600">ফর্মের অপশন তৈরি করুন (আপনার পছন্দমতো সাজান):</h4>
+                        <div id="dynamicAdminFields" class="space-y-1"></div>
+                        <div class="flex gap-2 text-xs pt-1 border-t">
+                            <input type="text" id="adminFieldName" placeholder="নতুন ফিল্ডের নাম..." class="flex-grow border rounded px-2 py-1.5">
+                            <select id="adminFieldType" class="border rounded px-2 py-1.5 bg-white">
+                                <option value="mandatory">আবশ্যিক (Mandatory)</option>
+                                <option value="optional">ঐচ্ছিক (Optional)</option>
+                                <option value="office">অফিস (Office Only)</option>
+                            </select>
+                            <button onclick="addFormField()" class="bg-blue-600 text-white px-3 py-1.5 rounded font-bold">Add</button>
+                        </div>
+                    </div>
+                    
+                    <div class="text-xs pt-1">
+                        <label class="block font-semibold text-gray-600">ফর্ম ডিলিট হওয়ার তারিখ (Expiry Date):</label>
+                        <input type="date" id="formExpiryDate" class="border rounded px-2 py-1.5 mt-0.5">
+                    </div>
+
+                    <textarea id="formDescription" rows="3" placeholder="বিবৃতি বা নির্দেশনাবলী (ঐচ্ছিক)..." class="w-full border rounded px-2 py-1.5 text-xs mt-1"></textarea>
+                    <button onclick="createApplicationForm()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded mt-2">Publish Form 🚀</button>
                 </div>
 
+                <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
+                    <h3 class="font-bold text-sm text-gray-700">3. Add Link 🔗</h3>
+                    <input type="text" id="linkTitle" placeholder="লিংকের নাম..." class="w-full border rounded px-2 py-1.5 text-xs">
+                    <input type="url" id="linkUrl" placeholder="https://example.com" class="w-full border rounded px-2 py-1.5 text-xs">
+                    <button onclick="publishLink()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Link 🔗</button>
+                </div>
+
+                <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
+                    <h3 class="font-bold text-sm text-gray-700">4. Add Scroll Tag 📢</h3>
+                    <textarea id="scrollTagInput" rows="2" placeholder="নতুন স্ক্রোল মেসেজ (এন্টার দিয়ে নতুন লাইন)..." class="w-full border rounded px-2 py-1.5 text-xs"></textarea>
+                    <button onclick="updateScrollTag()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Set Active Tag 🔁</button>
+                </div>
+
+                <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
+                    <h3 class="font-bold text-sm text-gray-700">5. Add Notice Board 📋</h3>
+                    <textarea id="noticeInput" rows="4" placeholder="নোটিশ বোর্ড এর লেখা (এন্টার দিয়ে নতুন লাইন)..." class="w-full border rounded px-2 py-1.5 text-xs"></textarea>
+                    <button onclick="updateNoticeBoard()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Update Notice 🔁</button>
+                </div>
+
+                <div class="bg-white p-3 border rounded-lg space-y-2 shadow-sm">
+                    <h3 class="font-bold text-sm text-gray-700">6. Add Event 📅</h3>
+                    <input type="text" id="eventTitle" placeholder="ইভেন্টের নাম..." class="w-full border rounded px-2 py-1.5 text-xs">
+                    <textarea id="eventDescription" rows="3" placeholder="সংক্ষিপ্ত বিবরণ (এন্টার দিয়ে নতুন লাইন)..." class="w-full border rounded px-2 py-1.5 text-xs"></textarea>
+                    <div class="text-xs">
+                        <label class="block font-semibold">শেষ তারিখ (Last Date):</label>
+                        <input type="date" id="eventLastDate" class="border rounded px-2 py-1.5">
+                    </div>
+                    <button onclick="publishEvent()" class="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded">Publish Event 📅</button>
+                </div>
+
+                <div class="bg-white p-3 border rounded-lg space-y-3 shadow-sm">
+                    <h3 class="font-bold text-sm text-red-700">7. Receive Application & Processing 📨</h3>
+                    <div id="receiveAppsDashboard" class="space-y-3 text-xs"></div>
+                </div>
+
+                <div class="bg-red-50 p-3 border-2 border-red-500 rounded-lg space-y-2 shadow-sm">
+                    <h3 class="font-bold text-sm text-red-700">8. Emergency Force Stop System 🛑</h3>
+                    <div class="text-xs space-y-1">
+                        <label class="block font-semibold">কত ঘণ্টা বন্ধ রাখতে চান? (সর্বোচ্চ ২৪ ঘণ্টা):</label>
+                        <input type="number" id="forceStopHours" min="1" max="24" value="1" class="border rounded px-2 py-1.5 w-20"> ঘণ্টা
+                    </div>
+                    <button onclick="triggerForceStop()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded shadow">Activate Force Stop NOW 🛑</button>
+                </div>
             </div>
+
         </main>
 
         <footer class="bg-gray-800 text-gray-400 text-center py-2 text-xs font-bold border-t mt-auto">
@@ -263,17 +275,12 @@
         window.activeListeners = {}; 
         window.isForceStopped = false;
         window.tempFormFields = []; 
-        window.currentViewingFormKey = null;
+        window.toolsDataCache = {};
+        window.currentActiveAdminFormKey = null;
 
         function escapeHTML(str) {
             if (!str) return '';
             return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
-        }
-
-        // Check if an item is published within last 24 hours (New Status)
-        function isNewItem(timestamp) {
-            if(!timestamp) return false;
-            return (Date.now() - timestamp) < 24 * 60 * 60 * 1000;
         }
 
         document.getElementById('usernameInput').addEventListener('keydown', e => { 
@@ -286,6 +293,7 @@
         window.switchTab = function(tabId) {
             if(window.isForceStopped && !window.isOfficeMember) return;
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('activeFormContainer').classList.add('hidden');
             document.getElementById(tabId).classList.remove('hidden');
             window.currentTab = tabId;
             if(tabId === 'mainTab') showMainSub('subEvent'); 
@@ -309,7 +317,10 @@
                     window.isForceStopped = true;
                     document.getElementById('forceStopScreen').classList.remove('hidden');
                     document.getElementById('appContainer').classList.add('hidden');
-                    if(!window.isOfficeMember) { detachAllActiveListeners(); return; }
+                    if(!window.isOfficeMember) {
+                        detachAllActiveListeners();
+                        return; 
+                    }
                 } else {
                     window.isForceStopped = false;
                     document.getElementById('forceStopScreen').classList.add('hidden');
@@ -323,6 +334,7 @@
         function setupLiveListeners() {
             if(window.isForceStopped && !window.isOfficeMember) return;
 
+            // Notice & Scroll Tag
             onValue(ref(db, 'system_control/scroll_tag'), (snapshot) => {
                 const text = snapshot.val();
                 const container = document.getElementById('globalScrollTagContainer');
@@ -338,6 +350,7 @@
                 document.getElementById('mainNoticeBox').innerText = snapshot.val() || "কোনো নোটিশ নেই।";
             });
 
+            // Links (Keep Default Order)
             onValue(ref(db, 'links'), (snapshot) => {
                 const data = snapshot.val();
                 const container = document.getElementById('mainLinkList');
@@ -346,7 +359,7 @@
                     Object.keys(data).forEach(key => {
                         const item = data[key];
                         container.innerHTML += `
-                            <div class="flex justify-between items-center bg-gray-50 p-2 rounded my-1 border">
+                            <div class="flex justify-between items-center bg-gray-50 p-2 rounded my-1 border shadow-sm">
                                 <a href="${escapeHTML(item.url)}" target="_blank" class="text-blue-600 font-bold underline break-all">${escapeHTML(item.title)} 🔗</a>
                                 ${window.isOfficeMember ? `<button onclick="deleteData('links/${key}')" class="text-red-500 font-bold ml-2">🗑️</button>` : ''}
                             </div>`;
@@ -354,35 +367,35 @@
                 }
             });
 
-            // Events Sync (Newest First + New Badge)
+            // Events (Newest First)
             onValue(ref(db, 'events'), (snapshot) => {
                 const data = snapshot.val();
                 const container = document.getElementById('mainEventList');
                 container.innerHTML = '';
-                let hasAnyNewEvent = false;
-
                 if(data) {
-                    // Sorting: newest events first (reverse array of keys)
-                    Object.keys(data).reverse().forEach(key => {
+                    let eventsArr = [];
+                    Object.keys(data).forEach(key => {
                         const item = data[key];
                         if(!item.lastDate) return;
                         const expiryDate = new Date(item.lastDate + 'T23:59:59').getTime();
                         if (isNaN(expiryDate) || expiryDate < Date.now()) {
                             remove(ref(db, `events/${key}`)); 
-                            return;
+                        } else {
+                            eventsArr.push({ key, ...item });
                         }
-                        
-                        const isNew = isNewItem(item.timestamp);
-                        if(isNew) hasAnyNewEvent = true;
+                    });
+                    
+                    // Sort Newest First based on timestamp
+                    eventsArr.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
 
+                    eventsArr.forEach(item => {
                         container.innerHTML += `
-                            <div class="bg-gray-50 p-3 border rounded shadow-sm space-y-1 relative">
-                                ${isNew ? `<span class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold shadow new-badge">New ✨</span>` : ''}
+                            <div class="bg-gray-50 p-3 border rounded shadow-sm space-y-1">
                                 <div class="flex justify-between items-start font-bold text-gray-800">
                                     <span class="text-sm">${escapeHTML(item.title)}</span>
                                     <div class="flex gap-2">
-                                        <button onclick="shareEventLink('${key}')" class="text-blue-500 text-xs bg-blue-50 px-2 py-0.5 rounded border border-blue-200">Share 🔗</button>
-                                        ${window.isOfficeMember ? `<button onclick="deleteData('events/${key}')" class="text-red-500 text-xs bg-red-50 px-2 py-0.5 rounded border border-red-200">🗑️</button>` : ''}
+                                        <button onclick="shareEventLink('${item.key}')" class="text-blue-500 text-xs bg-blue-50 px-2 py-0.5 rounded border border-blue-200">Share 🔗</button>
+                                        ${window.isOfficeMember ? `<button onclick="deleteData('events/${item.key}')" class="text-red-500 text-xs bg-red-50 px-2 py-0.5 rounded border border-red-200">🗑️</button>` : ''}
                                     </div>
                                 </div>
                                 <p class="text-gray-600 text-xs whitespace-pre-wrap">${escapeHTML(item.description)}</p>
@@ -392,26 +405,21 @@
                 } else {
                     container.innerHTML = '<p class="text-gray-400 text-xs italic">কোনো ইভেন্ট নেই।</p>';
                 }
-                
-                // Update Main Event Button
-                document.getElementById('btnMainEvent').innerHTML = hasAnyNewEvent ? 
-                    `📅 A. Event <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full new-badge">New</span>` : 
-                    `📅 A. Event`;
             });
 
-            // Form Structures Sync (Newest First + New Badge + Separate Admin List)
+            // Form structures Sync (Newest First & NEW Badge logic)
             onValue(ref(db, 'form_structures'), (snapshot) => {
                 const data = snapshot.val();
                 const selector = document.getElementById('appFormSelector');
                 const adminDashboard = document.getElementById('receiveAppsDashboard');
-                let hasAnyNewApp = false;
                 
                 selector.innerHTML = '';
+                adminDashboard.innerHTML = '';
+                let hasAnyNewForm = false;
                 
                 if(data) {
-                    let adminHtmlBuilder = '';
-                    // Sorting forms: newest first
-                    Object.keys(data).reverse().forEach(key => {
+                    let formsArr = [];
+                    Object.keys(data).forEach(key => {
                         const form = data[key];
                         if(form.expiryDate){
                             const expTime = new Date(form.expiryDate + 'T23:59:59').getTime();
@@ -421,56 +429,59 @@
                                 return;
                             }
                         }
+                        formsArr.push({ key, ...form });
+                    });
 
-                        const isNew = isNewItem(form.timestamp);
-                        if(isNew) hasAnyNewApp = true;
+                    // Sort Newest First
+                    formsArr.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+                    formsArr.forEach(form => {
+                        let isNew = form.timestamp && (Date.now() - form.timestamp < 86400000); // 24 hours
+                        if(isNew) hasAnyNewForm = true;
 
                         selector.innerHTML += `
-                            <div class="w-full bg-orange-50 hover:bg-orange-100 p-2 rounded-lg border border-orange-200 flex justify-between items-center shadow-sm relative">
-                                ${isNew ? `<span class="absolute -top-1.5 -left-1.5 bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold new-badge">New</span>` : ''}
-                                <button onclick="renderActiveForm('${key}')" class="text-left font-bold flex-grow text-sm">📄 ${escapeHTML(form.title)}</button>
-                                <div class="flex gap-1 shrink-0">
-                                    <button onclick="shareAppFormLink('${key}')" class="text-blue-600 bg-blue-100 px-2 py-1 rounded text-[10px] font-bold">Share 🔗</button>
-                                    <button onclick="renderActiveForm('${key}')" class="text-orange-600 bg-orange-100 px-2 py-1 rounded text-[10px] font-bold">Open ➡️</button>
-                                </div>
+                            <div class="flex gap-2 items-center w-full">
+                                <button onclick="renderActiveForm('${form.key}')" class="flex-grow bg-orange-50 hover:bg-orange-100 p-3 rounded-lg text-left font-bold border border-orange-200 flex justify-between items-center shadow-sm relative overflow-hidden">
+                                    <span class="pr-8">📄 ${escapeHTML(form.title)}</span> 
+                                    <span>➡️</span>
+                                    ${isNew ? `<span class="absolute top-0 right-0 bg-red-500 text-white text-[9px] px-2 py-0.5 rounded-bl-lg font-bold animate-pulse">NEW</span>` : ''}
+                                </button>
+                                <button onclick="shareAppForm('${form.key}')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 p-3 rounded-lg border border-blue-200 shadow-sm" title="Share Form">🔗</button>
                             </div>`;
 
                         if(window.isOfficeMember) {
-                            adminHtmlBuilder += `
-                                <div class="flex justify-between items-center bg-purple-50 p-3 rounded border border-purple-200 shadow-sm">
-                                    <div class="flex flex-col">
-                                        <span class="font-bold text-purple-900">${escapeHTML(form.title)}</span>
-                                        <span class="text-[10px] text-gray-500">মোট জমা: সিরিয়াল অনুযায়ী</span>
+                            adminDashboard.innerHTML += `
+                                <div class="bg-white p-3 rounded border border-gray-300 shadow-sm flex justify-between items-center">
+                                    <div class="truncate pr-2">
+                                        <h4 class="font-bold text-gray-800 text-sm truncate">${escapeHTML(form.title)}</h4>
+                                        <p class="text-[10px] text-gray-500">ID: ${form.key.substring(0,6)}...</p>
                                     </div>
-                                    <div class="flex gap-2">
-                                        <button onclick="viewAdminSubmissions('${key}', '${escapeHTML(form.title).replace(/'/g, "\\'")}')" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold px-3 py-1.5 rounded shadow">View Submissions 📂</button>
-                                        <button onclick="deleteFormStructure('${key}')" class="text-red-600 font-bold text-[10px] bg-white px-2 py-1 rounded border border-red-200">Delete Form 🗑️</button>
+                                    <div class="flex flex-col gap-1 shrink-0">
+                                        <button onclick="openAdminSubmissions('${form.key}', '${escapeHTML(form.title)}')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3 py-1.5 rounded shadow">View Submissions 📥</button>
+                                        <button onclick="deleteFormStructure('${form.key}')" class="text-red-600 font-bold text-[10px] bg-red-50 border border-red-200 px-2 py-1 rounded">Delete Form 🗑️</button>
                                     </div>
                                 </div>`;
                         }
                     });
 
-                    if(window.isOfficeMember) {
-                        adminDashboard.innerHTML = adminHtmlBuilder || '<p class="text-gray-400 text-xs italic">কোনো ফর্ম নেই।</p>';
-                    }
+                    document.getElementById('appMenuBadge').classList.toggle('hidden', !hasAnyNewForm);
+
                 } else {
+                    document.getElementById('appMenuBadge').classList.add('hidden');
                     selector.innerHTML = '<p class="text-gray-400 text-xs italic">কোনো অ্যাপ্লিকেশন ফর্ম নেই।</p>';
                     if(window.isOfficeMember) adminDashboard.innerHTML = '<p class="text-gray-400 text-xs italic">কোনো অ্যাপ্লিকেশন ফর্ম নেই।</p>';
                 }
-
-                // Update Main App Button
-                document.getElementById('btnMainApp').innerHTML = hasAnyNewApp ? 
-                    `📄 B. Application <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full new-badge">New</span>` : 
-                    `📄 B. Application`;
             });
 
-            // Offline Tools Sync
+            // Offline Tools Sync (Render as Buttons to open Full Engine)
             onValue(ref(db, 'tools'), (snapshot) => {
                 const data = snapshot.val();
                 if(data) {
+                    window.toolsDataCache = data;
                     localStorage.setItem('offline_tools_cache', JSON.stringify(data));
                     renderToolsUI(data);
                 } else {
+                    window.toolsDataCache = {};
                     document.getElementById('toolsListContainer').innerHTML = '<p class="text-gray-400 text-xs italic">কোনো টুলস নেই।</p>';
                     localStorage.removeItem('offline_tools_cache');
                 }
@@ -478,7 +489,10 @@
 
             if(!navigator.onLine) {
                 const localTools = localStorage.getItem('offline_tools_cache');
-                if(localTools) renderToolsUI(JSON.parse(localTools));
+                if(localTools) {
+                    window.toolsDataCache = JSON.parse(localTools);
+                    renderToolsUI(window.toolsDataCache);
+                }
             }
         }
 
@@ -491,145 +505,151 @@
             });
         }
 
-        // TOOL ENGINE: Titles as Buttons
+        // --- NEW: Tools Engine logic ---
         window.renderToolsUI = function(data) {
             const container = document.getElementById('toolsListContainer');
             container.innerHTML = '';
             Object.keys(data).forEach(key => {
                 const item = data[key];
-                const toolCard = document.createElement('div');
-                toolCard.className = "bg-white border rounded-xl p-3 shadow-md space-y-3 flex flex-col";
-                
-                const executionTemplate = `<!DOCTYPE html><html><head><meta charset="UTF-8"><script src="https://cdn.tailwindcss.com"><\/script><style>body { font-family: system-ui, sans-serif; padding: 12px; background: #fdfdfd; }</style></head><body>${item.code}</body></html>`;
-                
-                toolCard.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <button onclick="toggleToolEngine('${key}')" class="flex-grow text-left font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 p-2 rounded border border-amber-200 transition">
-                            🛠️ ${escapeHTML(item.title)} <span class="text-xs text-gray-500 font-normal ml-2">(Click to Start Engine ▶️)</span>
+                container.innerHTML += `
+                    <div class="bg-white border border-amber-200 rounded-xl p-3 shadow-sm flex justify-between items-center">
+                        <button onclick="openFullTool('${key}')" class="flex-grow text-left font-bold text-amber-700 flex items-center gap-2 text-sm">
+                            <span class="bg-amber-100 p-2 rounded-lg">🛠️</span>
+                            <span>${escapeHTML(item.title)}</span>
                         </button>
-                        ${window.isOfficeMember ? `<button onclick="deleteData('tools/${key}')" class="ml-2 text-red-500 font-bold text-xs bg-red-50 px-2 py-2 rounded border border-red-200">Del 🗑️</button>` : ''}
-                    </div>
-                    <div id="tool_iframe_container_${key}" class="hidden w-full bg-gray-50 rounded-lg border border-gray-200 overflow-hidden" style="min-h: 280px;">
-                        <iframe id="tool_iframe_${key}" class="w-full h-full border-none min-h-[280px]" sandbox="allow-scripts"></iframe>
+                        ${window.isOfficeMember ? `<button onclick="deleteData('tools/${key}')" class="text-red-500 font-bold text-xl ml-3 hover:scale-110 transition">🗑️</button>` : ''}
                     </div>`;
-                
-                container.appendChild(toolCard);
-                // Pre-load content but keep hidden until button is clicked
-                toolCard.querySelector(`#tool_iframe_${key}`).srcdoc = executionTemplate;
             });
         };
 
-        window.toggleToolEngine = function(toolKey) {
-            const container = document.getElementById(`tool_iframe_container_${toolKey}`);
-            container.classList.toggle('hidden');
+        window.openFullTool = function(key) {
+            const tool = window.toolsDataCache[key];
+            if(!tool) return;
+            document.getElementById('fullToolTitle').innerText = tool.title;
+            const iframe = document.getElementById('fullToolIframe');
+            iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin:0; padding:0; box-sizing:border-box;">${tool.code}</body></html>`;
+            document.getElementById('fullToolScreen').classList.remove('hidden');
         };
 
-        // ADMIN SUBMISSIONS SEPARATE VIEW
-        window.viewAdminSubmissions = function(formKey, formTitle) {
-            window.currentViewingFormKey = formKey;
-            document.getElementById('officeDashboardView').classList.add('hidden');
-            const viewArea = document.getElementById('adminSubmissionsView');
-            viewArea.classList.remove('hidden');
-            document.getElementById('adminSubmissionsTitle').innerText = `📄 ${formTitle}`;
-            
-            const listContainer = document.getElementById('adminSubmissionsList');
-            listContainer.innerHTML = '<p class="text-xs text-gray-500">লোডিং হচ্ছে...</p>';
+        window.closeFullTool = function() {
+            document.getElementById('fullToolScreen').classList.add('hidden');
+            document.getElementById('fullToolIframe').srcdoc = '';
+        };
 
-            if(window.activeListeners['admin_sub_view']) window.activeListeners['admin_sub_view']();
+        // --- NEW: Separate Page for Office Submissions ---
+        window.openAdminSubmissions = function(formKey, formTitle) {
+            if(!window.isOfficeMember) return;
+            window.currentActiveAdminFormKey = formKey;
+            document.getElementById('adminSubmissionsHeader').innerText = formTitle;
+            document.getElementById('adminSubmissionsScreen').classList.remove('hidden');
             
-            const listener = onValue(ref(db, `submitted_applications/${formKey}`), async (snapshot) => {
-                const data = snapshot.val();
-                listContainer.innerHTML = '';
+            const contentDiv = document.getElementById('adminSubmissionsContent');
+            contentDiv.innerHTML = '<p class="text-center text-sm font-bold text-gray-500 mt-10">লোড হচ্ছে...</p>';
+
+            // Load Form Structure to know office fields
+            get(ref(db, `form_structures/${formKey}`)).then(formSnap => {
+                const formObj = formSnap.val() || {};
                 
-                if(data) {
-                    // Fetch form structure to know office fields
-                    const formSnap = await get(ref(db, `form_structures/${formKey}`));
-                    const formObj = formSnap.val() || {};
+                if(window.activeListeners['adminSub']) window.activeListeners['adminSub']();
+                
+                const listener = onValue(ref(db, `submitted_applications/${formKey}`), (snapshot) => {
+                    const data = snapshot.val();
+                    contentDiv.innerHTML = '';
+                    
+                    if(data){
+                        let subsArr = [];
+                        Object.keys(data).forEach(subKey => {
+                            const sub = data[subKey];
+                            if(sub.uniqueExpiry && sub.uniqueExpiry < Date.now()){
+                                remove(ref(db, `submitted_applications/${formKey}/${subKey}`));
+                                return;
+                            }
+                            subsArr.push({ subKey, ...sub });
+                        });
 
-                    // Sort newest first
-                    Object.keys(data).reverse().forEach(subKey => {
-                        const sub = data[subKey];
-                        if(sub.uniqueExpiry && sub.uniqueExpiry < Date.now()){
-                            remove(ref(db, `submitted_applications/${formKey}/${subKey}`));
-                            return;
-                        }
+                        // Sort Newest First
+                        subsArr.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
-                        let userAnswersHtml = '';
-                        if(sub.userData) {
-                            Object.keys(sub.userData).forEach(fName => {
-                                userAnswersHtml += `<p class="whitespace-pre-wrap"><b class="text-gray-700">${escapeHTML(fName)}:</b> ${escapeHTML(sub.userData[fName])}</p>`;
-                            });
-                        }
+                        subsArr.forEach(sub => {
+                            let userAnswersHtml = '';
+                            if(sub.userData) {
+                                Object.keys(sub.userData).forEach(fName => {
+                                    userAnswersHtml += `<p class="whitespace-pre-wrap"><b class="text-gray-700">${escapeHTML(fName)}:</b> ${escapeHTML(sub.userData[fName])}</p>`;
+                                });
+                            }
 
-                        let officeInputsHtml = '';
-                        let officeFieldsArr = [];
-                        if (formObj.fields) {
-                            officeFieldsArr = formObj.fields.filter(f => f.type === 'office').map(f => f.name);
-                        } else if (formObj.officeFields) {
-                            officeFieldsArr = formObj.officeFields.split(',').map(s => s.trim()).filter(s => s.length > 0);
-                        }
+                            let officeInputsHtml = '';
+                            let officeFieldsArr = [];
+                            if (formObj.fields) {
+                                officeFieldsArr = formObj.fields.filter(f => f.type === 'office').map(f => f.name);
+                            } else if (formObj.officeFields) {
+                                officeFieldsArr = formObj.officeFields.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                            }
 
-                        if(officeFieldsArr.length > 0) {
-                            officeFieldsArr.forEach(fName => {
-                                const currentVal = (sub.officeData && sub.officeData[fName]) ? sub.officeData[fName] : '';
-                                officeInputsHtml += `
-                                    <div class="mt-1">
-                                        <label class="block text-[10px] font-bold text-amber-800">${escapeHTML(fName)}:</label>
-                                        <textarea data-field="${escapeHTML(fName)}" rows="1" class="office-input-${subKey} w-full border rounded px-2 py-1 text-xs bg-amber-50 resize-y">${escapeHTML(currentVal)}</textarea>
-                                    </div>`;
-                            });
-                        }
-                        
-                        const isUnread = sub.viewed === false;
-                        const serialDisplay = sub.serialNum ? `#${sub.serialNum}` : 'No Serial';
+                            if(officeFieldsArr.length > 0) {
+                                officeFieldsArr.forEach(fName => {
+                                    const currentVal = (sub.officeData && sub.officeData[fName]) ? sub.officeData[fName] : '';
+                                    officeInputsHtml += `
+                                        <div class="mt-1">
+                                            <label class="block text-[10px] font-bold text-amber-800">${escapeHTML(fName)}:</label>
+                                            <textarea data-field="${escapeHTML(fName)}" rows="1" class="office-input-${sub.subKey} w-full border rounded px-2 py-1 text-xs bg-white resize-y">${escapeHTML(currentVal)}</textarea>
+                                        </div>`;
+                                });
+                            }
 
-                        listContainer.innerHTML += `
-                            <div class="bg-gray-50 p-2.5 border rounded shadow-xs space-y-2 relative" onclick="markAsViewed('${formKey}', '${subKey}')">
-                                <div class="flex justify-between items-center mb-1">
-                                    <span class="font-bold text-sm text-blue-800 bg-blue-100 px-2 py-0.5 rounded border border-blue-200">
-                                        Serial: ${serialDisplay}
-                                    </span>
-                                    ${isUnread ? `<span class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold animate-pulse">🆕 Unread</span>` : ''}
-                                </div>
+                            // Build UI Card
+                            let isUnread = (sub.isRead === false);
+                            let serialTxt = sub.serial ? `Serial: ${sub.serial}` : `ID: ${sub.subKey.substring(0,5)}`;
 
-                                <div class="text-gray-800 bg-white p-2 rounded border text-xs space-y-1">${userAnswersHtml}</div>
-                                
-                                ${officeInputsHtml ? `
-                                    <div class="p-2 bg-amber-100/60 border border-amber-300 rounded shadow-inner" onclick="event.stopPropagation()">
-                                        <p class="font-bold text-amber-900 text-[11px] mb-1 border-b border-amber-200 pb-1">🏢 Office Fill Data:</p>
-                                        ${officeInputsHtml}
-                                        <button onclick="submitOfficeApplication('${formKey}', '${subKey}')" class="mt-2 bg-amber-600 hover:bg-amber-700 text-white text-[10px] px-3 py-1.5 rounded font-bold transition">Update Admin Data 💾</button>
+                            contentDiv.innerHTML += `
+                                <div class="bg-white p-3 border ${isUnread ? 'border-rose-400 shadow-md' : 'border-gray-200 shadow-sm'} rounded-lg relative transition-all">
+                                    ${isUnread ? `<span class="absolute top-2 right-2 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded font-bold animate-pulse">New</span>` : ''}
+                                    
+                                    <div class="flex justify-between items-center border-b pb-2 mb-2 pr-10">
+                                        <span class="font-bold text-rose-700 text-sm bg-rose-50 px-2 py-0.5 rounded">${serialTxt}</span>
+                                        <span class="text-[10px] text-gray-500 font-bold">${sub.timestamp ? new Date(sub.timestamp).toLocaleString() : ''}</span>
                                     </div>
-                                ` : ''}
 
-                                <div class="flex justify-between items-center text-[10px] text-gray-500 border-t pt-2 mt-2" onclick="event.stopPropagation()">
-                                    <span>🕒 Sub: ${sub.timestamp ? new Date(sub.timestamp).toLocaleString() : ''}</span>
-                                    <div class="flex gap-2">
-                                        <button onclick="generateUniqueShareLink('${formKey}', '${subKey}')" class="text-blue-600 bg-blue-50 px-2 py-1 rounded font-bold border border-blue-200">Share 🔗</button>
-                                        <button onclick="deleteData('submitted_applications/${formKey}/${subKey}')" class="text-red-600 bg-red-50 px-2 py-1 rounded font-bold border border-red-200">Delete 🗑️</button>
+                                    <div class="text-gray-800 bg-gray-50 p-2 rounded border text-xs space-y-1 mb-2">
+                                        ${userAnswersHtml}
                                     </div>
-                                </div>
-                            </div>`;
-                    });
-                } else {
-                    listContainer.innerHTML = `<p class="text-gray-400 text-xs italic">এই ফর্মে কোনো পূরণ হওয়া অ্যাপ্লিকেশন নেই।</p>`;
-                }
+                                    
+                                    ${officeInputsHtml ? `
+                                        <div class="p-2 bg-amber-50 border border-amber-200 rounded shadow-inner mb-2">
+                                            <p class="font-bold text-amber-900 text-[11px] mb-1">🏢 Office Fill Data:</p>
+                                            ${officeInputsHtml}
+                                            <button onclick="submitOfficeApplication('${formKey}', '${sub.subKey}')" class="mt-2 bg-amber-600 hover:bg-amber-700 text-white text-[10px] px-3 py-1.5 rounded font-bold w-full transition">Update Admin Data 💾</button>
+                                        </div>
+                                    ` : ''}
+
+                                    <div class="flex justify-between items-center text-xs pt-2 border-t border-gray-100">
+                                        ${isUnread ? `<button onclick="markAsRead('${formKey}', '${sub.subKey}')" class="text-emerald-700 bg-emerald-50 px-2 py-1 rounded font-bold border border-emerald-200">Open & Mark Read ✔️</button>` : `<span></span>`}
+                                        <div class="flex gap-2">
+                                            <button onclick="generateUniqueShareLink('${formKey}', '${sub.subKey}')" class="text-blue-600 bg-blue-50 px-2 py-1 rounded font-bold border border-blue-200">Share 🔗</button>
+                                            <button onclick="deleteData('submitted_applications/${formKey}/${sub.subKey}')" class="text-red-600 bg-red-50 px-2 py-1 rounded font-bold border border-red-200">Del 🗑️</button>
+                                        </div>
+                                    </div>
+                                </div>`;
+                        });
+                    } else {
+                        contentDiv.innerHTML = `<p class="text-gray-400 text-sm font-bold text-center mt-10">কোনো অ্যাপ্লিকেশন জমা পড়েনি।</p>`;
+                    }
+                });
+                window.activeListeners['adminSub'] = listener;
             });
-            window.activeListeners['admin_sub_view'] = listener;
         };
 
-        window.backToOfficeDashboard = function() {
-            document.getElementById('adminSubmissionsView').classList.add('hidden');
-            document.getElementById('officeDashboardView').classList.remove('hidden');
-            if(window.activeListeners['admin_sub_view']) {
-                window.activeListeners['admin_sub_view']();
-                delete window.activeListeners['admin_sub_view'];
+        window.closeAdminSubmissions = function() {
+            document.getElementById('adminSubmissionsScreen').classList.add('hidden');
+            if(window.activeListeners['adminSub']) {
+                window.activeListeners['adminSub']();
+                delete window.activeListeners['adminSub'];
             }
-            window.currentViewingFormKey = null;
+            window.currentActiveAdminFormKey = null;
         };
 
-        window.markAsViewed = function(formKey, subKey) {
-            update(ref(db, `submitted_applications/${formKey}/${subKey}`), { viewed: true });
+        window.markAsRead = function(formKey, subKey) {
+            update(ref(db, `submitted_applications/${formKey}/${subKey}`), { isRead: true });
         };
 
         window.renderActiveForm = function(formKey) {
@@ -659,25 +679,28 @@
                     });
                 }
 
+                let isNew = form.timestamp && (Date.now() - form.timestamp < 86400000);
+
                 container.innerHTML = `
-                    <div class="space-y-3 bg-orange-50 p-4 rounded-lg border border-orange-200 shadow-sm">
+                    <div class="space-y-4 bg-orange-50 p-4 rounded-xl border border-orange-200 shadow-md relative mt-4 max-w-sm mx-auto">
+                        ${isNew ? `<span class="absolute -top-3 -right-2 bg-red-500 text-white text-[10px] px-2 py-1 rounded-full font-bold animate-pulse shadow">NEW FORM</span>` : ''}
                         <div class="flex justify-between items-center border-b border-orange-200 pb-2">
-                           <h3 class="font-bold text-sm text-orange-800">${escapeHTML(form.title)}</h3>
-                           <button onclick="document.getElementById('activeFormContainer').classList.add('hidden')" class="text-gray-500 font-bold text-xs bg-gray-200 px-2 py-0.5 rounded">Close ❌</button>
+                           <h3 class="font-bold text-lg text-orange-800 pr-4">${escapeHTML(form.title)}</h3>
+                           <button onclick="document.getElementById('activeFormContainer').classList.add('hidden')" class="text-red-600 font-bold text-xl hover:scale-110 transition shrink-0">❌</button>
                         </div>
                         
-                        ${form.description ? `<p class="text-xs text-gray-700 bg-white p-2.5 rounded border whitespace-pre-wrap">${escapeHTML(form.description)}</p>` : ''}
+                        ${form.description ? `<p class="text-xs text-gray-700 bg-white p-3 rounded-lg border shadow-sm whitespace-pre-wrap leading-relaxed">${escapeHTML(form.description)}</p>` : ''}
                         
                         <div id="dynamicInputsWrapper" class="space-y-3 pt-2">${inputFieldsHtml || '<p class="text-xs text-gray-400">কোনো ইনপুট ফিল্ড নেই।</p>'}</div>
                         
-                        ${form.expiryDate ? `<p class="text-[10px] text-red-600 font-bold bg-red-50 p-1.5 rounded inline-block">⏳ শেষ তারিখ: ${escapeHTML(form.expiryDate)}</p>` : ''}
+                        ${form.expiryDate ? `<p class="text-[10px] text-red-600 font-bold bg-red-50 p-2 rounded-lg border border-red-100 inline-block">⏳ শেষ তারিখ: ${escapeHTML(form.expiryDate)}</p>` : ''}
                         
-                        <button onclick="submitUserApplication('${formKey}')" class="w-full mt-2 bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 rounded text-sm shadow transition">Submit Application ✉️</button>
+                        <button onclick="submitUserApplication('${formKey}')" class="w-full mt-4 bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-lg text-sm shadow-md transition">Submit Application ✉️</button>
                     </div>`;
             });
         };
 
-        window.submitUserApplication = async function(formKey) {
+        window.submitUserApplication = function(formKey) {
             const inputs = document.querySelectorAll('.user-dynamic-input');
             let dataPayload = {};
             let missingRequired = false;
@@ -703,27 +726,25 @@
                 return; 
             }
 
-            // Get Sequence Number automatically
-            const formRef = ref(db, `form_structures/${formKey}`);
-            const formSnap = await get(formRef);
-            let currentSeq = 0;
-            if (formSnap.exists()) {
-                currentSeq = formSnap.val().seq_count || 0;
-            }
-            let nextSeq = currentSeq + 1;
-            let formattedSerialNum = String(nextSeq).padStart(8, '0');
+            // Get Current Counter and Increment safely for 8 digit Serial
+            get(ref(db, `form_structures/${formKey}/serialCounter`)).then(snap => {
+                let currentNum = snap.val() || 0;
+                let nextNum = currentNum + 1;
+                let formattedSerial = String(nextNum).padStart(8, '0');
 
-            await update(formRef, { seq_count: nextSeq });
+                // Update counter
+                set(ref(db, `form_structures/${formKey}/serialCounter`), nextNum);
 
-            push(ref(db, `submitted_applications/${formKey}`), { 
-                userData: dataPayload, 
-                timestamp: Date.now(),
-                serialNum: formattedSerialNum,
-                viewed: false 
-            }).then(() => {
-                alert(`✓ অ্যাপ্লিকেশনটি সফলভাবে রিসিভ সেকশনে পাঠানো হয়েছে!\nআপনার ট্র্যাকিং নম্বর: ${formattedSerialNum}`);
-                inputs.forEach(i => i.value = '');
-                document.getElementById('activeFormContainer').classList.add('hidden');
+                // Save Submission with isRead: false for Admin New badge
+                push(ref(db, `submitted_applications/${formKey}`), { 
+                    userData: dataPayload, 
+                    timestamp: Date.now(),
+                    serial: formattedSerial,
+                    isRead: false
+                }).then(() => {
+                    alert('✓ অ্যাপ্লিকেশনটি সফলভাবে রিসিভ সেকশনে পাঠানো হয়েছে!');
+                    document.getElementById('activeFormContainer').classList.add('hidden');
+                });
             });
         };
 
@@ -784,9 +805,9 @@
                             <span class="${typeColor} px-1.5 py-0.5 rounded text-[10px] font-bold">${typeText}</span>
                         </div>
                         <div class="flex gap-1">
-                            <button onclick="moveFormField(${index}, -1)" class="bg-gray-100 hover:bg-gray-200 border px-1.5 py-1 rounded">⬆️</button>
-                            <button onclick="moveFormField(${index}, 1)" class="bg-gray-100 hover:bg-gray-200 border px-1.5 py-1 rounded">⬇️</button>
-                            <button onclick="removeFormField(${index})" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded shadow-sm">❌</button>
+                            <button onclick="moveFormField(${index}, -1)" class="bg-gray-100 hover:bg-gray-200 border px-1.5 py-1 rounded" title="উপরে তুলুন">⬆️</button>
+                            <button onclick="moveFormField(${index}, 1)" class="bg-gray-100 hover:bg-gray-200 border px-1.5 py-1 rounded" title="নিচে নামান">⬇️</button>
+                            <button onclick="removeFormField(${index})" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded shadow-sm" title="ডিলিট করুন">❌</button>
                         </div>
                     </div>
                 `;
@@ -800,8 +821,7 @@
             const desc = document.getElementById('formDescription').value.trim();
             
             if(!title || window.tempFormFields.length === 0) {
-                alert('ফর্মের শিরোনাম এবং অন্তত একটি ফিল্ড দেওয়া বাধ্যতামূলক!');
-                return;
+                alert('ফর্মের শিরোনাম এবং অন্তত একটি ফিল্ড দেওয়া বাধ্যতামূলক!'); return;
             }
 
             push(ref(db, 'form_structures'), { 
@@ -809,10 +829,10 @@
                 fields: window.tempFormFields, 
                 expiryDate: expiryDate || null,
                 description: desc || null,
-                timestamp: Date.now(), // New Form Timestamp
-                seq_count: 0 // Sequence counter starts at 0
+                timestamp: Date.now(),
+                serialCounter: 0 
             }).then(() => {
-                alert('✨ ফর্মটি সফলভাবে পাবলিস্ট হয়েছে! 🚀');
+                alert('✨ পাবলিস্ট হয়ে গেছে! 🚀');
                 document.getElementById('formTitle').value = '';
                 document.getElementById('formExpiryDate').value = '';
                 document.getElementById('formDescription').value = '';
@@ -842,6 +862,7 @@
             document.getElementById('navListPad').classList.add('hidden');
             document.getElementById('navOfficeRoom').classList.add('hidden');
             document.getElementById('activePadPageArea').classList.add('hidden');
+            closeAdminSubmissions();
             switchTab('mainTab');
             detachAllActiveListeners();
             initAppSync(); 
@@ -864,7 +885,7 @@
 
         window.deleteFormStructure = function(key) {
             if(!window.isOfficeMember) return;
-            if(confirm('নিশ্চিত ডিলিট করবেন? এতে এই ফর্মের সমস্ত সাবমিশন মুছে যাবে।')) {
+            if(confirm('নিশ্চিত ডিলিট করবেন? এতে এই ফর্মের সমস্ত সাবমিশনও মুছে যাবে।')) {
                 remove(ref(db, `form_structures/${key}`));
                 remove(ref(db, `submitted_applications/${key}`));
             }
@@ -915,7 +936,6 @@
             push(ref(db, 'events'), { title, description: desc, lastDate: ldate, timestamp: Date.now() });
             document.getElementById('eventTitle').value = '';
             document.getElementById('eventDescription').value = '';
-            alert("✨ ইভেন্ট পাবলিশ হয়েছে!");
         };
 
         window.triggerForceStop = function() {
@@ -925,6 +945,7 @@
             alert(`🛑 অ্যাপটি ${hrs} ঘণ্টার জন্য বন্ধ করা হয়েছে।`);
         };
 
+        // Deep Linking
         window.generateUniqueShareLink = function(formKey, subKey) {
             if(!window.isOfficeMember) return;
             const expiryTarget = Date.now() + (100 * 24 * 60 * 60 * 1000); 
@@ -940,12 +961,13 @@
             alert(`🔗 ইভেন্ট লিংক কপি হয়েছে:\n${deepLink}`);
         };
 
-        window.shareAppFormLink = function(formKey) {
+        window.shareAppForm = function(formKey) {
             const deepLink = `${window.location.origin}${window.location.pathname}?openForm=${formKey}`;
             navigator.clipboard.writeText(deepLink);
-            alert(`🔗 অ্যাপ্লিকেশন ফর্মের ডাইরেক্ট লিংক কপি হয়েছে:\n${deepLink}`);
+            alert(`🔗 অ্যাপ্লিকেশন ফর্মের লিংক কপি হয়েছে:\n${deepLink}`);
         };
 
+        // List Pad
         function syncListPadTabs() {
             if(!window.isOfficeMember) return;
             onValue(ref(db, 'listpad'), (snapshot) => {
@@ -1055,7 +1077,7 @@
                 const fKey = urlParams.get('form');
                 const sKey = urlParams.get('sub');
                 const eKey = urlParams.get('event');
-                const oKey = urlParams.get('openForm');
+                const openFormKey = urlParams.get('openForm'); // New: Form Share deep link
 
                 if(fKey && sKey) {
                     get(ref(db, `submitted_applications/${fKey}/${sKey}`)).then((snapshot) => {
@@ -1066,15 +1088,17 @@
                             document.getElementById('deepLinkHeader').innerHTML = '📄 Application Record';
                             
                             let deepHtml = '';
+                            if(data.serial) deepHtml += `<span class="bg-rose-100 text-rose-800 px-2 py-1 rounded font-bold">Serial: ${data.serial}</span>\n\n`;
+
                             if(data.userData){
                                 Object.keys(data.userData).forEach(k => {
-                                    deepHtml += `<b class="text-blue-700">${k}:</b>\n${data.userData[k]}\n\n`;
+                                    deepHtml += `<b class="text-blue-700">${escapeHTML(k)}:</b>\n${escapeHTML(data.userData[k])}\n\n`;
                                 });
                             }
                             if(data.officeData){
                                 deepHtml += `\n<span class="bg-amber-100 px-2 py-1 rounded border border-amber-300">🏢 Office Updates</span>\n`;
                                 Object.keys(data.officeData).forEach(k => {
-                                    deepHtml += `<b class="text-amber-800">${k}:</b>\n${data.officeData[k]}\n\n`;
+                                    deepHtml += `<b class="text-amber-800">${escapeHTML(k)}:</b>\n${escapeHTML(data.officeData[k])}\n\n`;
                                 });
                             }
                             document.getElementById('deepLinkContent').innerHTML = deepHtml;
@@ -1097,10 +1121,11 @@
                         } else alert('⚠️ এই ইভেন্টটি আর উপস্থিত নেই!');
                     });
                 }
-                else if (oKey) {
+                else if (openFormKey) {
+                    // Open a specific form directly
                     switchTab('mainTab');
                     showMainSub('subApplication');
-                    renderActiveForm(oKey);
+                    renderActiveForm(openFormKey);
                 }
             } catch (e) { console.error(e); }
         }
