@@ -30,6 +30,9 @@
         <button onclick="closeDeepLinkView()" class="max-w-md mx-auto w-full mt-6 bg-blue-600 text-white font-bold py-3 rounded-lg shadow-md">Return to Application Home 🏠</button>
     </div>
 
+    <!-- Active Application Form Overlay (Fixed full-viewport so Submit button is always clickable) -->
+    <div id="activeFormContainer" class="hidden fixed inset-0 z-40 bg-gray-100 overflow-y-auto p-4"></div>
+
     <div id="adminSubmissionsScreen" class="hidden fixed inset-0 z-50 bg-gray-100 min-h-screen overflow-y-auto flex flex-col">
         <header class="bg-rose-600 text-white p-4 flex justify-between items-center shadow-md sticky top-0 z-10">
             <h2 id="adminSubmissionsHeader" class="font-bold text-lg truncate pr-2">Submissions</h2>
@@ -43,7 +46,7 @@
             <h2 id="fullToolTitle" class="font-bold text-lg truncate pr-2">Tool Engine</h2>
             <button onclick="closeFullTool()" class="bg-red-600 text-white px-3 py-1.5 rounded font-bold text-xs shadow shrink-0">Close ❌</button>
         </header>
-        <iframe id="fullToolIframe" class="w-full flex-grow border-none" sandbox="allow-scripts allow-same-origin allow-forms allow-modals"></iframe>
+        <iframe id="fullToolIframe" class="w-full flex-grow border-none" sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-downloads"></iframe>
     </div>
 
     <!-- Tool Code View / Edit / Copy / Delete Modal -->
@@ -162,8 +165,6 @@
                     </div>
                 </div>
             </div>
-
-            <div id="activeFormContainer" class="hidden absolute inset-0 bg-white z-20 p-4 overflow-y-auto"></div>
 
             <div id="toolsTab" class="tab-content hidden space-y-4">
                 <div class="flex justify-between items-center border-b pb-1">
@@ -328,18 +329,36 @@
         window.currentTab = 'mainTab';
         window.isOfficeMember = false;
         window.activePadPageKey = null;
+        window.pendingEditItemKey = null;
         window.activeListeners = {}; 
         window.isForceStopped = false;
         window.tempFormFields = [];
         window.tempFieldOptions = [];
         window.toolsDataCache = {};
+        window.formStructuresCache = {};
         window.listPadCache = {};
         window.currentActiveAdminFormKey = null;
         window.activeModalToolKey = null;
 
         function escapeHTML(str) {
-            if (!str) return '';
+            if (!str && str !== 0) return '';
             return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
+        }
+
+        function sanitizeFirebaseKey(key) {
+            return String(key || 'field')
+                .replace(/\./g, '․')
+                .replace(/\//g, '∕')
+                .replace(/#/g, '＃')
+                .replace(/\$/g, '＄')
+                .replace(/\[/g, '（')
+                .replace(/\]/g, '）')
+                .trim() || 'field';
+        }
+
+        function toArraySafe(val) {
+            if (!val) return [];
+            return Array.isArray(val) ? val : Object.values(val);
         }
 
         function escapeRegExp(str) {
@@ -551,7 +570,7 @@
             document.getElementById(subId).classList.remove('hidden');
         };
 
-        // --- Saved Username UI (Requirement 2) ---
+        // --- Saved Username UI ---
         window.refreshUsernameUI = function() {
             const savedName = localStorage.getItem('saved_username');
             const banner = document.getElementById('topUserBanner');
@@ -713,7 +732,7 @@
                         if(!item.lastDate) return;
                         const expiryDate = new Date(item.lastDate + 'T23:59:59').getTime();
                         if (isNaN(expiryDate) || expiryDate < Date.now()) {
-                            remove(ref(db, `events/${key}`)); 
+                            remove(ref(db, `events/${key}`)).catch(() => {}); 
                         } else {
                             eventsArr.push({ key, ...item });
                         }
@@ -741,6 +760,7 @@
             // Form structures
             window.activeListeners['form_structures'] = onValue(ref(db, 'form_structures'), (snapshot) => {
                 const data = snapshot.val();
+                window.formStructuresCache = data || {};
                 const selector = document.getElementById('appFormSelector');
                 const adminDashboard = document.getElementById('receiveAppsDashboard');
                 selector.innerHTML = '';
@@ -754,8 +774,8 @@
                         if(form.expiryDate){
                             const expTime = new Date(form.expiryDate + 'T23:59:59').getTime();
                             if(!isNaN(expTime) && expTime < Date.now()){
-                                remove(ref(db, `form_structures/${key}`));
-                                remove(ref(db, `submitted_applications/${key}`));
+                                remove(ref(db, `form_structures/${key}`)).catch(() => {});
+                                remove(ref(db, `submitted_applications/${key}`)).catch(() => {});
                                 return;
                             }
                         }
@@ -786,7 +806,7 @@
                                         <p class="text-[10px] text-gray-500">ID: ${form.key.substring(0,6)}...</p>
                                     </div>
                                     <div class="flex flex-col gap-1 shrink-0">
-                                        <button onclick="openAdminSubmissions('${form.key}', '${escapeHTML(form.title)}')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3 py-1.5 rounded shadow">View Submissions 📥</button>
+                                        <button onclick="openAdminSubmissions('${form.key}')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3 py-1.5 rounded shadow">View Submissions 📥</button>
                                         <button onclick="deleteFormStructure('${form.key}')" class="text-red-600 font-bold text-[10px] bg-red-50 border border-red-200 px-2 py-1 rounded">Delete Form 🗑️</button>
                                     </div>
                                 </div>`;
@@ -813,7 +833,7 @@
             }
         }
 
-        // --- Tools UI & Modal (Requirements 4 & 5) ---
+        // --- Tools UI & Modal ---
         window.renderToolsUI = function(data) {
             const container = document.getElementById('toolsListContainer');
             container.innerHTML = '';
@@ -904,6 +924,10 @@
 
         window.saveToolEditFromModal = async function() {
             if (!ensureOfficePrivilegeForAction()) return;
+            if (!navigator.onLine || !window.db || !window.fbApi) {
+                alert('⚠️ টুল এডিট সেভ করতে ইন্টারনেট সংযোগ প্রয়োজন!');
+                return;
+            }
             const key = window.activeModalToolKey;
             if (!key) return;
             const newTitle = document.getElementById('modalToolTitle').value.trim();
@@ -912,10 +936,8 @@
                 alert('টুলের নাম এবং কোড খালি রাখা যাবে না!');
                 return;
             }
-            if (window.db && window.fbApi) {
-                const { ref, update } = window.fbApi;
-                await update(ref(window.db, `tools/${key}`), { title: newTitle, code: newCode });
-            }
+            const { ref, update } = window.fbApi;
+            await update(ref(window.db, `tools/${key}`), { title: newTitle, code: newCode });
             window.toolsDataCache[key] = { title: newTitle, code: newCode };
             renderToolsUI(window.toolsDataCache);
             await syncToolsToWatermelon(window.toolsDataCache);
@@ -932,27 +954,30 @@
 
         window.deleteToolFromModal = async function() {
             if (!ensureOfficePrivilegeForAction()) return;
+            if (!navigator.onLine || !window.db || !window.fbApi) {
+                alert('⚠️ ডাটাবেজ থেকে টুল ডিলিট করতে ইন্টারনেট সংযোগ প্রয়োজন!');
+                return;
+            }
             const key = window.activeModalToolKey;
             if (!key) return;
             if (!confirm('আপনি কি নিশ্চিত এই টুলটি ডিলিট করতে চান?')) return;
-            if (window.db && window.fbApi) {
-                const { ref, remove } = window.fbApi;
-                await remove(ref(window.db, `tools/${key}`));
-            }
+            const { ref, remove } = window.fbApi;
+            await remove(ref(window.db, `tools/${key}`));
             delete window.toolsDataCache[key];
             renderToolsUI(window.toolsDataCache);
             await syncToolsToWatermelon(window.toolsDataCache);
             closeToolCodeModal();
-            alert('🗑️ টুল ডিলিট করা হয়েছে।');
+            alert('🗑️ টুল ডাটাবেজ থেকে স্থায়ীভাবে ডিলিট করা হয়েছে।');
         };
 
         // --- Office Submissions ---
-        window.openAdminSubmissions = function(formKey, formTitle) {
+        window.openAdminSubmissions = function(formKey) {
             if(!window.isOfficeMember || !window.db) return;
             const { ref, onValue, remove, get } = window.fbApi;
             const db = window.db;
             window.currentActiveAdminFormKey = formKey;
-            document.getElementById('adminSubmissionsHeader').innerText = formTitle;
+            const cachedTitle = window.formStructuresCache[formKey]?.title || 'Submissions';
+            document.getElementById('adminSubmissionsHeader').innerText = cachedTitle;
             document.getElementById('adminSubmissionsScreen').classList.remove('hidden');
             
             const contentDiv = document.getElementById('adminSubmissionsContent');
@@ -960,6 +985,7 @@
 
             get(ref(db, `form_structures/${formKey}`)).then(formSnap => {
                 const formObj = formSnap.val() || {};
+                if (formObj.title) document.getElementById('adminSubmissionsHeader').innerText = formObj.title;
                 if(window.activeListeners['adminSub']) window.activeListeners['adminSub']();
                 
                 const listener = onValue(ref(db, `submitted_applications/${formKey}`), (snapshot) => {
@@ -971,7 +997,7 @@
                         Object.keys(data).forEach(subKey => {
                             const sub = data[subKey];
                             if(sub.uniqueExpiry && sub.uniqueExpiry < Date.now()){
-                                remove(ref(db, `submitted_applications/${formKey}/${subKey}`));
+                                remove(ref(db, `submitted_applications/${formKey}/${subKey}`)).catch(() => {});
                                 return;
                             }
                             subsArr.push({ subKey, ...sub });
@@ -981,27 +1007,36 @@
 
                         subsArr.forEach(sub => {
                             let userAnswersHtml = '';
-                            if(sub.userData) {
+                            const answersList = toArraySafe(sub.answersList);
+                            if (answersList.length > 0) {
+                                answersList.forEach(ans => {
+                                    userAnswersHtml += `<p class="whitespace-pre-wrap"><b class="text-gray-700">${escapeHTML(ans.label)}:</b> ${escapeHTML(ans.value)}</p>`;
+                                });
+                            } else if(sub.userData) {
                                 Object.keys(sub.userData).forEach(fName => {
                                     userAnswersHtml += `<p class="whitespace-pre-wrap"><b class="text-gray-700">${escapeHTML(fName)}:</b> ${escapeHTML(sub.userData[fName])}</p>`;
                                 });
+                            } else {
+                                userAnswersHtml = `<p class="text-gray-400 italic">কোনো তথ্য নেই।</p>`;
                             }
 
                             let officeInputsHtml = '';
                             let officeFieldsArr = [];
-                            if (formObj.fields) {
-                                officeFieldsArr = formObj.fields.filter(f => f.type === 'office').map(f => f.name);
+                            const fieldsArr = toArraySafe(formObj.fields);
+                            if (fieldsArr.length > 0) {
+                                officeFieldsArr = fieldsArr.filter(f => f && f.type === 'office').map(f => f.name);
                             } else if (formObj.officeFields) {
                                 officeFieldsArr = formObj.officeFields.split(',').map(s => s.trim()).filter(s => s.length > 0);
                             }
 
                             if(officeFieldsArr.length > 0) {
                                 officeFieldsArr.forEach(fName => {
-                                    const currentVal = (sub.officeData && sub.officeData[fName]) ? sub.officeData[fName] : '';
+                                    const safeKey = sanitizeFirebaseKey(fName);
+                                    const currentVal = (sub.officeData && (sub.officeData[fName] ?? sub.officeData[safeKey])) || '';
                                     officeInputsHtml += `
                                         <div class="mt-1">
                                             <label class="block text-[10px] font-bold text-amber-800">${escapeHTML(fName)}:</label>
-                                            <textarea data-field="${escapeHTML(fName)}" rows="1" class="office-input-${sub.subKey} w-full border rounded px-2 py-1 text-xs bg-white resize-y">${escapeHTML(currentVal)}</textarea>
+                                            <textarea data-field="${escapeHTML(safeKey)}" rows="1" class="office-input-${sub.subKey} w-full border rounded px-2 py-1 text-xs bg-white resize-y">${escapeHTML(currentVal)}</textarea>
                                         </div>`;
                                 });
                             }
@@ -1055,25 +1090,36 @@
             update(ref(window.db, `submitted_applications/${formKey}/${subKey}`), { isRead: true });
         };
 
-        // --- Dynamic Application Form Renderer (Supports 10-20 Select Options) ---
+        // --- Dynamic Application Form Renderer ---
         window.renderActiveForm = function(formKey) {
-            if (!window.db) return;
+            if (!window.db || !window.fbApi) {
+                alert('⚠️ সার্ভারের সাথে সংযোগ নেই। ইন্টারনেট চেক করুন!');
+                return;
+            }
             const { ref, get } = window.fbApi;
+            const container = document.getElementById('activeFormContainer');
+            container.classList.remove('hidden');
+            container.innerHTML = '<div class="max-w-md mx-auto mt-10 text-center text-sm font-bold text-gray-500">ফর্ম লোড হচ্ছে... ⏳</div>';
+
             get(ref(window.db, `form_structures/${formKey}`)).then((snapshot) => {
                 const form = snapshot.val();
-                const container = document.getElementById('activeFormContainer');
-                container.classList.remove('hidden');
-                if(!form) { container.classList.add('hidden'); return; }
+                if(!form) { 
+                    alert('⚠️ এই ফর্মটি আর পাওয়া যাচ্ছে না!');
+                    container.classList.add('hidden'); 
+                    return; 
+                }
 
                 let inputFieldsHtml = '';
-                
-                if (form.fields) {
-                    form.fields.forEach(field => {
+                const fieldsArr = toArraySafe(form.fields);
+
+                if (fieldsArr.length > 0) {
+                    fieldsArr.forEach(field => {
+                        if (!field || !field.name) return;
                         if (field.type === 'mandatory') {
                             inputFieldsHtml += `
                                 <div>
                                     <label class="block text-xs font-bold text-gray-700 mb-1">${escapeHTML(field.name)} <span class="text-red-500">*</span></label>
-                                    <textarea data-userfield="${escapeHTML(field.name)}" data-required="true" rows="2" class="user-dynamic-input w-full border rounded px-3 py-1.5 text-xs focus:ring-2 focus:ring-orange-400 focus:outline-none resize-y"></textarea>
+                                    <textarea data-userfield="${escapeHTML(field.name)}" data-required="true" rows="2" class="user-dynamic-input w-full border rounded px-3 py-1.5 text-xs bg-white focus:ring-2 focus:ring-orange-400 focus:outline-none resize-y"></textarea>
                                 </div>`;
                         } else if (field.type === 'optional') {
                             inputFieldsHtml += `
@@ -1083,7 +1129,7 @@
                                 </div>`;
                         } else if (field.type === 'select_mandatory' || field.type === 'select_optional') {
                             const isReq = field.type === 'select_mandatory';
-                            const opts = Array.isArray(field.options) ? field.options : [];
+                            const opts = toArraySafe(field.options);
                             let optionsHtml = `<option value="">-- একটি অপশন বেছে নিন (${opts.length}টি থেকে) --</option>`;
                             opts.forEach(opt => {
                                 optionsHtml += `<option value="${escapeHTML(opt)}">${escapeHTML(opt)}</option>`;
@@ -1100,16 +1146,36 @@
                                 </div>`;
                         }
                     });
+                } else {
+                    // Legacy fallback for older form formats
+                    if (form.mandatoryFields) {
+                        form.mandatoryFields.split(',').map(s => s.trim()).filter(Boolean).forEach(fName => {
+                            inputFieldsHtml += `
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">${escapeHTML(fName)} <span class="text-red-500">*</span></label>
+                                    <textarea data-userfield="${escapeHTML(fName)}" data-required="true" rows="2" class="user-dynamic-input w-full border rounded px-3 py-1.5 text-xs bg-white focus:ring-2 focus:ring-orange-400 focus:outline-none resize-y"></textarea>
+                                </div>`;
+                        });
+                    }
+                    if (form.optionalFields) {
+                        form.optionalFields.split(',').map(s => s.trim()).filter(Boolean).forEach(fName => {
+                            inputFieldsHtml += `
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 mb-1">${escapeHTML(fName)} <span class="text-gray-400 text-[10px] font-normal">(ঐচ্ছিক)</span></label>
+                                    <textarea data-userfield="${escapeHTML(fName)}" data-required="false" placeholder="না লিখলেও চলবে..." rows="1" class="user-dynamic-input w-full border rounded px-3 py-1.5 text-xs bg-slate-50 focus:ring-2 focus:ring-blue-300 focus:outline-none resize-y"></textarea>
+                                </div>`;
+                        });
+                    }
                 }
 
                 let isNew = form.timestamp && (Date.now() - form.timestamp < 86400000);
 
                 container.innerHTML = `
-                    <div class="space-y-4 bg-orange-50 p-4 rounded-xl border border-orange-200 shadow-md relative mt-4 max-w-sm mx-auto">
+                    <div class="space-y-4 bg-orange-50 p-4 rounded-xl border border-orange-200 shadow-md relative mt-4 mb-10 max-w-md mx-auto">
                         ${isNew ? `<span class="absolute -top-3 -right-2 bg-red-500 text-white text-[10px] px-2 py-1 rounded-full font-bold animate-pulse shadow">NEW FORM</span>` : ''}
                         <div class="flex justify-between items-center border-b border-orange-200 pb-2">
                            <h3 class="font-bold text-lg text-orange-800 pr-4">${escapeHTML(form.title)}</h3>
-                           <button onclick="document.getElementById('activeFormContainer').classList.add('hidden')" class="text-red-600 font-bold text-xl hover:scale-110 transition shrink-0">❌</button>
+                           <button type="button" onclick="document.getElementById('activeFormContainer').classList.add('hidden')" class="text-red-600 font-bold text-xl hover:scale-110 transition shrink-0">❌</button>
                         </div>
                         
                         ${form.description ? `<p class="text-xs text-gray-700 bg-white p-3 rounded-lg border shadow-sm whitespace-pre-wrap leading-relaxed">${escapeHTML(form.description)}</p>` : ''}
@@ -1118,20 +1184,29 @@
                         
                         ${form.expiryDate ? `<p class="text-[10px] text-red-600 font-bold bg-red-50 p-2 rounded-lg border border-red-100 inline-block">⏳ শেষ তারিখ: ${escapeHTML(form.expiryDate)}</p>` : ''}
                         
-                        <button onclick="submitUserApplication('${formKey}')" class="w-full mt-4 bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-lg text-sm shadow-md transition">Submit Application ✉️</button>
+                        <button id="submitAppBtn" type="button" onclick="submitUserApplication('${formKey}')" class="w-full mt-4 bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 text-white font-bold py-3 rounded-lg text-sm shadow-md transition">Submit Application ✉️</button>
                     </div>`;
+                container.scrollTop = 0;
+            }).catch((err) => {
+                container.classList.add('hidden');
+                alert('❌ ফর্ম লোড করা যায়নি: ' + err.message);
             });
         };
 
-        window.submitUserApplication = function(formKey) {
+        window.submitUserApplication = async function(formKey) {
+            if (!navigator.onLine || !window.db || !window.fbApi) {
+                alert('⚠️ অ্যাপ্লিকেশন সাবমিট করতে ইন্টারনেট সংযোগ প্রয়োজন!');
+                return;
+            }
             const { ref, get, set, push } = window.fbApi;
-            const inputs = document.querySelectorAll('.user-dynamic-input');
+            const inputs = document.querySelectorAll('#activeFormContainer .user-dynamic-input');
             let dataPayload = {};
+            let answersList = [];
             let missingRequired = false;
 
             inputs.forEach(input => {
-                const fName = input.getAttribute('data-userfield');
-                const fVal = input.value.trim();
+                const fName = input.getAttribute('data-userfield') || 'Field';
+                const fVal = (input.value || '').trim();
                 const isRequired = input.getAttribute('data-required') === 'true';
 
                 if(isRequired && !fVal) {
@@ -1140,7 +1215,8 @@
                 } else {
                     input.classList.remove('border-red-500', 'bg-red-50');
                     if(fVal) {
-                        dataPayload[fName] = fVal;
+                        dataPayload[sanitizeFirebaseKey(fName)] = fVal;
+                        answersList.push({ label: fName, value: fVal });
                     }
                 }
             });
@@ -1150,31 +1226,52 @@
                 return; 
             }
 
-            get(ref(window.db, `form_structures/${formKey}/serialCounter`)).then(snap => {
-                let currentNum = snap.val() || 0;
-                let nextNum = currentNum + 1;
-                let formattedSerial = String(nextNum).padStart(8, '0');
-                set(ref(window.db, `form_structures/${formKey}/serialCounter`), nextNum);
-                push(ref(window.db, `submitted_applications/${formKey}`), { 
-                    userData: dataPayload, 
+            const btn = document.getElementById('submitAppBtn');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = 'সাবমিট হচ্ছে... ⏳';
+            }
+
+            try {
+                let currentNum = 0;
+                try {
+                    const snap = await get(ref(window.db, `form_structures/${formKey}/serialCounter`));
+                    currentNum = snap.val() || 0;
+                } catch (e) { console.warn('Serial read fallback:', e); }
+
+                const nextNum = currentNum + 1;
+                const formattedSerial = String(nextNum).padStart(8, '0');
+
+                set(ref(window.db, `form_structures/${formKey}/serialCounter`), nextNum).catch(() => {});
+
+                await push(ref(window.db, `submitted_applications/${formKey}`), { 
+                    userData: dataPayload,
+                    answersList: answersList,
                     timestamp: Date.now(),
                     serial: formattedSerial,
                     isRead: false
-                }).then(() => {
-                    alert('✓ অ্যাপ্লিকেশনটি সফলভাবে রিসিভ সেকশনে পাঠানো হয়েছে!');
-                    document.getElementById('activeFormContainer').classList.add('hidden');
                 });
-            });
+
+                alert('✓ অ্যাপ্লিকেশনটি সফলভাবে রিসিভ সেকশনে পাঠানো হয়েছে!');
+                document.getElementById('activeFormContainer').classList.add('hidden');
+            } catch (err) {
+                console.error('Submit error:', err);
+                alert('❌ সাবমিট করা যায়নি! আবার চেষ্টা করুন।\n' + (err.message || ''));
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = 'Submit Application ✉️';
+                }
+            }
         };
 
         window.submitOfficeApplication = function(formKey, subKey) {
-            if(!window.isOfficeMember) return;
+            if(!window.isOfficeMember || !window.db) return;
             const { ref, update } = window.fbApi;
             const inputs = document.querySelectorAll(`.office-input-${subKey}`);
             let officePayload = {};
 
             inputs.forEach(input => {
-                const fName = input.getAttribute('data-field');
+                const fName = sanitizeFirebaseKey(input.getAttribute('data-field'));
                 officePayload[fName] = input.value.trim();
             });
 
@@ -1185,7 +1282,7 @@
             });
         };
 
-        // --- Admin Multiple Choice Field Builder (Requirement 6) ---
+        // --- Admin Multiple Choice Field Builder ---
         window.toggleAdminOptionsBox = function() {
             const type = document.getElementById('adminFieldType').value;
             const box = document.getElementById('adminOptionsBox');
@@ -1205,7 +1302,7 @@
                 list.innerHTML += `
                     <span class="inline-flex items-center gap-1 bg-white border border-blue-300 text-blue-900 px-2 py-0.5 rounded-full text-[10px] font-bold">
                         ${i + 1}. ${escapeHTML(opt)}
-                        <button onclick="removeTempOption(${i})" class="text-red-500 font-bold ml-0.5">✖</button>
+                        <button type="button" onclick="removeTempOption(${i})" class="text-red-500 font-bold ml-0.5">✖</button>
                     </span>`;
             });
         };
@@ -1250,6 +1347,10 @@
             if(!name) { alert('দয়া করে ফিল্ডের নাম লিখুন!'); return; }
 
             if (type === 'select_mandatory' || type === 'select_optional') {
+                // Auto-flush any un-added text in option inputs
+                if (document.getElementById('singleOptionInput').value.trim()) addSingleOption();
+                if (document.getElementById('bulkOptionsInput').value.trim()) addBulkOptions();
+
                 if (window.tempFieldOptions.length < 2) {
                     alert('একাধিক অপশন ফিল্ডের জন্য অন্তত ২টি (যেমন ১০-২০টি) অপশন যোগ করুন!');
                     return;
@@ -1438,7 +1539,7 @@
             alert(`🔗 অ্যাপ্লিকেশন ফর্মের লিংক কপি হয়েছে:\n${deepLink}`);
         };
 
-        // --- List Pad (Requirement 3: Partial/Word Search Across Page & Repeated Line Edit) ---
+        // --- List Pad ---
         function syncListPadTabs() {
             if(!window.isOfficeMember || !window.db) return;
             const { ref, onValue } = window.fbApi;
@@ -1481,6 +1582,11 @@
                 document.getElementById('activePageHeaderTitle').innerText = `📄 ${page.title}`;
                 renderPadItems(page.items || {});
                 searchPadItems();
+                if (window.pendingEditItemKey) {
+                    const targetKey = window.pendingEditItemKey;
+                    window.pendingEditItemKey = null;
+                    startEditPadLine(pageKey, targetKey);
+                }
             });
         };
 
@@ -1524,6 +1630,7 @@
             const ta = editDiv.querySelector('.edit-line-textarea');
             ta.value = raw;
             ta.focus();
+            li.scrollIntoView({ behavior: 'smooth', block: 'center' });
         };
 
         window.cancelEditPadLine = function(btn) {
@@ -1605,7 +1712,6 @@
                 else btn.classList.add('hidden');
             });
 
-            // Global word / partial-word search across ALL notepad pages
             const resultsBox = document.getElementById('globalPadSearchResults');
             const resultsList = document.getElementById('globalPadSearchList');
             if (!q) {
@@ -1636,16 +1742,12 @@
                 });
             });
 
-            if (matchCount > 0) {
-                resultsBox.classList.remove('hidden');
-            } else {
-                resultsBox.classList.add('hidden');
-            }
+            resultsBox.classList.toggle('hidden', matchCount === 0);
         };
 
         window.openAndEditPadMatch = function(pageKey, itemKey) {
+            window.pendingEditItemKey = itemKey;
             selectPadPage(pageKey);
-            setTimeout(() => startEditPadLine(pageKey, itemKey), 250);
         };
 
         // --- Deep Link Handler ---
@@ -1690,7 +1792,12 @@
                         document.getElementById('deepLinkHeader').innerHTML = '📄 Application Record';
                         let deepHtml = '';
                         if(data.serial) deepHtml += `<span class="bg-rose-100 text-rose-800 px-2 py-1 rounded font-bold">Serial: ${data.serial}</span>\n\n`;
-                        if(data.userData){
+                        const answersList = toArraySafe(data.answersList);
+                        if (answersList.length > 0) {
+                            answersList.forEach(ans => {
+                                deepHtml += `<b class="text-blue-700">${escapeHTML(ans.label)}:</b>\n${escapeHTML(ans.value)}\n\n`;
+                            });
+                        } else if(data.userData){
                             Object.keys(data.userData).forEach(k => {
                                 deepHtml += `<b class="text-blue-700">${escapeHTML(k)}:</b>\n${escapeHTML(data.userData[k])}\n\n`;
                             });
@@ -1738,7 +1845,6 @@
 
         // --- App Bootstrap (WatermelonDB Offline First + Home Screen Default) ---
         async function bootstrapApp() {
-            // 1. Restore saved username & office privilege immediately
             refreshUsernameUI();
             if(localStorage.getItem('_office_token') === 'auth_v1_8cf7a2') {
                 window.isOfficeMember = true;
@@ -1747,10 +1853,10 @@
                 refreshUsernameUI();
             }
 
-            // 2. Open directly on Home Screen (Requirement 1)
+            // Open directly on Home Screen
             switchTab('mainTab');
 
-            // 3. Initialize WatermelonDB and load offline tools immediately
+            // Initialize WatermelonDB and load offline tools immediately
             await initWatermelonDB();
             const offlineTools = await loadToolsFromWatermelon();
             if (offlineTools && Object.keys(offlineTools).length > 0) {
@@ -1758,7 +1864,7 @@
                 renderToolsUI(offlineTools);
             }
 
-            // 4. Load Firebase dynamically so offline boot never crashes
+            // Load Firebase dynamically so offline boot never crashes
             try {
                 const fbAppMod = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
                 const fbDbMod = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
