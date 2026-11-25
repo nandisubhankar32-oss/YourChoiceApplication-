@@ -1128,7 +1128,7 @@
                             inputFieldsHtml += `
                                 <div>
                                     <label class="block text-xs font-bold text-gray-600 mb-1">${escapeHTML(field.name)} <span class="text-gray-400 text-[10px] font-normal">(ঐচ্ছিক)</span></label>
-                                    <textarea data-userfield="${escapeHTML(field.name)}" data-required="false" placeholder="না লিখলেও চলবে..." rows="1" class="user-dynamic-input w-full border rounded px-3 py-1.5 text-xs bg-slate-50 focus:ring-2 focus:ring-blue-300 focus:outline-none resize-y"></textarea>
+                                    <textarea data-userfield="${escapeHTML(field.name)}" data-required="false" placeholder="লিখুন"rows="1" class="user-dynamic-input w-full border rounded px-3 py-1.5 text-xs bg-slate-50 focus:ring-2 focus:ring-blue-300 focus:outline-none resize-y"></textarea>
                                 </div>`;
                         } else if (field.type === 'select_mandatory' || field.type === 'select_optional') {
                             const isReq = field.type === 'select_mandatory';
